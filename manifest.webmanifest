@@ -1,0 +1,25 @@
+{
+    "name": "Course Audit — PSU CS",
+    "short_name": "Course Audit",
+    "description": "Privacy-first PSU Computer Science transcript auditor.",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#fafafa",
+    "theme_color": "#0a0a0a",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%232563eb'/%3E%3Cpath d='M39 83l57-34 57 34-57 34zM39 104l57 34 57-34v24l-57 34-57-34z' fill='white'/%3E%3C/svg%3E",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%232563eb'/%3E%3Cpath d='M104 220l152-90 152 90-152 90zM104 276l152 90 152-90v64l-152 90-152-90z' fill='white'/%3E%3C/svg%3E",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

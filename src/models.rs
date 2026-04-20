@@ -39,6 +39,8 @@ pub struct AuditResult {
     pub total_credits: f32,                   // Total credits earned
     pub categories: Vec<Category>,            // All audit categories (GenEd, Major, Electives)
     pub missing_subjects: Vec<MissingCourse>, // Missing courses with their category
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gpa: Option<f32>, // Overall GPA across graded courses (None if no grades)
 }
 
 /// A single General Education course.
@@ -215,6 +217,41 @@ pub fn is_in_progress(grade: &str) -> bool {
     grade.trim().eq_ignore_ascii_case(IN_PROGRESS_GRADE)
 }
 
+/// Maps a PSU letter grade to a grade point on the 4.0 scale.
+/// Non-letter grades (W, P, S, U, G, E, IP) return `None` and are excluded
+/// from GPA calculation.
+pub fn grade_points(grade: &str) -> Option<f32> {
+    match grade.trim().to_ascii_uppercase().as_str() {
+        "A" => Some(4.0),
+        "B+" => Some(3.5),
+        "B" => Some(3.0),
+        "C+" => Some(2.5),
+        "C" => Some(2.0),
+        "D+" => Some(1.5),
+        "D" => Some(1.0),
+        "E" | "F" => Some(0.0),
+        _ => None,
+    }
+}
+
+/// GPA = Σ(grade_points × credits) / Σ(credits) over courses with letter
+/// grades only. Returns `None` when no graded credits are present.
+pub fn compute_gpa(courses: &[Course]) -> Option<f32> {
+    let mut total_points = 0.0;
+    let mut total_credits = 0.0;
+    for c in courses {
+        if let Some(points) = grade_points(&c.grade) {
+            total_points += points * c.credit;
+            total_credits += c.credit;
+        }
+    }
+    if total_credits == 0.0 {
+        None
+    } else {
+        Some(total_points / total_credits)
+    }
+}
+
 /// Builds a deduplication key for a course so that repeatable special-topic
 /// courses (344-496 … 344-499) are keyed by code **and** name, while all other
 /// courses are keyed by code alone.
@@ -229,5 +266,58 @@ pub fn free_elective_dedupe_key(code: &str, name: &str) -> String {
         format!("{}::{}", code, name)
     } else {
         code.to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn course(grade: &str, credit: f32) -> Course {
+        Course {
+            code: "TEST".to_string(),
+            name: "TEST".to_string(),
+            credit,
+            grade: grade.to_string(),
+        }
+    }
+
+    #[test]
+    fn grade_points_maps_letter_grades() {
+        assert_eq!(grade_points("A"), Some(4.0));
+        assert_eq!(grade_points("B+"), Some(3.5));
+        assert_eq!(grade_points("C"), Some(2.0));
+        assert_eq!(grade_points("F"), Some(0.0));
+        assert_eq!(grade_points("E"), Some(0.0));
+        assert_eq!(grade_points(" a "), Some(4.0));
+    }
+
+    #[test]
+    fn grade_points_rejects_non_letter_grades() {
+        assert_eq!(grade_points("W"), None);
+        assert_eq!(grade_points("P"), None);
+        assert_eq!(grade_points("G"), None);
+        assert_eq!(grade_points("IP"), None);
+        assert_eq!(grade_points(""), None);
+    }
+
+    #[test]
+    fn compute_gpa_weights_by_credits() {
+        // A (4.0) × 3cr + B (3.0) × 1cr = 15.0 / 4cr = 3.75
+        let courses = vec![course("A", 3.0), course("B", 1.0)];
+        assert_eq!(compute_gpa(&courses), Some(3.75));
+    }
+
+    #[test]
+    fn compute_gpa_ignores_non_letter_grades() {
+        // Only A × 3cr counts. W and IP excluded entirely.
+        let courses = vec![course("A", 3.0), course("W", 3.0), course("IP", 2.0)];
+        assert_eq!(compute_gpa(&courses), Some(4.0));
+    }
+
+    #[test]
+    fn compute_gpa_returns_none_when_no_graded_courses() {
+        let courses = vec![course("IP", 3.0), course("W", 3.0)];
+        assert_eq!(compute_gpa(&courses), None);
     }
 }

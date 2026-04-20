@@ -33,6 +33,20 @@
         rel="stylesheet">
     <link data-trunk rel="css" href="style.css" />
     <link data-trunk rel="tailwind-css" href="style.css" />
+    <link data-trunk rel="copy-file" href="manifest.webmanifest" />
+    <link data-trunk rel="copy-file" href="sw.js" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <script>
+        // Register the service worker for offline / installable PWA support.
+        // Only on production-ish origins (file:// and localhost dev-server
+        // still let the app run normally — registration simply no-ops).
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw.js').catch(function () { });
+            });
+        }
+    </script>
 
     <style>
         *,
@@ -175,14 +189,68 @@
         }
     </style>
 
+    <!-- Global fatal-error overlay: captures uncaught exceptions and unhandled
+         rejections and surfaces them to the user, so a Rust panic or JS error
+         no longer shows an empty page. -->
+    <style>
+        #fatal-error {
+            position: fixed; inset: 0; background: rgba(24,24,27,0.85);
+            display: none; align-items: center; justify-content: center;
+            padding: 1.5rem; z-index: 9999; font-family: 'Inter','Prompt',sans-serif;
+        }
+        #fatal-error[data-open="true"] { display: flex; }
+        #fatal-error > div {
+            background: white; color: #18181b; max-width: 32rem;
+            border-radius: 1rem; padding: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        #fatal-error h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem; }
+        #fatal-error p  { font-size: 0.875rem; color: #52525b; margin: 0 0 0.75rem; line-height: 1.5; }
+        #fatal-error pre { font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 0.5rem; padding: 0.75rem; overflow-x: auto; max-height: 8rem; }
+        #fatal-error button { margin-top: 0.75rem; background: #18181b; color: white; border: 0; border-radius: 0.5rem; padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    </style>
+    <script>
+        (function () {
+            var overlay, msgEl, details;
+            function show(message, detail) {
+                if (!overlay) return;
+                msgEl.textContent = message;
+                details.textContent = detail || '';
+                overlay.setAttribute('data-open', 'true');
+            }
+            window.addEventListener('DOMContentLoaded', function () {
+                overlay = document.getElementById('fatal-error');
+                msgEl = document.getElementById('fatal-error-msg');
+                details = document.getElementById('fatal-error-details');
+                document.getElementById('fatal-error-reload').addEventListener('click', function () {
+                    location.reload();
+                });
+            });
+            window.addEventListener('error', function (e) {
+                show('The app hit an unexpected error.', (e.error && e.error.stack) || e.message);
+            });
+            window.addEventListener('unhandledrejection', function (e) {
+                show('The app hit an unexpected error.', (e.reason && (e.reason.stack || String(e.reason))) || '');
+            });
+        })();
+    </script>
+
     <!-- PDF.js Library -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
         integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+        onerror="(function(){window.__pdfjsCdnFailed=true;})();"></script>
 </head>
 
 <body class="mesh-bg">
+    <div id="fatal-error" role="alertdialog" aria-live="assertive" aria-labelledby="fatal-error-msg">
+        <div>
+            <h2 id="fatal-error-msg">Something went wrong.</h2>
+            <p>The app hit an unexpected error. Reloading usually fixes it. If it keeps happening, please open an issue with the details below.</p>
+            <pre id="fatal-error-details"></pre>
+            <button id="fatal-error-reload" type="button">Reload</button>
+        </div>
+    </div>
     <noscript>
         <div style="text-align:center;padding:4rem;font-family:'Inter','Prompt',sans-serif;color:#18181b;">
             <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">JavaScript Required</h1>
@@ -191,9 +259,17 @@
     </noscript>
     <!-- PDF Text Extraction Helper -->
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
 
         window.extractTextFromPDF = async function (arrayBuffer) {
+            if (typeof pdfjsLib === 'undefined' || window.__pdfjsCdnFailed) {
+                throw new Error(
+                    'PDF.js could not be loaded. Please check your internet connection ' +
+                    'and reload the page — the app relies on cdnjs.cloudflare.com for PDF parsing.'
+                );
+            }
             try {
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                 let fullText = '';
