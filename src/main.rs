@@ -30,6 +30,7 @@ use crate::logic::{
 };
 use crate::models::{
     free_elective_dedupe_key, is_passing_grade, AuditResult, Category, Course, MissingCourse,
+    ParseMode,
 };
 
 fn main() {
@@ -53,6 +54,8 @@ fn App() -> impl IntoView {
     let (error_msg, set_error_msg) = create_signal(Option::<String>::None);
     // Stores the file from drag-and-drop (file input is not updated by drop events)
     let (dropped_file, set_dropped_file) = create_signal(Option::<web_sys::File>::None);
+    // Which PDF format was detected during parsing (drives the mode banner).
+    let (parse_mode, set_parse_mode) = create_signal(ParseMode::Grade);
 
     // Language toggle: true = Thai (default), false = English
     let (is_thai, set_is_thai) = create_signal(true);
@@ -232,7 +235,8 @@ fn App() -> impl IntoView {
                         match JsFuture::from(promise).await {
                             Ok(text_value) => {
                                 if let Some(text) = text_value.as_string() {
-                                    let courses = parse_transcript(&text);
+                                    let (courses, mode) = parse_transcript(&text);
+                                    set_parse_mode.set(mode);
 
                                     let gen_ed = get_gen_ed_curriculum();
                                     let major = get_major_curriculum();

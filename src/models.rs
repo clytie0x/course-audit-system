@@ -181,17 +181,38 @@ pub struct ParsedCourse {
     pub parsed_credit: f32,
 }
 
+/// Which PDF format was detected by the parser. Drives UI messaging: in
+/// `Registration` mode, in-progress courses fill curriculum slots but do not
+/// contribute credits toward the total.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParseMode {
+    Grade,
+    Registration,
+}
+
 // ── Shared utility functions ────────────────────────────────────────────────
+
+/// Sentinel grade for courses from a registration report (no grade issued yet).
+pub const IN_PROGRESS_GRADE: &str = "IP";
 
 /// Returns `true` when the grade represents a passing result.
 /// Failing markers: F (fail), W (withdraw), U (unsatisfactory).
+/// In-progress ("IP") courses are not yet passing.
 pub fn is_passing_grade(grade: &str) -> bool {
+    if is_in_progress(grade) {
+        return false;
+    }
     grade
         .trim()
         .chars()
         .next()
         .map(|c| !matches!(c.to_ascii_uppercase(), 'F' | 'W' | 'U'))
         .unwrap_or(false)
+}
+
+/// Returns `true` for the sentinel "IP" (In Progress) grade.
+pub fn is_in_progress(grade: &str) -> bool {
+    grade.trim().eq_ignore_ascii_case(IN_PROGRESS_GRADE)
 }
 
 /// Builds a deduplication key for a course so that repeatable special-topic
