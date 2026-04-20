@@ -14,7 +14,7 @@
 use leptos::*;
 use leptos_meta::*;
 use std::collections::HashSet;
-use wasm_bindgen::{closure::Closure, JsCast, JsValue};
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{DragEvent, Event, HtmlInputElement};
 
 mod components;
@@ -29,8 +29,8 @@ use crate::logic::{
     parser::{extract_text_from_pdf, parse_transcript},
 };
 use crate::models::{
-    free_elective_dedupe_key, is_passing_grade, AuditResult, Category, Course, MissingCourse,
-    ParseMode,
+    compute_gpa, free_elective_dedupe_key, is_passing_grade, AuditResult, Category, Course,
+    MissingCourse, ParseMode,
 };
 
 fn main() {
@@ -57,6 +57,108 @@ fn App() -> impl IntoView {
     // Which PDF format was detected during parsing (drives the mode banner).
     let (parse_mode, set_parse_mode) = create_signal(ParseMode::Grade);
 
+    // Persistence — opt-in localStorage of the last audit result (key "audit_v1").
+    // Remains off by default to stay privacy-first.
+    let (save_enabled, set_save_enabled) = create_signal(false);
+
+    // Try to rehydrate both the toggle and a prior result on mount.
+    if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
+        if let Ok(Some(flag)) = storage.get_item("audit_save_enabled") {
+            if flag == "1" {
+                set_save_enabled.set(true);
+                if let Ok(Some(raw)) = storage.get_item("audit_v1") {
+                    if let Ok(saved) = serde_json::from_str::<AuditResult>(&raw) {
+                        set_audit_result.set(Some(saved));
+                    }
+                }
+                if let Ok(Some(mode_raw)) = storage.get_item("audit_mode_v1") {
+                    if mode_raw == "registration" {
+                        set_parse_mode.set(ParseMode::Registration);
+                    }
+                }
+            }
+        }
+    }
+
+    // Format the current result's missing list as a newline-delimited block
+    // and copy to clipboard (Navigator.clipboard.writeText).
+    let copy_missing = move |_| {
+        let Some(result) = audit_result.get_untracked() else {
+            return;
+        };
+        if result.missing_subjects.is_empty() {
+            return;
+        }
+        let mut out = String::new();
+        for m in &result.missing_subjects {
+            out.push_str(&format!("[{}] {}\n", m.category, m.description));
+        }
+        if let Some(clipboard) = web_sys::window().map(|w| w.navigator().clipboard()) {
+            let _ = clipboard.write_text(&out);
+        }
+    };
+
+    // Download the AuditResult as a JSON file.
+    let export_json = move |_| {
+        let Some(result) = audit_result.get_untracked() else {
+            return;
+        };
+        let Ok(json) = serde_json::to_string_pretty(&result) else {
+            return;
+        };
+        let Some(window) = web_sys::window() else {
+            return;
+        };
+        let Some(document) = window.document() else {
+            return;
+        };
+        // Build a Blob containing the JSON text and stream it via <a download>.
+        let parts = js_sys::Array::new();
+        parts.push(&JsValue::from_str(&json));
+        let Ok(blob) = web_sys::Blob::new_with_str_sequence(&parts) else {
+            return;
+        };
+        let Ok(url) = web_sys::Url::create_object_url_with_blob(&blob) else {
+            return;
+        };
+        if let Ok(anchor) = document.create_element("a") {
+            let _ = anchor.set_attribute("href", &url);
+            let _ = anchor.set_attribute("download", "course-audit.json");
+            if let Some(html_anchor) = anchor.dyn_ref::<web_sys::HtmlElement>() {
+                html_anchor.click();
+            }
+        }
+        let _ = web_sys::Url::revoke_object_url(&url);
+    };
+
+    // Trigger the browser's print dialog; style.css provides a print stylesheet.
+    let print_report = move |_| {
+        if let Some(window) = web_sys::window() {
+            let _ = window.print();
+        }
+    };
+
+    let toggle_save_enabled = move |_| {
+        let new_val = !save_enabled.get_untracked();
+        set_save_enabled.set(new_val);
+        if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
+            let _ = storage.set_item("audit_save_enabled", if new_val { "1" } else { "0" });
+            if !new_val {
+                let _ = storage.remove_item("audit_v1");
+                let _ = storage.remove_item("audit_mode_v1");
+            } else if let Some(result) = audit_result.get_untracked() {
+                if let Ok(json) = serde_json::to_string(&result) {
+                    let _ = storage.set_item("audit_v1", &json);
+                }
+                let mode = match parse_mode.get_untracked() {
+                    ParseMode::Grade => "grade",
+                    ParseMode::Registration => "registration",
+                };
+                let _ = storage.set_item("audit_mode_v1", mode);
+            }
+        }
+    };
+
     // Language toggle: true = Thai (default), false = English
     let (is_thai, set_is_thai) = create_signal(true);
     provide_context(is_thai);
@@ -82,7 +184,8 @@ fn App() -> impl IntoView {
                     let _ = list.remove_1("dark");
                 }
             }
-            if let Ok(Some(storage)) = web_sys::window().unwrap().local_storage() {
+            if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten())
+            {
                 let _ = storage.set_item(
                     "theme",
                     if is_dark.get_untracked() {
@@ -184,177 +287,158 @@ fn App() -> impl IntoView {
         if let Some(file) = file_opt {
             spawn_local(async move {
                 use wasm_bindgen_futures::JsFuture;
-                use web_sys::FileReader;
 
-                let reader = FileReader::new().unwrap();
-
-                let promise = js_sys::Promise::new(&mut |resolve, reject| {
-                    let reader_clone = reader.clone();
-                    let reject_clone = reject.clone();
-                    let onload = Closure::once(move |_event: web_sys::Event| {
-                        if let Ok(result) = reader_clone.result() {
-                            resolve.call1(&JsValue::NULL, &result).unwrap();
+                // gloo-file wraps the FileReader lifecycle cleanly: callbacks
+                // are dropped when the future resolves, so no leaked closures
+                // accumulate across repeated analyses.
+                let gloo_file = gloo_file::File::from(file);
+                let bytes = match gloo_file::futures::read_as_bytes(&gloo_file).await {
+                    Ok(b) => b,
+                    Err(_) => {
+                        set_is_loading.set(false);
+                        set_error_msg.set(Some(if is_thai.get_untracked() {
+                            "ไม่สามารถอ่านไฟล์ PDF ได้ กรุณาลองใหม่อีกครั้ง".to_string()
                         } else {
-                            reject_clone
-                                .call1(&JsValue::NULL, &JsValue::from_str("Failed to read file"))
-                                .unwrap();
-                        }
-                    });
-                    reader.set_onload(Some(onload.as_ref().unchecked_ref()));
-                    // SAFETY: Closure::forget leaks memory but is the standard
-                    // wasm-bindgen pattern for one-shot callbacks. Each analysis
-                    // leaks a small, bounded amount — acceptable for this use case.
-                    onload.forget();
+                            "Failed to read the PDF file. Please try again.".to_string()
+                        }));
+                        return;
+                    }
+                };
 
-                    let onerror = Closure::once(move |_event: web_sys::Event| {
-                        reject
-                            .call1(&JsValue::NULL, &JsValue::from_str("Error reading file"))
-                            .unwrap();
-                    });
-                    reader.set_onerror(Some(onerror.as_ref().unchecked_ref()));
-                    onerror.forget(); // See onload.forget() comment above
-                });
+                let uint8_array = js_sys::Uint8Array::from(bytes.as_slice());
 
-                if reader.read_as_array_buffer(&file).is_err() {
-                    set_is_loading.set(false);
-                    set_error_msg.set(Some(if is_thai.get_untracked() {
-                        "ไม่สามารถอ่านไฟล์ PDF ได้ กรุณาลองใหม่อีกครั้ง".to_string()
-                    } else {
-                        "Failed to read the PDF file. Please try again.".to_string()
-                    }));
-                    return;
-                }
+                {
+                    let promise = extract_text_from_pdf(uint8_array);
+                    match JsFuture::from(promise).await {
+                        Ok(text_value) => {
+                            if let Some(text) = text_value.as_string() {
+                                let (courses, mode) = parse_transcript(&text);
+                                set_parse_mode.set(mode);
 
-                // Wait for the file to be loaded
-                match JsFuture::from(promise).await {
-                    Ok(result) => {
-                        let array_buffer = js_sys::ArrayBuffer::from(result);
-                        let uint8_array = js_sys::Uint8Array::new(&array_buffer);
+                                let gen_ed = get_gen_ed_curriculum();
+                                let major = get_major_curriculum();
 
-                        let promise = extract_text_from_pdf(uint8_array);
-                        match JsFuture::from(promise).await {
-                            Ok(text_value) => {
-                                if let Some(text) = text_value.as_string() {
-                                    let (courses, mode) = parse_transcript(&text);
-                                    set_parse_mode.set(mode);
+                                let (gen_ed_credits, gen_ed_missing, gen_ed_used) =
+                                    audit_gen_ed(&courses, &gen_ed);
+                                let (major_credits, elective_credits, major_missing, major_used) =
+                                    audit_major(&courses, &major);
 
-                                    let gen_ed = get_gen_ed_curriculum();
-                                    let major = get_major_curriculum();
+                                let mut all_used_courses = gen_ed_used.clone();
+                                all_used_courses.extend(major_used.clone());
 
-                                    let (gen_ed_credits, gen_ed_missing, gen_ed_used) =
-                                        audit_gen_ed(&courses, &gen_ed);
-                                    let (
-                                        major_credits,
-                                        elective_credits,
-                                        major_missing,
-                                        major_used,
-                                    ) = audit_major(&courses, &major);
+                                let (free_elective_credits, _free_elective_list) =
+                                    calculate_free_electives(&courses, &all_used_courses);
 
-                                    let mut all_used_courses = gen_ed_used.clone();
-                                    all_used_courses.extend(major_used.clone());
+                                let mut all_missing: Vec<MissingCourse> = gen_ed_missing;
+                                all_missing.extend(major_missing);
 
-                                    let (free_elective_credits, _free_elective_list) =
-                                        calculate_free_electives(&courses, &all_used_courses);
-
-                                    let mut all_missing: Vec<MissingCourse> = gen_ed_missing;
-                                    all_missing.extend(major_missing);
-
-                                    // Drop missing entries for GenEd if total GenEd credits are already met.
-                                    // DO NOT drop Major Core/Basic Science misses, as they are strictly required regardless of total accumulated elective credits.
-                                    all_missing.retain(|m| match m.category.as_str() {
-                                        "General Education" => {
-                                            gen_ed_credits < gen_ed.total_required_credits
-                                        }
-                                        _ => true,
-                                    });
-
-                                    let total_credits = gen_ed_credits
-                                        + major_credits
-                                        + elective_credits
-                                        + free_elective_credits;
-
-                                    let mut gen_ed_courses = Vec::new();
-                                    let mut major_courses = Vec::new();
-                                    let mut free_elective_courses = Vec::new();
-                                    let mut seen_free_electives: HashSet<String> = HashSet::new();
-
-                                    for (idx, parsed) in courses.iter().enumerate() {
-                                        let course = Course {
-                                            code: parsed.code.clone(),
-                                            name: parsed.name.clone(),
-                                            credit: parsed.parsed_credit,
-                                            grade: parsed.grade.clone(),
-                                        };
-
-                                        if gen_ed_used.contains(&idx) {
-                                            gen_ed_courses.push(course);
-                                        } else if major_used.contains(&idx) {
-                                            major_courses.push(course);
-                                        } else if is_passing_grade(&parsed.grade) {
-                                            let dedupe_key = free_elective_dedupe_key(
-                                                &parsed.code,
-                                                &parsed.name,
-                                            );
-                                            if seen_free_electives.insert(dedupe_key) {
-                                                free_elective_courses.push(course);
-                                            }
-                                        }
+                                // Drop missing entries for GenEd if total GenEd credits are already met.
+                                // DO NOT drop Major Core/Basic Science misses, as they are strictly required regardless of total accumulated elective credits.
+                                all_missing.retain(|m| match m.category.as_str() {
+                                    "General Education" => {
+                                        gen_ed_credits < gen_ed.total_required_credits
                                     }
+                                    _ => true,
+                                });
 
-                                    let audit_result = AuditResult {
-                                        total_credits,
-                                        categories: vec![
-                                            Category {
-                                                name: "General Education".to_string(),
-                                                required_credits: gen_ed.total_required_credits,
-                                                collected_credits: gen_ed_credits,
-                                                courses: gen_ed_courses,
-                                            },
-                                            Category {
-                                                name: "Major Courses".to_string(),
-                                                required_credits: major.total_required_credits,
-                                                collected_credits: major_credits + elective_credits,
-                                                courses: major_courses,
-                                            },
-                                            Category {
-                                                name: "Free Electives".to_string(),
-                                                required_credits: 6.0,
-                                                collected_credits: free_elective_credits,
-                                                courses: free_elective_courses,
-                                            },
-                                        ],
-                                        missing_subjects: all_missing,
+                                let total_credits = gen_ed_credits
+                                    + major_credits
+                                    + elective_credits
+                                    + free_elective_credits;
+
+                                let mut gen_ed_courses = Vec::new();
+                                let mut major_courses = Vec::new();
+                                let mut free_elective_courses = Vec::new();
+                                let mut seen_free_electives: HashSet<String> = HashSet::new();
+
+                                for (idx, parsed) in courses.iter().enumerate() {
+                                    let course = Course {
+                                        code: parsed.code.clone(),
+                                        name: parsed.name.clone(),
+                                        credit: parsed.parsed_credit,
+                                        grade: parsed.grade.clone(),
                                     };
 
-                                    set_is_loading.set(false);
-                                    set_audit_result.set(Some(audit_result));
-                                } else {
-                                    set_is_loading.set(false);
-                                    set_error_msg.set(Some(if is_thai.get_untracked() {
+                                    if gen_ed_used.contains(&idx) {
+                                        gen_ed_courses.push(course);
+                                    } else if major_used.contains(&idx) {
+                                        major_courses.push(course);
+                                    } else if is_passing_grade(&parsed.grade) {
+                                        let dedupe_key =
+                                            free_elective_dedupe_key(&parsed.code, &parsed.name);
+                                        if seen_free_electives.insert(dedupe_key) {
+                                            free_elective_courses.push(course);
+                                        }
+                                    }
+                                }
+
+                                let mut all_graded_courses: Vec<Course> = Vec::new();
+                                all_graded_courses.extend(gen_ed_courses.iter().cloned());
+                                all_graded_courses.extend(major_courses.iter().cloned());
+                                all_graded_courses.extend(free_elective_courses.iter().cloned());
+                                let gpa = compute_gpa(&all_graded_courses);
+
+                                let audit_result = AuditResult {
+                                    total_credits,
+                                    categories: vec![
+                                        Category {
+                                            name: "General Education".to_string(),
+                                            required_credits: gen_ed.total_required_credits,
+                                            collected_credits: gen_ed_credits,
+                                            courses: gen_ed_courses,
+                                        },
+                                        Category {
+                                            name: "Major Courses".to_string(),
+                                            required_credits: major.total_required_credits,
+                                            collected_credits: major_credits + elective_credits,
+                                            courses: major_courses,
+                                        },
+                                        Category {
+                                            name: "Free Electives".to_string(),
+                                            required_credits: 6.0,
+                                            collected_credits: free_elective_credits,
+                                            courses: free_elective_courses,
+                                        },
+                                    ],
+                                    missing_subjects: all_missing,
+                                    gpa,
+                                };
+
+                                if save_enabled.get_untracked() {
+                                    if let Some(storage) = web_sys::window()
+                                        .and_then(|w| w.local_storage().ok().flatten())
+                                    {
+                                        if let Ok(json) = serde_json::to_string(&audit_result) {
+                                            let _ = storage.set_item("audit_v1", &json);
+                                        }
+                                        let mode_str = match mode {
+                                            ParseMode::Grade => "grade",
+                                            ParseMode::Registration => "registration",
+                                        };
+                                        let _ = storage.set_item("audit_mode_v1", mode_str);
+                                    }
+                                }
+
+                                set_is_loading.set(false);
+                                set_audit_result.set(Some(audit_result));
+                            } else {
+                                set_is_loading.set(false);
+                                set_error_msg.set(Some(if is_thai.get_untracked() {
                                                 "ไม่สามารถดึงข้อความจาก PDF กรุณาตรวจสอบว่าเป็นใบแสดงผลการเรียนที่ถูกต้อง".to_string()
                                             } else {
                                                 "Could not extract text from the PDF. Make sure it's a valid transcript.".to_string()
                                             }));
-                                }
-                            }
-                            Err(_e) => {
-                                set_is_loading.set(false);
-                                set_error_msg.set(Some(if is_thai.get_untracked() {
-                                    "การดึงข้อมูล PDF ล้มเหลว ไฟล์อาจเสียหายหรือถูกเข้ารหัส".to_string()
-                                } else {
-                                    "PDF extraction failed. The file may be corrupted or encrypted."
-                                        .to_string()
-                                }));
                             }
                         }
-                    }
-                    Err(_e) => {
-                        set_is_loading.set(false);
-                        set_error_msg.set(Some(if is_thai.get_untracked() {
-                            "ไม่สามารถอ่านไฟล์ที่อัปโหลดได้".to_string()
-                        } else {
-                            "Failed to read the uploaded file.".to_string()
-                        }));
+                        Err(_e) => {
+                            set_is_loading.set(false);
+                            set_error_msg.set(Some(if is_thai.get_untracked() {
+                                "การดึงข้อมูล PDF ล้มเหลว ไฟล์อาจเสียหายหรือถูกเข้ารหัส".to_string()
+                            } else {
+                                "PDF extraction failed. The file may be corrupted or encrypted."
+                                    .to_string()
+                            }));
+                        }
                     }
                 }
             });
@@ -381,14 +465,14 @@ fn App() -> impl IntoView {
                     </div>
                     <div class="flex items-center gap-3">
                         <button
-                            class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                            class="text-xs font-semibold min-w-[2.5rem] min-h-[2.25rem] px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
                             aria-label={move || if is_thai.get() { "Switch to English" } else { "เปลี่ยนเป็นภาษาไทย" }}
                             on:click=move |_| set_is_thai.update(|v| *v = !*v)
                         >
                             {move || if is_thai.get() { "EN" } else { "ไทย" }}
                         </button>
                         <button
-                            class="w-7 h-7 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                            class="w-9 h-9 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
                             aria-label={move || if is_dark.get() {
                                 if is_thai.get() { "เปลี่ยนเป็นโหมดสว่าง" } else { "Switch to light mode" }
                             } else {
@@ -509,6 +593,20 @@ fn App() -> impl IntoView {
                         </div>
                     })}
 
+                    // Save session toggle (opt-in localStorage)
+                    <label class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 cursor-pointer hover:border-brand-300 dark:hover:border-brand-700 transition-colors">
+                        <input
+                            type="checkbox"
+                            class="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-brand-600 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                            prop:checked=move || save_enabled.get()
+                            on:change=toggle_save_enabled
+                        />
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[13px] font-medium text-zinc-800 dark:text-zinc-200">{move || if is_thai.get() { "บันทึกผลในเบราว์เซอร์" } else { "Save results in browser" }}</p>
+                            <p class="text-2xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">{move || if is_thai.get() { "ผลลัพธ์จะอยู่ใน localStorage (ไม่ส่งออกนอกเครื่อง)" } else { "Kept in localStorage only — never leaves your device." }}</p>
+                        </div>
+                    </label>
+
                     // Privacy badge
                     <div class="hidden lg:flex items-center gap-2 px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
                         <svg class="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -519,7 +617,7 @@ fn App() -> impl IntoView {
                 </aside>
 
                 // ── Right Panel — Results ────────────────────────────────
-                <main class="flex-1 min-w-0">
+                <main class="flex-1 min-w-0" aria-live="polite" aria-atomic="false">
                     {move || {
                         if is_loading.get() {
                             // Loading state
@@ -555,6 +653,24 @@ fn App() -> impl IntoView {
                             view! {
                                 <div class="space-y-5 animate-fade-in">
 
+                                    // ── Actions toolbar (export / print) ─────
+                                    <div class="flex items-center justify-end gap-2 print:hidden">
+                                        <button
+                                            class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                                            on:click=export_json
+                                        >
+                                            <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                            <span>{move || if is_thai.get() { "ดาวน์โหลด JSON" } else { "Export JSON" }}</span>
+                                        </button>
+                                        <button
+                                            class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                                            on:click=print_report
+                                        >
+                                            <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"/></svg>
+                                            <span>{move || if is_thai.get() { "พิมพ์ / บันทึก PDF" } else { "Print / Save PDF" }}</span>
+                                        </button>
+                                    </div>
+
                                     // ── Registration-mode banner ─────────────
                                     {move || (parse_mode.get() == ParseMode::Registration).then(|| view! {
                                         <div class="rounded-2xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/30 px-5 py-3 flex items-start gap-3" role="status">
@@ -579,9 +695,17 @@ fn App() -> impl IntoView {
                                                     <span class="text-base font-medium text-zinc-400 dark:text-zinc-500">{move || if is_thai.get() { "หน่วยกิตที่ได้รับ" } else { "credits earned" }}</span>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 rounded-lg px-3 py-1.5 self-start sm:self-auto">
-                                                <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347"/></svg>
-                                                <span class="font-medium">{move || if is_thai.get() { "วท.บ. (วิทยาการคอมพิวเตอร์)" } else { "B.Sc. (Computer Science)" }}</span>
+                                            <div class="flex flex-col items-end gap-2 self-start sm:self-auto">
+                                                {result.gpa.map(|gpa| view! {
+                                                    <div class="flex items-baseline gap-2 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 rounded-lg px-3 py-1.5">
+                                                        <span class="text-2xs font-semibold uppercase tracking-wider opacity-70">{move || if is_thai.get() { "เกรดเฉลี่ย" } else { "GPA" }}</span>
+                                                        <span class="text-lg font-extrabold tabular-nums">{format!("{:.2}", gpa)}</span>
+                                                    </div>
+                                                })}
+                                                <div class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 rounded-lg px-3 py-1.5">
+                                                    <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347"/></svg>
+                                                    <span class="font-medium">{move || if is_thai.get() { "วท.บ. (วิทยาการคอมพิวเตอร์)" } else { "B.Sc. (Computer Science)" }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -684,6 +808,14 @@ fn App() -> impl IntoView {
                                                     <svg class="w-4 h-4 text-red-500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
                                                     <h3 class="text-sm font-semibold text-red-800 dark:text-red-300">{move || if is_thai.get() { "ข้อกำหนดที่ขาด" } else { "Missing Requirements" }}</h3>
                                                     <span class="ml-auto text-2xs font-semibold text-red-600 dark:text-red-300 bg-red-100 dark:bg-red-900/40 px-2 py-0.5 rounded-full">{move || if is_thai.get() { format!("{} รายการ", missing_count) } else { format!("{} items", missing_count) }}</span>
+                                                    <button
+                                                        class="print:hidden inline-flex items-center gap-1 text-2xs font-semibold text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 border border-red-200 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/30 px-2 py-0.5 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                                                        aria-label={move || if is_thai.get() { "คัดลอกรายการที่ขาด" } else { "Copy missing items" }}
+                                                        on:click=copy_missing
+                                                    >
+                                                        <svg class="w-3 h-3" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                                                        <span>{move || if is_thai.get() { "คัดลอก" } else { "Copy" }}</span>
+                                                    </button>
                                                 </div>
                                                 <div class="divide-y divide-red-100/60 dark:divide-red-900/30">
                                                     {seen_cats.iter().map(|cat| {
