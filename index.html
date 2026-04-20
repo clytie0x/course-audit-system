@@ -7,6 +7,20 @@
     <meta name="description"
         content="Privacy-first WebAssembly app for auditing PSU Computer Science transcripts against curriculum requirements. 100% client-side processing.">
     <meta name="theme-color" content="#0a0a0a">
+    <meta name="color-scheme" content="light dark">
+
+    <!-- Apply dark-mode class before paint to prevent flash -->
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (stored === null && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) { /* localStorage may be unavailable */ }
+        })();
+    </script>
     <meta property="og:title" content="Course Audit — PSU CS">
     <meta property="og:description"
         content="Upload your transcript PDF and instantly audit your academic progress — all processing happens locally in your browser.">
@@ -34,6 +48,11 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        .dark body {
+            background-color: #09090b;
+            color: #e4e4e7;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -53,6 +72,14 @@
             background: #a1a1aa;
         }
 
+        .dark ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+
         /* Smooth mesh gradient background */
         .mesh-bg {
             background-color: #fafafa;
@@ -61,6 +88,14 @@
                 radial-gradient(at 100% 0%, hsla(250, 50%, 96%, 0.6) 0px, transparent 50%),
                 radial-gradient(at 50% 100%, hsla(200, 40%, 96%, 0.5) 0px, transparent 50%);
             background-attachment: fixed;
+        }
+
+        .dark .mesh-bg {
+            background-color: #09090b;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(220, 50%, 14%, 0.7) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(250, 40%, 14%, 0.5) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, hsla(200, 40%, 14%, 0.4) 0px, transparent 50%);
         }
 
         /* Animate progress bars on load */
