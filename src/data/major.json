@@ -1,0 +1,536 @@
+{
+  "name": "Major Specific Courses - Computer Science",
+  "total_required_credits": 96.0,
+  "basic_science": {
+    "name": "Basic Science",
+    "required_credits": 12.0,
+    "courses": [
+      {
+        "code": "324-101",
+        "name": "General Chemistry I",
+        "credits": 3.0
+      },
+      {
+        "code": "325-101",
+        "name": "General Chemistry Laboratory I",
+        "credits": 1.0
+      },
+      {
+        "code": "330-101",
+        "name": "Principles of Biology I",
+        "credits": 3.0
+      },
+      {
+        "code": "331-101",
+        "name": "Principles of Biology Laboratory I",
+        "credits": 1.0
+      },
+      {
+        "code": "332-101",
+        "name": "Fundamental Physics",
+        "credits": 3.0
+      },
+      {
+        "code": "333-101",
+        "name": "Fundamental Physics Laboratory",
+        "credits": 1.0
+      }
+    ]
+  },
+  "core_courses": {
+    "name": "Core Courses",
+    "required_credits": 56.0,
+    "courses": [
+      {
+        "code": "322-101",
+        "name": "Calculus I",
+        "credits": 3.0
+      },
+      {
+        "code": "322-102",
+        "name": "Calculus II",
+        "credits": 3.0
+      },
+      {
+        "code": "344-201",
+        "name": "MODULE: Computing for Computer Science",
+        "credits": 6.0
+      },
+      {
+        "code": "344-111",
+        "name": "MODULE: Programming Concepts and Algorithms",
+        "credits": 6.0
+      },
+      {
+        "code": "344-181",
+        "name": "Communication Skill in Technology",
+        "credits": 1.0
+      },
+      {
+        "code": "344-233",
+        "name": "MODULE: Information Systems Analysis and Design and Principles of Database Systems",
+        "credits": 6.0
+      },
+      {
+        "code": "344-211",
+        "name": "Introduction to Object-Oriented Programming",
+        "credits": 2.0
+      },
+      {
+        "code": "344-243",
+        "name": "Software Interactive Design",
+        "credits": 1.0
+      },
+      {
+        "code": "344-221",
+        "name": "Computer Architectures and Organization",
+        "credits": 2.0
+      },
+      {
+        "code": "344-222",
+        "name": "Operating Systems",
+        "credits": 2.0
+      },
+      {
+        "code": "344-223",
+        "name": "Fundamentals of Computer Security",
+        "credits": 2.0
+      },
+      {
+        "code": "344-281",
+        "name": "Public Speaking in Computer Science",
+        "credits": 1.0
+      },
+      {
+        "code": "344-341",
+        "name": "Software Engineering",
+        "credits": 3.0
+      },
+      {
+        "code": "344-351",
+        "name": "Data Communications and Networking",
+        "credits": 3.0
+      },
+      {
+        "code": "344-361",
+        "name": "Principles of Artificial Intelligence",
+        "credits": 3.0
+      },
+      {
+        "code": "344-381",
+        "name": "Thinking and Creativity for Innovation Design",
+        "credits": 2.0
+      },
+      {
+        "code": "344-382",
+        "name": "Ethics for Digital Technology",
+        "credits": 1.0
+      },
+      {
+        "code": "344-491",
+        "name": "Seminar in Computer Science",
+        "credits": 1.0
+      }
+    ]
+  },
+  "capstone": {
+    "name": "Capstone",
+    "credits_per_option": 3.0,
+    "options": [
+      {
+        "code": "344-492",
+        "name": "Projects in Computer Science",
+        "credits": 3.0
+      },
+      {
+        "code": "344-495",
+        "name": "Cooperative Education",
+        "credits": 6.0
+      }
+    ]
+  },
+  "electives": {
+    "name": "Electives",
+    "total_required_credits": 12.0,
+    "clusters_to_complete": 2,
+    "domains": [
+      {
+        "id": 1,
+        "name": "Big Data & Business Intelligence",
+        "description": "Cluster-based electives for data-driven technologies",
+        "clusters": [
+          {
+            "id": "1.1",
+            "name": "Big Data",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-331",
+                "name": "Data Science",
+                "credits": 3.0
+              },
+              {
+                "code": "344-332",
+                "name": "Data Mining",
+                "credits": 3.0
+              },
+              {
+                "code": "344-431",
+                "name": "Big Data",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "1.2",
+            "name": "Business Intelligence",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-232",
+                "name": "Knowledge Management and Decision Support Systems",
+                "credits": 3.0
+              },
+              {
+                "code": "344-333",
+                "name": "Data Analytics and Visualization",
+                "credits": 3.0
+              },
+              {
+                "code": "344-334",
+                "name": "Business Intelligent Systems",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "1.3",
+            "name": "Information-driven Technology",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-311",
+                "name": "Advanced Object-Oriented Programming",
+                "credits": 3.0
+              },
+              {
+                "code": "344-432",
+                "name": "Next Generation Database Technologies",
+                "credits": 3.0
+              },
+              {
+                "code": "344-401",
+                "name": "Cryptography and Security",
+                "credits": 3.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Internet & Network Technology",
+        "description": "Cluster-based electives for network and internet technologies",
+        "clusters": [
+          {
+            "id": "2.1",
+            "name": "Network Technology",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-352",
+                "name": "Computer Network Systems",
+                "credits": 3.0
+              },
+              {
+                "code": "344-353",
+                "name": "Computer Systems and Network Security",
+                "credits": 3.0
+              },
+              {
+                "code": "344-451",
+                "name": "Internet Technology and Applications",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "2.2",
+            "name": "Wireless and Mobile Technology",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-212",
+                "name": "Web Application Programming",
+                "credits": 3.0
+              },
+              {
+                "code": "344-312",
+                "name": "Mobile Application Development",
+                "credits": 3.0
+              },
+              {
+                "code": "344-321",
+                "name": "Wireless Technology",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "2.3",
+            "name": "Internet Technology",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-322",
+                "name": "Embedded Systems",
+                "credits": 3.0
+              },
+              {
+                "code": "344-323",
+                "name": "Internet of Things",
+                "credits": 3.0
+              },
+              {
+                "code": "344-324",
+                "name": "Cloud Computing Systems",
+                "credits": 3.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Software Development",
+        "description": "Cluster-based electives for software development specialization",
+        "clusters": [
+          {
+            "id": "3.1",
+            "name": "Software Assessment and QA",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-342",
+                "name": "Software Testing Techniques",
+                "credits": 3.0
+              },
+              {
+                "code": "344-441",
+                "name": "Software Project and Quality Management",
+                "credits": 3.0
+              },
+              {
+                "code": "344-442",
+                "name": "Software Measurement and Evaluation",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "3.2",
+            "name": "Software Development and Management",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-242",
+                "name": "Principles of Business Software Development",
+                "credits": 3.0
+              },
+              {
+                "code": "344-335",
+                "name": "Database Application Development",
+                "credits": 3.0
+              },
+              {
+                "code": "344-443",
+                "name": "Object-Oriented Analysis and Design",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "3.3",
+            "name": "UI/UX Design",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-343",
+                "name": "Introduction to User Experience Design",
+                "credits": 3.0
+              },
+              {
+                "code": "344-344",
+                "name": "Usability Evaluation",
+                "credits": 3.0
+              },
+              {
+                "code": "344-444",
+                "name": "Information Architecture for User Experience Design",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "3.4",
+            "name": "Database Development",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-335",
+                "name": "Database Application Development",
+                "credits": 3.0
+              },
+              {
+                "code": "344-433",
+                "name": "Database Administration and Maintenance",
+                "credits": 3.0
+              },
+              {
+                "code": "344-434",
+                "name": "Database Performance Tuning",
+                "credits": 3.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "AI & Computer Vision",
+        "description": "Cluster-based electives for AI and computer vision specialization",
+        "clusters": [
+          {
+            "id": "4.1",
+            "name": "AI",
+            "min_courses": 3,
+            "description": "Choose 1 from: Neural Networks / Pattern Recognition / Internet of Robotic Things",
+            "courses": [
+              {
+                "code": "344-261",
+                "name": "Artificial Intelligence for Everyone",
+                "credits": 3.0
+              },
+              {
+                "code": "344-362",
+                "name": "Machine Learning",
+                "credits": 3.0
+              },
+              {
+                "code": "344-461",
+                "name": "Neural Networks",
+                "credits": 3.0
+              },
+              {
+                "code": "344-462",
+                "name": "Pattern Recognition",
+                "credits": 3.0
+              },
+              {
+                "code": "344-463",
+                "name": "Internet of Robotic Things",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "4.2",
+            "name": "Linguistic Intelligence",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-363",
+                "name": "Natural Language Processing",
+                "credits": 3.0
+              },
+              {
+                "code": "344-464",
+                "name": "Text Mining and Sentiment Analysis",
+                "credits": 3.0
+              },
+              {
+                "code": "344-465",
+                "name": "Linguistic Intelligence and Machine Translation",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "4.3",
+            "name": "Game Programming",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-271",
+                "name": "3D Modeling and Animation",
+                "credits": 3.0
+              },
+              {
+                "code": "344-371",
+                "name": "Introduction to Computer Game Programming",
+                "credits": 3.0
+              },
+              {
+                "code": "344-372",
+                "name": "Advanced Game Development",
+                "credits": 3.0
+              }
+            ]
+          },
+          {
+            "id": "4.4",
+            "name": "Computer Vision",
+            "min_courses": 3,
+            "description": null,
+            "courses": [
+              {
+                "code": "344-373",
+                "name": "Fundamentals of Digital Image Processing",
+                "credits": 3.0
+              },
+              {
+                "code": "344-374",
+                "name": "Advanced Digital Image Processing",
+                "credits": 3.0
+              },
+              {
+                "code": "344-471",
+                "name": "Computer Vision and Applications",
+                "credits": 3.0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "others": [
+      {
+        "code": "344-496",
+        "name": "Special Topics in Computer Science",
+        "credits": 3.0
+      },
+      {
+        "code": "344-493",
+        "name": "Selected Topic in Computer Science I",
+        "credits": 3.0
+      },
+      {
+        "code": "344-494",
+        "name": "Selected Topic in Computer Science II",
+        "credits": 3.0
+      }
+    ]
+  }
+}

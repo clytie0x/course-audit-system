@@ -39,6 +39,42 @@ fn registration_pattern() -> &'static Regex {
     })
 }
 
+// Captures semester headers like "ภาคการศึกษา 1/2567" — used to tag each
+// subsequent course until the next header. The numeric form is stable across
+// grade and registration reports and doesn't depend on Thai font rendering.
+fn semester_pattern() -> &'static Regex {
+    static PATTERN: OnceLock<Regex> = OnceLock::new();
+    PATTERN.get_or_init(|| Regex::new(r"(\d{1,2}/\d{4})").expect("semester regex must compile"))
+}
+
+/// Returns every `(start_byte, "X/YYYY")` occurrence of a semester marker in
+/// the order it appears. Callers can then binary-search by course position
+/// to find the enclosing semester.
+fn collect_semester_boundaries(text: &str) -> Vec<(usize, String)> {
+    // Only anchor at "ภาคการศึกษา X/YYYY" — don't pick up random dates.
+    // Grab the header keyword + following digits separately so we don't
+    // depend on PDF whitespace quirks.
+    let mut out = Vec::new();
+    for (i, _) in text.match_indices("ภาคการศึกษา") {
+        // Look at up to 40 bytes after the keyword for "X/YYYY".
+        let tail_end = (i + "ภาคการศึกษา".len() + 40).min(text.len());
+        let tail = &text[i..tail_end];
+        if let Some(m) = semester_pattern().find(tail) {
+            out.push((i, m.as_str().to_string()));
+        }
+    }
+    out
+}
+
+fn semester_for(boundaries: &[(usize, String)], course_start: usize) -> Option<String> {
+    // Last boundary whose position is ≤ course_start.
+    boundaries
+        .iter()
+        .rev()
+        .find(|(pos, _)| *pos <= course_start)
+        .map(|(_, s)| s.clone())
+}
+
 pub(crate) fn normalize_course_code(raw_code: &str) -> String {
     let trimmed = if raw_code.len() >= 7 && raw_code.chars().nth(3) == Some('-') {
         raw_code[..7].to_string()
@@ -97,6 +133,7 @@ fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<Par
     let mut courses = Vec::new();
     let mut special_topics_count: std::collections::HashMap<String, u32> =
         std::collections::HashMap::new();
+    let boundaries = collect_semester_boundaries(text);
 
     for captures in pattern.captures_iter(text) {
         let Some(raw_code) = captures.get(1) else {
@@ -152,11 +189,14 @@ fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<Par
             name.to_string()
         };
 
+        let semester = semester_for(&boundaries, raw_code.start());
+
         courses.push(ParsedCourse {
             code: normalized_code,
             name: final_name,
             grade,
             parsed_credit,
+            semester,
         });
     }
 
@@ -294,5 +334,35 @@ mod tests {
         assert!(!is_passing_grade("IP"));
         assert!(is_passing_grade("A"));
         assert!(!is_passing_grade("F"));
+    }
+
+    #[test]
+    fn parse_tags_courses_with_semester_header() {
+        let text = "\
+            ภาคการศึกษา 1/2567
+            322-101 CALCULUS I 04 3 B+
+            ภาคการศึกษา 2/2567
+            322-102 CALCULUS II 01 3 A";
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses.len(), 2);
+        assert_eq!(courses[0].semester.as_deref(), Some("1/2567"));
+        assert_eq!(courses[1].semester.as_deref(), Some("2/2567"));
+    }
+
+    #[test]
+    fn parse_leaves_semester_none_before_first_header() {
+        let text = "322-101 CALCULUS I 04 3 B+";
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses[0].semester, None);
+    }
+
+    #[test]
+    fn parse_tags_registration_semesters_too() {
+        let text = "\
+            ภาคการศึกษา 2/2568
+            145-101 COMPANION ANIMALS 02 C 3.0";
+        let (courses, mode) = parse_transcript(text);
+        assert_eq!(mode, ParseMode::Registration);
+        assert_eq!(courses[0].semester.as_deref(), Some("2/2568"));
     }
 }
