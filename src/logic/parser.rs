@@ -3,21 +3,39 @@
 //! Extracts course data from PDF transcripts using Regex patterns.
 //! Uses JavaScript interop (via `wasm-bindgen`) to access PDF.js for text extraction,
 //! then parses course entries (code, name, credits, grade) from extracted text.
+//!
+//! Two PDF formats are supported, auto-detected by trying each in order:
+//! 1. **Grade report** — `code name section credit(int) grade`
+//! 2. **Registration report** — `code name section category credit(float)` (no grade yet).
+//!    Registration-matched courses are tagged with `grade = "IP"` (In Progress).
 
-use crate::models::ParsedCourse;
+use crate::models::{ParseMode, ParsedCourse};
 use regex::Regex;
 use std::sync::OnceLock;
 use wasm_bindgen::prelude::*;
 
-// Pattern: course code followed by name, section, credit, then grade
+// Grade-report pattern: `code name section credit grade`
 // Example: 322-101   CALCULUS I   04   3   B+
-fn course_pattern() -> &'static Regex {
+fn grade_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
         Regex::new(
             r"([A-Za-z0-9]{3}-?\d{3}[A-Za-z]?\d*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+(\d+)\s+(\d+)\s+([A-D][+]?|[FWPSUGE])",
         )
-        .expect("transcript course regex must compile")
+        .expect("transcript grade regex must compile")
+    })
+}
+
+// Registration-report pattern: `code name section category credit(float)`
+// Example: 145-101   COMPANION ANIMALS   02   C   3.0
+// Category can be `C`, `G4`, `G2A`, `G2B`, `G8` etc. (SIS subject-type codes).
+fn registration_pattern() -> &'static Regex {
+    static PATTERN: OnceLock<Regex> = OnceLock::new();
+    PATTERN.get_or_init(|| {
+        Regex::new(
+            r"([A-Za-z0-9]{3}-?\d{3}[A-Za-z]?\d*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+(\d+)\s+([A-Z]\d?[A-Z]?)\s+(\d+(?:\.\d+)?)",
+        )
+        .expect("registration regex must compile")
     })
 }
 
@@ -47,32 +65,74 @@ extern "C" {
 
 /// Parses transcript text into structured course entries, normalizing codes and
 /// greedily numbering special-topic courses (e.g., 344-496 Topic 1, Topic 2).
-pub fn parse_transcript(text: &str) -> Vec<ParsedCourse> {
+///
+/// Returns the detected `ParseMode` alongside the courses so callers can
+/// distinguish registration (grades not yet issued) from grade-report results.
+pub fn parse_transcript(text: &str) -> (Vec<ParsedCourse>, ParseMode) {
+    // Prefer the grade-report format when present, otherwise fall back to the
+    // registration format — they have disjoint signatures so no overlap.
+    let grade_courses = collect_courses(text, grade_pattern(), CourseFormat::Grade);
+    if !grade_courses.is_empty() {
+        return (grade_courses, ParseMode::Grade);
+    }
+
+    let registration_courses =
+        collect_courses(text, registration_pattern(), CourseFormat::Registration);
+    let mode = if registration_courses.is_empty() {
+        ParseMode::Grade
+    } else {
+        ParseMode::Registration
+    };
+    (registration_courses, mode)
+}
+
+enum CourseFormat {
+    /// `code name section credit grade`
+    Grade,
+    /// `code name section category credit(float)` — grade not yet issued.
+    Registration,
+}
+
+fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<ParsedCourse> {
     let mut courses = Vec::new();
     let mut special_topics_count: std::collections::HashMap<String, u32> =
         std::collections::HashMap::new();
 
-    for captures in course_pattern().captures_iter(text) {
-        // All captures exist because every capture group in the regex is
-        // unconditional (no `?` quantifier at the group level).
-        let (Some(raw_code), Some(name), Some(parsed_credit_str), Some(grade)) = (
-            captures.get(1),
-            captures.get(2),
-            captures.get(4),
-            captures.get(5),
-        ) else {
+    for captures in pattern.captures_iter(text) {
+        let Some(raw_code) = captures.get(1) else {
             continue;
         };
-        let raw_code = raw_code.as_str();
-        let name = name.as_str().trim();
-        let parsed_credit_str = parsed_credit_str.as_str();
-        let grade = grade.as_str().to_uppercase();
+        let Some(name) = captures.get(2) else {
+            continue;
+        };
 
-        let parsed_credit = parsed_credit_str.parse::<f32>().unwrap_or(3.0);
+        let (credit_str, grade) = match format {
+            CourseFormat::Grade => {
+                // groups: 1=code 2=name 3=section 4=credit(int) 5=grade
+                let Some(credit) = captures.get(4) else {
+                    continue;
+                };
+                let Some(g) = captures.get(5) else {
+                    continue;
+                };
+                (credit.as_str(), g.as_str().to_uppercase())
+            }
+            CourseFormat::Registration => {
+                // groups: 1=code 2=name 3=section 4=category 5=credit(float)
+                // Registration has no grade yet — tag as "IP" (In Progress).
+                let Some(credit) = captures.get(5) else {
+                    continue;
+                };
+                (credit.as_str(), "IP".to_string())
+            }
+        };
+
+        let name = name.as_str().trim();
+        let parsed_credit = credit_str.parse::<f32>().unwrap_or(3.0);
 
         // Normalize course code by trimming suffix (e.g., 890-103G1 -> 890-103)
         // and applying known equivalence mappings used by the curriculum.
-        let normalized_code = normalize_course_code(raw_code);
+        let normalized_code = normalize_course_code(raw_code.as_str());
 
         // Greedy match: Special topics (344-496 to 344-499) might be repeated.
         // We handle any course starting with 344-49, EXCEPT the specific Capstone/Core ones.
@@ -130,7 +190,8 @@ mod tests {
     #[test]
     fn parse_extracts_basic_course() {
         let text = "322-101 CALCULUS I 04 3 B+";
-        let courses = parse_transcript(text);
+        let (courses, mode) = parse_transcript(text);
+        assert_eq!(mode, ParseMode::Grade);
         assert_eq!(courses.len(), 1);
         assert_eq!(courses[0].code, "322-101");
         assert_eq!(courses[0].name, "CALCULUS I");
@@ -141,7 +202,7 @@ mod tests {
     #[test]
     fn parse_normalizes_legacy_code() {
         let text = "890-001 ENGLISH I 01 3 A";
-        let courses = parse_transcript(text);
+        let (courses, _) = parse_transcript(text);
         assert_eq!(courses.len(), 1);
         assert_eq!(courses[0].code, "890-101");
     }
@@ -149,7 +210,7 @@ mod tests {
     #[test]
     fn parse_numbers_repeated_special_topics() {
         let text = "344-496 TOPIC ALPHA 01 3 A 344-496 TOPIC BETA 02 3 B";
-        let courses = parse_transcript(text);
+        let (courses, _) = parse_transcript(text);
         assert_eq!(courses.len(), 2);
         assert!(courses[0].name.ends_with("(Topic 1)"));
         assert!(courses[1].name.ends_with("(Topic 2)"));
@@ -158,7 +219,7 @@ mod tests {
     #[test]
     fn parse_does_not_tag_non_repeatable_344_49x() {
         let text = "344-491 SENIOR PROJECT 01 3 A";
-        let courses = parse_transcript(text);
+        let (courses, _) = parse_transcript(text);
         assert_eq!(courses.len(), 1);
         assert_eq!(courses[0].name, "SENIOR PROJECT");
         assert!(!courses[0].name.contains("Topic"));
@@ -167,7 +228,7 @@ mod tests {
     #[test]
     fn parse_recognizes_non_letter_grades() {
         let text = "200-101 COURSE A 01 3 W 200-102 COURSE B 02 3 P";
-        let courses = parse_transcript(text);
+        let (courses, _) = parse_transcript(text);
         assert_eq!(courses.len(), 2);
         assert_eq!(courses[0].grade, "W");
         assert_eq!(courses[1].grade, "P");
@@ -176,6 +237,62 @@ mod tests {
     #[test]
     fn parse_ignores_malformed_lines() {
         let text = "This line has no course at all.";
-        assert!(parse_transcript(text).is_empty());
+        let (courses, mode) = parse_transcript(text);
+        assert!(courses.is_empty());
+        assert_eq!(mode, ParseMode::Grade);
+    }
+
+    #[test]
+    fn parse_registration_tags_courses_as_ip() {
+        let text = "145-101 COMPANION ANIMALS 02 C 3.0";
+        let (courses, mode) = parse_transcript(text);
+        assert_eq!(mode, ParseMode::Registration);
+        assert_eq!(courses.len(), 1);
+        assert_eq!(courses[0].code, "145-101");
+        assert_eq!(courses[0].grade, "IP");
+        assert_eq!(courses[0].parsed_credit, 3.0);
+    }
+
+    #[test]
+    fn parse_registration_handles_category_suffixes() {
+        // SIS uses categories like C, G4, G2A, G2B, G8 alongside float credits.
+        let text = "\
+            315-104G4 DIGITAL TECH 05 G4 2.0
+            895-222G2B CRITICAL THINKING 02 G2B 2.0
+            B03-001G4 GET SMART ON CYBER THREATS 01 G4 2.0";
+        let (courses, mode) = parse_transcript(text);
+        assert_eq!(mode, ParseMode::Registration);
+        assert_eq!(courses.len(), 3);
+        assert!(courses.iter().all(|c| c.grade == "IP"));
+        assert_eq!(courses[0].code, "315-104");
+        assert_eq!(courses[2].code, "B03-001");
+    }
+
+    #[test]
+    fn parse_grade_format_takes_priority_when_both_present() {
+        // If any grade-format match is found, use grade mode (ignore registration lines).
+        let text = "\
+            145-101 COMPANION ANIMALS 02 C 3.0
+            322-101 CALCULUS I 04 3 B+";
+        let (courses, mode) = parse_transcript(text);
+        assert_eq!(mode, ParseMode::Grade);
+        assert!(courses.iter().all(|c| c.grade != "IP"));
+    }
+
+    #[test]
+    fn is_in_progress_detects_ip_grade() {
+        use crate::models::is_in_progress;
+        assert!(is_in_progress("IP"));
+        assert!(is_in_progress(" ip "));
+        assert!(!is_in_progress("A"));
+        assert!(!is_in_progress(""));
+    }
+
+    #[test]
+    fn is_passing_grade_rejects_ip() {
+        use crate::models::is_passing_grade;
+        assert!(!is_passing_grade("IP"));
+        assert!(is_passing_grade("A"));
+        assert!(!is_passing_grade("F"));
     }
 }
