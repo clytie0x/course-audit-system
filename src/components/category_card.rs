@@ -109,12 +109,22 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                                     <div class="divide-y divide-zinc-100/80 dark:divide-zinc-800/80">
                                         {category_clone.courses.iter().map(|course| {
                                             let course = course.clone();
-                                            let grade_color = match course.grade.chars().next().unwrap_or('F') {
-                                                'A' => "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50",
-                                                'B' => "bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50",
-                                                'C' => "bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50",
-                                                'D' => "bg-orange-50 text-orange-700 border-orange-200/60 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-900/50",
-                                                _ => "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-300 dark:border-zinc-700",
+                                            let is_ip = course.grade.eq_ignore_ascii_case("IP");
+                                            let grade_color = if is_ip {
+                                                "bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50"
+                                            } else {
+                                                match course.grade.chars().next().unwrap_or('F') {
+                                                    'A' => "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50",
+                                                    'B' => "bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50",
+                                                    'C' => "bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50",
+                                                    'D' => "bg-orange-50 text-orange-700 border-orange-200/60 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-900/50",
+                                                    _ => "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-300 dark:border-zinc-700",
+                                                }
+                                            };
+                                            let credit_cell = if is_ip {
+                                                "—".to_string()
+                                            } else {
+                                                format!("{}", course.credit as u32)
                                             };
                                             view! {
                                                 <div class="flex items-center justify-between px-5 py-2.5 hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-colors">
@@ -123,10 +133,10 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                                                         <span class="text-[13px] text-zinc-700 dark:text-zinc-300 truncate">{&course.name}</span>
                                                     </div>
                                                     <div class="flex items-center gap-2.5 shrink-0 ml-3">
-                                                        <span class={format!("text-2xs font-bold w-7 h-5 flex items-center justify-center rounded border {}", grade_color)}>
+                                                        <span class={format!("text-2xs font-bold min-w-[1.75rem] h-5 px-1 flex items-center justify-center rounded border {}", grade_color)}>
                                                             {&course.grade}
                                                         </span>
-                                                        <span class="text-2xs text-zinc-400 dark:text-zinc-500 font-mono w-6 text-right">{format!("{}", course.credit as u32)}</span>
+                                                        <span class="text-2xs text-zinc-400 dark:text-zinc-500 font-mono w-6 text-right">{credit_cell}</span>
                                                     </div>
                                                 </div>
                                             }
