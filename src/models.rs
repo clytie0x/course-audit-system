@@ -15,6 +15,11 @@ pub struct Course {
     pub name: String,  // Course name
     pub credit: f32,   // Credits earned
     pub grade: String, // Letter grade (A, B, C, etc.)
+    /// Semester label from the transcript (e.g. "1/2567") or `None` for
+    /// planned/unknown. Not persisted by older save payloads — deserialization
+    /// falls back to None.
+    #[serde(default)]
+    pub semester: Option<String>,
 }
 
 /// Aggregates courses within a displayable category (e.g., General Education, Major)
@@ -181,6 +186,10 @@ pub struct ParsedCourse {
     pub name: String,
     pub grade: String,
     pub parsed_credit: f32,
+    /// Semester label scraped from the PDF, e.g. "1/2567". `None` for courses
+    /// that appeared outside any "ภาคการศึกษา X/YYYY" header, or for
+    /// user-added planned courses.
+    pub semester: Option<String>,
 }
 
 /// Which PDF format was detected by the parser. Drives UI messaging: in
@@ -279,6 +288,7 @@ mod tests {
             name: "TEST".to_string(),
             credit,
             grade: grade.to_string(),
+            semester: None,
         }
     }
 

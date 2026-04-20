@@ -452,6 +452,7 @@ mod tests {
             name: code.to_string(),
             grade: grade.to_string(),
             parsed_credit: credit,
+            semester: None,
         }
     }
 
