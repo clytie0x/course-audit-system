@@ -555,6 +555,17 @@ fn App() -> impl IntoView {
                             view! {
                                 <div class="space-y-5 animate-fade-in">
 
+                                    // ── Registration-mode banner ─────────────
+                                    {move || (parse_mode.get() == ParseMode::Registration).then(|| view! {
+                                        <div class="rounded-2xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/30 px-5 py-3 flex items-start gap-3" role="status">
+                                            <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                            <div class="text-[13px] text-amber-900 dark:text-amber-200 leading-relaxed">
+                                                <p class="font-semibold">{move || if is_thai.get() { "กำลังดูไฟล์ผลการลงทะเบียน" } else { "Viewing registration file" }}</p>
+                                                <p class="text-amber-800/90 dark:text-amber-300/90 mt-0.5">{move || if is_thai.get() { "วิชาที่กำลังเรียนแสดงเป็นแท็กสีเหลือง และยังไม่นับหน่วยกิตจนกว่าจะได้เกรด" } else { "In-progress courses appear with a yellow tag and don't count toward credits until graded." }}</p>
+                                            </div>
+                                        </div>
+                                    })}
+
                                     // ── Hero: Total Credits ─────────────────
                                     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft p-6 sm:p-8 relative overflow-hidden">
                                         <div class="absolute -right-16 -top-16 w-48 h-48 bg-brand-100/40 dark:bg-brand-900/20 rounded-full blur-3xl pointer-events-none"></div>

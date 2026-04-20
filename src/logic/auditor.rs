@@ -7,15 +7,27 @@
 //! - **Greedy Matching**: Allows repeatable courses to accumulate credits
 
 use crate::models::{
-    free_elective_dedupe_key, is_passing_grade, GenEdCurriculum, MajorCurriculum, MissingCourse,
-    ParsedCourse,
+    free_elective_dedupe_key, is_in_progress, is_passing_grade, GenEdCurriculum, MajorCurriculum,
+    MissingCourse, ParsedCourse,
 };
 use std::collections::HashSet;
 
+/// A course counts for *matching* (fills a curriculum slot) when it's passing
+/// **or** currently in-progress. Only passing courses count toward credit
+/// totals — see `earned_credits`.
+fn matches_curriculum_slot(parsed: &ParsedCourse) -> bool {
+    is_passing_grade(&parsed.grade) || is_in_progress(&parsed.grade)
+}
+
 /// Returns the lesser of the curriculum-defined credit value and the parsed
-/// transcript value, guarding against PDF-parsing drift.
-fn matched_course_credits(curriculum_credits: f32, parsed: &ParsedCourse) -> f32 {
-    curriculum_credits.min(parsed.parsed_credit)
+/// transcript value, guarding against PDF-parsing drift. In-progress courses
+/// fill their slot but contribute 0 credits until they're graded.
+fn earned_credits(curriculum_credits: f32, parsed: &ParsedCourse) -> f32 {
+    if is_in_progress(&parsed.grade) {
+        0.0
+    } else {
+        curriculum_credits.min(parsed.parsed_credit)
+    }
 }
 
 /// Audits courses against the GenEd curriculum, honoring strand sub-groups and
@@ -55,12 +67,11 @@ pub fn audit_gen_ed(
                                     courses.iter().enumerate().find(|(idx, parsed)| {
                                         !used_indices.contains(idx)
                                             && parsed.code == *code
-                                            && is_passing_grade(&parsed.grade)
+                                            && matches_curriculum_slot(parsed)
                                     })
                                 {
                                     found_indices.push(idx);
-                                    credits_sum +=
-                                        matched_course_credits(def_course.credits, parsed);
+                                    credits_sum += earned_credits(def_course.credits, parsed);
                                 }
                             }
                         }
@@ -106,10 +117,10 @@ pub fn audit_gen_ed(
                                 .find(|(idx, parsed)| {
                                     !used_indices.contains(idx)
                                         && parsed.code == course.code
-                                        && is_passing_grade(&parsed.grade)
+                                        && matches_curriculum_slot(parsed)
                                 })
                                 .map(|(idx, parsed)| {
-                                    (course, idx, matched_course_credits(course.credits, parsed))
+                                    (course, idx, earned_credits(course.credits, parsed))
                                 })
                         })
                     {
@@ -143,11 +154,10 @@ pub fn audit_gen_ed(
                                 courses.iter().enumerate().find(|(idx, parsed)| {
                                     !used_indices.contains(idx)
                                         && parsed.code == course.code
-                                        && is_passing_grade(&parsed.grade)
+                                        && matches_curriculum_slot(parsed)
                                 })
                             {
-                                let matched_credits =
-                                    matched_course_credits(course.credits, parsed);
+                                let matched_credits = earned_credits(course.credits, parsed);
                                 completed_credits += matched_credits;
                                 sub_group_credits += matched_credits;
                                 used_indices.insert(idx);
@@ -183,10 +193,10 @@ pub fn audit_gen_ed(
                             courses.iter().enumerate().find(|(idx, parsed)| {
                                 !used_indices.contains(idx)
                                     && parsed.code == course.code
-                                    && is_passing_grade(&parsed.grade)
+                                    && matches_curriculum_slot(parsed)
                             })
                         {
-                            let matched_credits = matched_course_credits(course.credits, parsed);
+                            let matched_credits = earned_credits(course.credits, parsed);
                             completed_credits += matched_credits;
                             used_indices.insert(idx);
                         } else {
@@ -210,9 +220,9 @@ pub fn audit_gen_ed(
             if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
                 !used_indices.contains(idx)
                     && parsed.code == course.code
-                    && is_passing_grade(&parsed.grade)
+                    && matches_curriculum_slot(parsed)
             }) {
-                let matched_credits = matched_course_credits(course.credits, parsed);
+                let matched_credits = earned_credits(course.credits, parsed);
                 completed_credits += matched_credits;
                 gen_ed_elective_total_credits += matched_credits;
                 sub_cat_credits += matched_credits;
@@ -279,9 +289,9 @@ pub fn audit_major(
         if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
             !used_indices.contains(idx)
                 && parsed.code == course.code
-                && is_passing_grade(&parsed.grade)
+                && matches_curriculum_slot(parsed)
         }) {
-            let matched_credits = matched_course_credits(course.credits, parsed);
+            let matched_credits = earned_credits(course.credits, parsed);
             completed_credits += matched_credits;
             used_indices.insert(idx);
         } else {
@@ -296,9 +306,9 @@ pub fn audit_major(
         if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
             !used_indices.contains(idx)
                 && parsed.code == course.code
-                && is_passing_grade(&parsed.grade)
+                && matches_curriculum_slot(parsed)
         }) {
-            let matched_credits = matched_course_credits(course.credits, parsed);
+            let matched_credits = earned_credits(course.credits, parsed);
             completed_credits += matched_credits;
             used_indices.insert(idx);
         } else {
@@ -314,9 +324,9 @@ pub fn audit_major(
         if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
             !used_indices.contains(idx)
                 && parsed.code == option.code
-                && is_passing_grade(&parsed.grade)
+                && matches_curriculum_slot(parsed)
         }) {
-            let matched_credits = matched_course_credits(option.credits, parsed);
+            let matched_credits = earned_credits(option.credits, parsed);
             completed_credits += matched_credits;
             used_indices.insert(idx);
             capstone_completed = true;
@@ -348,15 +358,15 @@ pub fn audit_major(
                 if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
                     !used_indices.contains(idx)
                         && parsed.code == course.code
-                        && is_passing_grade(&parsed.grade)
+                        && matches_curriculum_slot(parsed)
                 }) {
-                    let matched_credits = matched_course_credits(course.credits, parsed);
+                    let matched_credits = earned_credits(course.credits, parsed);
                     elective_credits += matched_credits;
                     used_indices.insert(idx);
                     courses_found_in_cluster += 1;
                 } else if courses
                     .iter()
-                    .any(|c| c.code == course.code && is_passing_grade(&c.grade))
+                    .any(|c| c.code == course.code && matches_curriculum_slot(c))
                 {
                     // Course taken but used elsewhere (or duplicate). Still counts towards completion of the cluster.
                     courses_found_in_cluster += 1;
@@ -385,9 +395,9 @@ pub fn audit_major(
         for (idx, parsed) in courses.iter().enumerate() {
             if !used_indices.contains(&idx)
                 && parsed.code == course.code
-                && is_passing_grade(&parsed.grade)
+                && matches_curriculum_slot(parsed)
             {
-                let matched_credits = matched_course_credits(course.credits, parsed);
+                let matched_credits = earned_credits(course.credits, parsed);
                 elective_credits += matched_credits;
                 used_indices.insert(idx);
             }
@@ -429,4 +439,73 @@ pub fn calculate_free_electives(
     }
 
     (free_elective_credits, free_elective_list)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::data::gen_ed::get_gen_ed_curriculum;
+
+    fn parsed(code: &str, grade: &str, credit: f32) -> ParsedCourse {
+        ParsedCourse {
+            code: code.to_string(),
+            name: code.to_string(),
+            grade: grade.to_string(),
+            parsed_credit: credit,
+        }
+    }
+
+    #[test]
+    fn ip_course_fills_slot_but_adds_zero_credits() {
+        // 388-100 "Health for All" is a required course in Strand 1.
+        let courses = vec![parsed("388-100", "IP", 1.0)];
+        let gen_ed = get_gen_ed_curriculum();
+        let (credits, missing, used) = audit_gen_ed(&courses, &gen_ed);
+
+        assert!(used.contains(&0), "IP course should fill its slot");
+        assert_eq!(credits, 0.0, "IP course must not add credits");
+        // Health for All should NOT appear in missing — its slot is filled.
+        assert!(
+            !missing
+                .iter()
+                .any(|m| m.description.contains("388-100") && m.description.contains("Health")),
+            "Filled slot should not appear in missing list"
+        );
+    }
+
+    #[test]
+    fn passing_course_still_adds_credits() {
+        let courses = vec![parsed("388-100", "A", 1.0)];
+        let gen_ed = get_gen_ed_curriculum();
+        let (credits, _missing, used) = audit_gen_ed(&courses, &gen_ed);
+
+        assert!(used.contains(&0));
+        assert_eq!(credits, 1.0, "passing course contributes its credits");
+    }
+
+    #[test]
+    fn ip_courses_excluded_from_free_electives() {
+        // A course with IP grade that isn't in the curriculum should NOT
+        // land in free electives — it's not yet graded.
+        let courses = vec![parsed("999-999", "IP", 3.0)];
+        let used = HashSet::new();
+        let (fe_credits, fe_list) = calculate_free_electives(&courses, &used);
+
+        assert_eq!(fe_credits, 0.0);
+        assert!(fe_list.is_empty());
+    }
+
+    #[test]
+    fn failing_grade_does_not_fill_slot() {
+        let courses = vec![parsed("388-100", "F", 1.0)];
+        let gen_ed = get_gen_ed_curriculum();
+        let (credits, missing, used) = audit_gen_ed(&courses, &gen_ed);
+
+        assert!(!used.contains(&0), "F grade must not fill slot");
+        assert_eq!(credits, 0.0);
+        assert!(
+            missing.iter().any(|m| m.description.contains("388-100")),
+            "F'd course's slot should still be listed as missing"
+        );
+    }
 }
