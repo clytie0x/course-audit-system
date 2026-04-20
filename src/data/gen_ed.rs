@@ -40,6 +40,11 @@ pub fn get_gen_ed_curriculum() -> GenEdCurriculum {
                         credits: 2.0,
                     },
                     GenEdCourse {
+                        code: "895-041".to_string(),
+                        name: "Ethical Philosophy".to_string(),
+                        credits: 2.0,
+                    },
+                    GenEdCourse {
                         code: "950-102".to_string(),
                         name: "Happy and Peaceful Life".to_string(),
                         credits: 3.0,
@@ -69,20 +74,39 @@ pub fn get_gen_ed_curriculum() -> GenEdCurriculum {
                     GenEdSubGroup {
                         name: "Living with Awareness".to_string(),
                         required_credits: 2.0,
-                        courses: vec![GenEdCourse {
-                            code: "315-201".to_string(),
-                            name: "Life in the Future".to_string(),
-                            credits: 2.0,
-                        }],
+                        courses: vec![
+                            GenEdCourse {
+                                code: "315-201".to_string(),
+                                name: "Life in the Future".to_string(),
+                                credits: 2.0,
+                            },
+                            GenEdCourse {
+                                code: "820-100".to_string(),
+                                name: "Save Earth Save Us".to_string(),
+                                credits: 2.0,
+                            },
+                        ],
                     },
                     GenEdSubGroup {
                         name: "Digital Literacy".to_string(),
                         required_credits: 2.0,
-                        courses: vec![GenEdCourse {
-                            code: "315-104".to_string(),
-                            name: "Digital Technology Literacy".to_string(),
-                            credits: 2.0,
-                        }],
+                        courses: vec![
+                            GenEdCourse {
+                                code: "315-104".to_string(),
+                                name: "Digital Technology Literacy".to_string(),
+                                credits: 2.0,
+                            },
+                            GenEdCourse {
+                                code: "200-104".to_string(),
+                                name: "Artificial Intelligence Literacy".to_string(),
+                                credits: 2.0,
+                            },
+                            GenEdCourse {
+                                code: "B03-001".to_string(),
+                                name: "Get Smart on Cyber Threats".to_string(),
+                                credits: 2.0,
+                            },
+                        ],
                     },
                 ]),
                 courses: None,
@@ -902,6 +926,11 @@ pub fn get_gen_ed_curriculum() -> GenEdCurriculum {
                             name: "Happy farm".to_string(),
                             credits: 2.0,
                         }, // คณะทรัพยากรธรรมชาติ
+                        GenEdCourse {
+                            code: "145-101".to_string(),
+                            name: "Companion Animals".to_string(),
+                            credits: 3.0,
+                        }, // คณะสัตวแพทยศาสตร์
                     ],
                 },
             ],
