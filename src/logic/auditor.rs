@@ -413,20 +413,18 @@ pub fn calculate_free_electives(
     let mut seen_free_electives: HashSet<String> = HashSet::new();
 
     for (idx, parsed) in courses.iter().enumerate() {
-        if !used_indices.contains(&idx) {
-            if is_passing_grade(&parsed.grade) {
-                let dedupe_key = free_elective_dedupe_key(&parsed.code, &parsed.name);
-                if !seen_free_electives.insert(dedupe_key) {
-                    continue;
-                }
-
-                let credits = parsed.parsed_credit;
-                free_elective_credits += credits;
-                free_elective_list.push(format!(
-                    "{} (Grade: {}, {} cr)",
-                    parsed.code, parsed.grade, credits
-                ));
+        if !used_indices.contains(&idx) && is_passing_grade(&parsed.grade) {
+            let dedupe_key = free_elective_dedupe_key(&parsed.code, &parsed.name);
+            if !seen_free_electives.insert(dedupe_key) {
+                continue;
             }
+
+            let credits = parsed.parsed_credit;
+            free_elective_credits += credits;
+            free_elective_list.push(format!(
+                "{} (Grade: {}, {} cr)",
+                parsed.code, parsed.grade, credits
+            ));
         }
     }
 
