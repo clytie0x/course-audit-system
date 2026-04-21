@@ -6,11 +6,97 @@
 //! - **Free Elective Detection**: Credits unmatched courses as free electives
 //! - **Greedy Matching**: Allows repeatable courses to accumulate credits
 
+use crate::data::{gen_ed::get_gen_ed_curriculum, major::get_major_curriculum};
 use crate::models::{
-    free_elective_dedupe_key, is_in_progress, is_passing_grade, GenEdCurriculum, MajorCurriculum,
-    MissingCourse, ParsedCourse,
+    compute_gpa, free_elective_dedupe_key, is_in_progress, is_passing_grade, AuditResult, Category,
+    Course, GenEdCurriculum, MajorCurriculum, MissingCourse, ParsedCourse,
 };
 use std::collections::HashSet;
+
+/// Runs the full audit pipeline (GenEd → Major → free electives → GPA) over a
+/// course list and returns the UI-facing `AuditResult`. The What-If simulator
+/// re-invokes this on every plan change, so it's intentionally pure — no
+/// signals, no I/O.
+pub fn build_audit(parsed: &[ParsedCourse]) -> AuditResult {
+    let gen_ed = get_gen_ed_curriculum();
+    let major = get_major_curriculum();
+
+    let (gen_ed_credits, gen_ed_missing, gen_ed_used) = audit_gen_ed(parsed, &gen_ed);
+    let (major_credits, elective_credits, major_missing, major_used) = audit_major(parsed, &major);
+
+    let mut all_used_courses = gen_ed_used.clone();
+    all_used_courses.extend(major_used.clone());
+
+    let (free_elective_credits, _) = calculate_free_electives(parsed, &all_used_courses);
+
+    let mut all_missing: Vec<MissingCourse> = gen_ed_missing;
+    all_missing.extend(major_missing);
+    // Drop GenEd-wide misses when the total pool is met; Major/Core misses
+    // are strict slots and stay regardless of totals.
+    all_missing.retain(|m| match m.category.as_str() {
+        "General Education" => gen_ed_credits < gen_ed.total_required_credits,
+        _ => true,
+    });
+
+    let total_credits = gen_ed_credits + major_credits + elective_credits + free_elective_credits;
+
+    let mut gen_ed_courses = Vec::new();
+    let mut major_courses = Vec::new();
+    let mut free_elective_courses = Vec::new();
+    let mut seen_free_electives: HashSet<String> = HashSet::new();
+
+    for (idx, p) in parsed.iter().enumerate() {
+        let course = Course {
+            code: p.code.clone(),
+            name: p.name.clone(),
+            credit: p.parsed_credit,
+            grade: p.grade.clone(),
+            semester: p.semester.clone(),
+        };
+        if gen_ed_used.contains(&idx) {
+            gen_ed_courses.push(course);
+        } else if major_used.contains(&idx) {
+            major_courses.push(course);
+        } else if is_passing_grade(&p.grade) {
+            let dedupe_key = free_elective_dedupe_key(&p.code, &p.name);
+            if seen_free_electives.insert(dedupe_key) {
+                free_elective_courses.push(course);
+            }
+        }
+    }
+
+    let mut graded: Vec<Course> = Vec::new();
+    graded.extend(gen_ed_courses.iter().cloned());
+    graded.extend(major_courses.iter().cloned());
+    graded.extend(free_elective_courses.iter().cloned());
+    let gpa = compute_gpa(&graded);
+
+    AuditResult {
+        total_credits,
+        categories: vec![
+            Category {
+                name: "General Education".to_string(),
+                required_credits: gen_ed.total_required_credits,
+                collected_credits: gen_ed_credits,
+                courses: gen_ed_courses,
+            },
+            Category {
+                name: "Major Courses".to_string(),
+                required_credits: major.total_required_credits,
+                collected_credits: major_credits + elective_credits,
+                courses: major_courses,
+            },
+            Category {
+                name: "Free Electives".to_string(),
+                required_credits: 6.0,
+                collected_credits: free_elective_credits,
+                courses: free_elective_courses,
+            },
+        ],
+        missing_subjects: all_missing,
+        gpa,
+    }
+}
 
 /// A course counts for *matching* (fills a curriculum slot) when it's passing
 /// **or** currently in-progress. Only passing courses count toward credit
