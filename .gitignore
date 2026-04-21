@@ -1,7 +1,7 @@
-# Rust
+# Rust build artifacts.
+# Cargo.lock is intentionally tracked — this is a binary crate, not a library.
 /target
 /dist
-Cargo.lock
 **/*.rs.bk
 
 # Node/npm
