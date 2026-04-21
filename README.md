@@ -1,209 +1,330 @@
+<div align="center">
+
 # Course Audit System
 
-> Privacy-first transcript auditor for **PSU Computer Science** — powered by **Rust + WebAssembly**.
+**Privacy-first transcript auditor for PSU Computer Science**
 
-Upload your PDF transcript (or registration report), and see exactly where you stand against graduation requirements. **Everything runs in your browser — no server, no uploads, no data leaves your device.**
+Upload a PDF — see exactly where you stand on graduation requirements.
+Everything runs in your browser. Nothing ever leaves your device.
+
+<br />
+
+[![CI](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/ci.yml)
+[![Deploy](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/deploy.yml)
+![Rust](https://img.shields.io/badge/rust-stable-orange?logo=rust&logoColor=white)
+![Leptos 0.6](https://img.shields.io/badge/leptos-0.6-purple)
+![WASM](https://img.shields.io/badge/wasm-WebAssembly-654ff0?logo=webassembly&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](#license)
+
+[**Quick start**](#quick-start) · [**Features**](#features) · [**How it works**](#how-it-works) · [**Project structure**](#project-structure) · [**Curriculum**](#curriculum-coverage)
+
+</div>
 
 ---
 
 ## Features
 
-- **Audit engine** — matches courses against the full PSU CS curriculum: General Education (30 cr), Basic Science, Core, Capstone (choose one), Major Electives (cluster rules), and auto-detected Free Electives.
-- **Two PDF formats** — accepts both the **SIS Grade Report** (with grades) and the **Registration Report** (no grades yet). The parser auto-detects which and flags in-progress courses.
-- **GPA calculator** — overall GPA on a 4.0 scale, weighted by credits, excluding W/P/S/G/IP.
-- **What-If simulator** — add hypothetical courses with expected grades and see the projected impact on credits and GPA live.
-- **Semester view** — drill into each `X/YYYY` term to see courses and per-semester GPA.
-- **Dark mode** — system-preference aware, toggleable, flash-free on first paint.
-- **Export & share** — JSON download, Print / Save-PDF, copy missing requirements to clipboard.
-- **Offline-capable (PWA)** — installable; app shell cached via service worker.
-- **Bilingual** — ไทย / English toggle, persists across sessions.
-- **Opt-in save** — optionally keep the last result in `localStorage`; off by default.
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Full audit engine
+Matches courses against the PSU CS curriculum:
+GenEd (30) · Basic Science (12) · Core (56) · Capstone (3–6) · Major Electives with cluster rules · Free Electives auto-detected.
+
+</td>
+<td width="50%" valign="top">
+
+### Two PDF formats, auto-detected
+**SIS Grade Report** (with grades) and **Registration Report** (no grades yet). In-progress courses fill their curriculum slot but contribute 0 credits until graded.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### GPA calculator
+Overall GPA on the 4.0 scale, weighted by credit hours, excluding W/P/S/G/IP.
+
+</td>
+<td valign="top">
+
+### What-If simulator
+Add hypothetical courses with expected grades, watch credits and GPA update live.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### Semester-by-semester view
+Collapsible accordion for each `X/YYYY` term with per-semester GPA and credit totals.
+
+</td>
+<td valign="top">
+
+### Export & share
+JSON download · Print / Save-PDF (print stylesheet) · Copy missing requirements to clipboard.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### Dark mode
+System-preference aware, toggleable, flash-free on first paint (pre-hydration script).
+
+</td>
+<td valign="top">
+
+### Offline-capable PWA
+Installable, app shell cached via service worker, works without network on repeat visits.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### Bilingual
+ไทย / English toggle, persisted across sessions, separate from system language.
+
+</td>
+<td valign="top">
+
+### Opt-in persistence
+Off by default. Optional checkbox keeps your last result in `localStorage` for next time.
+
+</td>
+</tr>
+</table>
 
 ---
 
-## Quick Start
+## Quick start
 
-### Prerequisites
+**Prerequisites**
 
-| Tool                         | Version | Purpose                                    |
-| ---------------------------- | ------- | ------------------------------------------ |
-| [Rust](https://rustup.rs)    | stable  | Compiler + `wasm32-unknown-unknown` target |
-| [Trunk](https://trunkrs.dev) | 0.17+   | WASM bundler, dev server, Tailwind CLI     |
+| Tool | Version | Purpose |
+| --- | --- | --- |
+| [Rust](https://rustup.rs) | stable | Compiler + `wasm32-unknown-unknown` target |
+| [Trunk](https://trunkrs.dev) | 0.17+ | WASM bundler · dev server · Tailwind CLI |
+
+**One-time setup**
 
 ```bash
-# one-time
 rustup target add wasm32-unknown-unknown
 cargo install trunk
 ```
 
-### Development
+**Develop**
 
 ```bash
 trunk serve --open
-# → http://localhost:8080
+# → http://localhost:8080  (hot reload)
 ```
 
-### Production Build
+**Release build**
 
 ```bash
 trunk build --release
-# → dist/   (opt-level='z', LTO, single codegen-unit)
+# → dist/  (opt-level='z', LTO, single codegen-unit)
 ```
 
 ---
 
-## How It Works
+## How it works
 
 ```
- PDF  ──▶  PDF.js       ──▶  Rust parser   ──▶  Audit engine  ──▶  Leptos UI
-          (browser)         (auto-detect        (GenEd / Major      (donuts,
-                             Grade vs            / electives /       progress,
-                             Registration)       free electives      What-If,
-                                                 + GPA)              semesters)
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│  Upload PDF  │ → │   PDF.js     │ → │ Rust parser  │ → │ Audit engine │
+│ (drag/drop)  │   │ (browser,    │   │ (regex,      │   │ (GenEd +     │
+│              │   │  JS interop) │   │  auto-detect │   │  Major +     │
+│              │   │              │   │  format)     │   │  electives + │
+│              │   │              │   │              │   │  GPA)        │
+└──────────────┘   └──────────────┘   └──────────────┘   └──────┬───────┘
+                                                                │
+                                                         ┌──────▼───────┐
+                                                         │  Leptos UI   │
+                                                         │ donuts · bars│
+                                                         │ What-If      │
+                                                         └──────────────┘
 ```
 
-1. **Upload** — drag & drop or click. PDF never leaves the browser.
-2. **Extract** — PDF.js pulls raw text per page (JS interop from WASM).
-3. **Parse** — a regex-based parser runs in Rust:
-   - Two patterns, tried in order: Grade-report (`code name sec credit grade`) → Registration (`code name sec category credit-float`).
+1. **Upload** — drag & drop or click. The file is read into memory only.
+2. **Extract** — PDF.js pulls raw text per page via JS interop from WASM.
+3. **Parse** — a regex-based parser (two patterns tried in order):
+   - Grade-report: `code · name · section · credit · grade`
+   - Registration: `code · name · section · category · credit-float` (tagged as IP)
    - Semester headers (`ภาคการศึกษา X/YYYY`) anchor every course to its term.
    - Course codes are normalized (`890-001 → 890-101`, trailing `G1/G4/G2A…` stripped).
-   - Repeated special topics (`344-496`…`344-499`) get greedy `(Topic N)` suffixes.
-4. **Audit** — `build_audit()` combines user's courses (+ any What-If planned ones) with curriculum data:
-   - **GenEd** supports 4 selection rules: `choose_all`, `choose_one`, `choose_sequential_pair`, `choose_all_sub_groups`.
-   - **Major** enforces exact-slot requirements for Basic Science / Core / Capstone, plus cluster-completion rules for electives.
-   - **In-progress (IP)** courses fill curriculum slots but contribute **0 credits** until graded.
-5. **Display** — Leptos renders donut charts, progress bars, a per-semester accordion, missing requirements, and the What-If planner. GPA shown beside total credits.
+   - Repeated special topics (`344-496…499`) get greedy `(Topic N)` suffixes.
+4. **Audit** — `build_audit()` combines parsed + any What-If planned courses and runs:
+   - **GenEd**: 4 rules — `choose_all`, `choose_one`, `choose_sequential_pair`, `choose_all_sub_groups`.
+   - **Major**: exact-slot matching for Basic Science / Core / Capstone, cluster-completion for electives.
+   - **In-progress (IP)**: fills the slot, adds **0 credits** until graded.
+5. **Display** — Leptos renders donut charts, progress bars, per-semester accordion, missing requirements, What-If planner. GPA shown next to total credits.
 
 ### Privacy guarantees
 
-| Layer          | Behavior                                                    |
-| -------------- | ----------------------------------------------------------- |
-| **Processing** | 100% in-browser WebAssembly                                 |
-| **Network**    | Only loads static assets + PDF.js CDN; no user data sent    |
-| **Storage**    | Nothing by default. Opt-in `localStorage` for last result   |
-| **Code**       | Open source, fully auditable                                |
+| Layer | Behavior |
+| --- | --- |
+| **Processing** | 100% in-browser WebAssembly |
+| **Network** | Static assets + PDF.js CDN only — no user data ever sent |
+| **Storage** | Nothing by default. Opt-in `localStorage` for last result |
+| **Code** | Open source, fully auditable |
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 course-audit-system/
-├── Cargo.toml                    # Rust deps + release profile (opt-level='z', LTO)
-├── Cargo.lock                    # Tracked (binary crate)
-├── Trunk.toml                    # Bundler config
-├── index.html                    # Entry + PDF.js loader + service-worker registration
-├── manifest.webmanifest          # PWA manifest (standalone, theme colors)
-├── sw.js                         # Service worker (app-shell cache, network-first)
-├── style.css                     # Tailwind directives + print stylesheet
-├── tailwind.config.js            # darkMode: 'class', brand palette, animations
+├── Cargo.toml               Rust deps + release profile
+├── Trunk.toml               Bundler config
+├── index.html               Entry + PDF.js loader + SW registration
+├── manifest.webmanifest     PWA manifest (standalone, theme colors)
+├── sw.js                    Service worker (app-shell cache, network-first)
+├── style.css                Tailwind directives + print stylesheet
+├── tailwind.config.js       darkMode: 'class' + brand palette + animations
 │
 ├── src/
-│   ├── main.rs                   # Tiny entry point — panic hook + mount App
-│   ├── app.rs                    # Top-level App component, all UI state
-│   ├── models.rs                 # Data types + utility fns (GPA, dedupe, IP, etc.)
+│   ├── main.rs              Tiny entry — panic hook + mount App
+│   ├── app.rs               App component · all UI state & handlers
+│   ├── models.rs            Data types + utilities (GPA, dedupe, IP)
 │   │
 │   ├── components/
-│   │   └── category_card.rs      # Collapsible category accordion
+│   │   └── category_card.rs Collapsible category accordion
 │   │
 │   ├── data/
-│   │   ├── gen_ed.rs  + gen_ed.json
-│   │   └── major.rs   + major.json   # JSON is the source of truth; .rs loads it
+│   │   ├── gen_ed.rs + gen_ed.json   JSON is source of truth
+│   │   └── major.rs  + major.json    .rs loads via include_str!
 │   │
 │   └── logic/
-│       ├── parser.rs             # Two regex patterns + semester detection
-│       └── auditor.rs            # GenEd/Major/FreeElective + build_audit()
+│       ├── parser.rs        Two regex patterns + semester detection
+│       └── auditor.rs       GenEd / Major / FreeElective + build_audit()
 │
 └── .github/
     ├── workflows/
-    │   ├── ci.yml                # fmt · clippy · test on every push/PR
-    │   └── deploy.yml            # Build with Trunk → GitHub Pages
-    └── dependabot.yml            # Weekly cargo + monthly actions updates
+    │   ├── ci.yml           fmt · clippy · test on every push/PR
+    │   └── deploy.yml       trunk build → GitHub Pages
+    └── dependabot.yml       Weekly cargo, monthly actions
 ```
 
-### Editing the curriculum
+<details>
+<summary><b>Editing the curriculum</b></summary>
 
-The two JSON files under `src/data/` are the source of truth. Edit them directly — no Rust knowledge needed. If you'd rather modify the Rust form and dump JSON, there's a regen helper:
+The JSON files under `src/data/` are the source of truth. Edit them directly — no Rust knowledge needed.
+
+If you'd rather tweak the Rust builders and regenerate JSON:
 
 ```bash
-# After editing the get_*_curriculum() builders, regenerate the JSON:
 cargo test dump_curricula -- --ignored
 ```
 
+</details>
+
 ---
 
-## Curriculum Coverage
+## Curriculum coverage
 
-| Category              | Required    | Details                                                                                   |
-| --------------------- | ----------- | ----------------------------------------------------------------------------------------- |
-| **General Education** | 30 cr       | 7 strands (choose-all / choose-one / choose-sequential-pair / sub-groups) + 6 elective sub-categories |
-| **Basic Science**     | 12 cr       | Math, Physics, Chemistry foundations                                                      |
-| **Core Courses**      | 56 cr       | All required CS courses                                                                   |
-| **Capstone**          | 3–6 cr      | Senior Project *or* Co-operative Education (choose 1)                                     |
-| **Major Electives**   | 12 cr       | Domain-based clusters — complete at least 2 full clusters                                 |
-| **Free Electives**    | 6 cr        | Auto-detected from unmatched passing courses                                              |
-| **Total**             | **~132 cr** | Full B.Sc. (Computer Science)                                                             |
+| Category | Required | Details |
+| --- | --- | --- |
+| **General Education** | 30 cr | 7 strands (choose-all · choose-one · choose-sequential-pair · sub-groups) + 6 elective sub-categories |
+| **Basic Science** | 12 cr | Math · Physics · Chemistry foundations |
+| **Core Courses** | 56 cr | All required CS courses |
+| **Capstone** | 3–6 cr | Senior Project **or** Co-operative Education — choose 1 |
+| **Major Electives** | 12 cr | Domain-based clusters — complete at least 2 full clusters |
+| **Free Electives** | 6 cr | Auto-detected from unmatched passing courses |
+| **Total** | **~132 cr** | Full B.Sc. (Computer Science) |
 
-### Audit rules in detail
+<details>
+<summary><b>Audit rules in detail</b></summary>
 
-- **Slot-fill vs credit count.** A passing grade fills its slot *and* adds credits. An **IP** course fills its slot but adds **0 credits** — it shows as "in progress" and doesn't unfairly fail the audit.
+- **Slot-fill vs credit count.** A passing grade fills its slot *and* adds credits. An **IP** (in-progress) course fills its slot but adds **0 credits** — the audit doesn't unfairly fail you for current-semester courses.
 - **Greedy matching.** Repeatable special topics (344-496…499) accumulate across multiple enrollments.
-- **Code normalization.** Legacy codes (`890-001 → 890-101`, etc.) and suffixed codes (`890-103G1 → 890-103`) are mapped to the curriculum form.
-- **Credit cap.** Credits come from the curriculum definition, capped by the transcript value — this guards against PDF-parse drift inflating a course's credit.
-- **Deduplication.** Special topics keyed by `code::name`; regular courses by code.
+- **Code normalization.** Legacy codes (`890-001 → 890-101`) and suffixed codes (`890-103G1 → 890-103`) are mapped to the curriculum form.
+- **Credit cap.** Credits come from the curriculum definition, capped by the transcript value — guards against PDF-parse drift inflating a course's credit.
+- **Deduplication.** Special topics are keyed by `code::name`; regular courses by code alone.
+
+</details>
 
 ---
 
-## Tech Stack
+## Tech stack
 
-| Layer     | Technology                                | Role                                   |
-| --------- | ----------------------------------------- | -------------------------------------- |
-| Language  | **Rust** (2021 edition)                   | Type-safe, compiles to WASM            |
-| UI        | **Leptos 0.6** (CSR)                      | Reactive UI with fine-grained signals  |
-| Build     | **Trunk**                                 | WASM bundler, asset pipeline, dev server |
-| Styling   | **Tailwind CSS** (class-based dark mode)  | Utility-first                          |
-| Fonts     | **Inter Variable**, **Prompt**, **JetBrains Mono** | UI · Thai · monospace            |
-| PDF       | **PDF.js 3.11**                           | Client-side text extraction            |
-| Interop   | `wasm-bindgen`, `web-sys`, `js-sys`, `gloo-file` | Rust ↔ JavaScript bridge      |
-| Persist.  | `localStorage`, `serde_json`              | Opt-in save/restore                    |
+<table>
+<tr>
+<td><b>Language</b></td>
+<td>Rust (2021 edition) — compiles to WASM</td>
+</tr>
+<tr>
+<td><b>UI</b></td>
+<td>Leptos 0.6 (CSR) — reactive UI with fine-grained signals</td>
+</tr>
+<tr>
+<td><b>Build</b></td>
+<td>Trunk — WASM bundler, asset pipeline, dev server</td>
+</tr>
+<tr>
+<td><b>Styling</b></td>
+<td>Tailwind CSS (class-based dark mode) — utility-first</td>
+</tr>
+<tr>
+<td><b>Fonts</b></td>
+<td>Inter Variable · Prompt (Thai) · JetBrains Mono</td>
+</tr>
+<tr>
+<td><b>PDF</b></td>
+<td>PDF.js 3.11 — client-side text extraction</td>
+</tr>
+<tr>
+<td><b>Interop</b></td>
+<td><code>wasm-bindgen</code> · <code>web-sys</code> · <code>js-sys</code> · <code>gloo-file</code></td>
+</tr>
+<tr>
+<td><b>Persistence</b></td>
+<td><code>localStorage</code> + <code>serde_json</code> (opt-in)</td>
+</tr>
+</table>
 
 ### Release optimizations
 
 ```toml
 [profile.release]
-opt-level = 'z'    # size over speed
+opt-level = 'z'      # size over speed
 lto = true
 codegen-units = 1
 ```
 
 ---
 
-## Quality Gates
+## Quality gates
 
-- `cargo fmt --all -- --check` — formatting
-- `cargo clippy --all-targets -- -D warnings` — lints as errors
-- `cargo test` — unit tests (26 covering parser, auditor, GPA, IP handling, semester tagging, legacy normalization, special-topic greedy match)
+Every push and PR runs three gates (`.github/workflows/ci.yml`):
 
-All three run on every push and PR via `.github/workflows/ci.yml`. A Rust build cache keeps CI fast.
+```
+cargo fmt --all -- --check           format
+cargo clippy --all-targets -D warnings  lints as errors
+cargo test                           26 unit tests
+```
+
+Test coverage spans the parser (format auto-detect, code normalization, semester tagging, special-topic greedy match), the auditor (GenEd rules, IP slot-fill vs credits, free-elective bucket), and utilities (GPA calculation, in-progress detection).
 
 ---
 
 ## Deployment
 
-### GitHub Pages (automatic)
+**GitHub Pages (automatic)** — push to `main` → `.github/workflows/deploy.yml` builds with Trunk and deploys.
 
-Push to `main` → `.github/workflows/deploy.yml` builds with Trunk and deploys to Pages.
-
-### Manual / other hosts
+**Manual / other hosts**
 
 ```bash
 trunk build --release --public-url /your-base-path/
-# Upload dist/ to any static host (Netlify, Vercel, Cloudflare Pages, S3…)
+# upload dist/ to Netlify · Vercel · Cloudflare Pages · S3 · etc.
 ```
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE)
