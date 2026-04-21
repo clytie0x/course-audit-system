@@ -16,11 +16,14 @@ use wasm_bindgen::prelude::*;
 
 // Grade-report pattern: `code name section credit grade`
 // Example: 322-101   CALCULUS I   04   3   B+
+// Uses [0-9] (not \d) because the regex crate's \d is Unicode-aware and
+// would happily match Thai numerals, producing multi-byte captures that
+// break downstream byte slicing.
 fn grade_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
         Regex::new(
-            r"([A-Za-z0-9]{3}-?\d{3}[A-Za-z]?\d*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+(\d+)\s+(\d+)\s+([A-D][+]?|[FWPSUGE])",
+            r"([A-Za-z0-9]{3}-?[0-9]{3}[A-Za-z]?[0-9]*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([0-9]+)\s+([A-D][+]?|[FWPSUGE])",
         )
         .expect("transcript grade regex must compile")
     })
@@ -33,7 +36,7 @@ fn registration_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
         Regex::new(
-            r"([A-Za-z0-9]{3}-?\d{3}[A-Za-z]?\d*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+(\d+)\s+([A-Z]\d?[A-Z]?)\s+(\d+(?:\.\d+)?)",
+            r"([A-Za-z0-9]{3}-?[0-9]{3}[A-Za-z]?[0-9]*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([A-Z][0-9]?[A-Z]?)\s+([0-9]+(?:\.[0-9]+)?)",
         )
         .expect("registration regex must compile")
     })
@@ -74,8 +77,14 @@ fn semester_for(boundaries: &[(usize, String)], course_start: usize) -> Option<S
 }
 
 pub(crate) fn normalize_course_code(raw_code: &str) -> String {
-    let trimmed = if raw_code.len() >= 7 && raw_code.chars().nth(3) == Some('-') {
-        raw_code[..7].to_string()
+    // The Rust regex crate is Unicode-aware by default, so `\d` can match
+    // Thai numerals (๐-๙) — each 3 bytes. Byte-slicing at `[..7]` therefore
+    // panics mid-character and compiles to `RuntimeError: unreachable` in
+    // WASM. Count chars explicitly and use a char-aware take(7) instead.
+    let char_count = raw_code.chars().count();
+    let has_dash_at_3 = raw_code.chars().nth(3) == Some('-');
+    let trimmed = if char_count >= 7 && has_dash_at_3 {
+        raw_code.chars().take(7).collect::<String>()
     } else {
         raw_code.to_string()
     };
@@ -362,6 +371,15 @@ mod tests {
         let (courses, mode) = parse_transcript(text);
         assert_eq!(mode, ParseMode::Registration);
         assert_eq!(courses[0].semester.as_deref(), Some("2/2568"));
+    }
+
+    #[test]
+    fn normalize_does_not_panic_on_unicode_input() {
+        // Defensive regression: even if the caller someday passes in a string
+        // with multi-byte characters, normalize_course_code must not panic.
+        // The previous byte-slice `raw_code[..7]` would split a Thai glyph.
+        assert_eq!(normalize_course_code("๓๒๒-๑๐๑G1"), "๓๒๒-๑๐๑");
+        assert_eq!(normalize_course_code("abc-๑๒๓"), "abc-๑๒๓");
     }
 
     #[test]

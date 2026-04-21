@@ -3,7 +3,9 @@
 // Keeps the privacy-first guarantee — we never cache user data, only the
 // static app shell.
 
-const CACHE = 'course-audit-v1';
+// Bump this on every release that ships a parser/audit change — the old
+// hashed wasm may still be served from cache otherwise.
+const CACHE = 'course-audit-v2';
 const CORE_ASSETS = [
     './',
     './index.html',
