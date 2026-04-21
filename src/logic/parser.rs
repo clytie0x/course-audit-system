@@ -39,31 +39,29 @@ fn registration_pattern() -> &'static Regex {
     })
 }
 
-// Captures semester headers like "ภาคการศึกษา 1/2567" — used to tag each
-// subsequent course until the next header. The numeric form is stable across
-// grade and registration reports and doesn't depend on Thai font rendering.
-fn semester_pattern() -> &'static Regex {
+// Captures full "ภาคการศึกษา X/YYYY" headers in a single regex so we never
+// hand-slice the underlying text — the previous implementation sliced at a
+// fixed byte offset which panicked (RuntimeError: unreachable) whenever the
+// offset landed inside a Thai multi-byte UTF-8 character.
+fn semester_header_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
-    PATTERN.get_or_init(|| Regex::new(r"(\d{1,2}/\d{4})").expect("semester regex must compile"))
+    PATTERN.get_or_init(|| {
+        Regex::new(r"ภาคการศึกษา\s*(\d{1,2}/\d{4})").expect("semester header regex must compile")
+    })
 }
 
 /// Returns every `(start_byte, "X/YYYY")` occurrence of a semester marker in
 /// the order it appears. Callers can then binary-search by course position
 /// to find the enclosing semester.
 fn collect_semester_boundaries(text: &str) -> Vec<(usize, String)> {
-    // Only anchor at "ภาคการศึกษา X/YYYY" — don't pick up random dates.
-    // Grab the header keyword + following digits separately so we don't
-    // depend on PDF whitespace quirks.
-    let mut out = Vec::new();
-    for (i, _) in text.match_indices("ภาคการศึกษา") {
-        // Look at up to 40 bytes after the keyword for "X/YYYY".
-        let tail_end = (i + "ภาคการศึกษา".len() + 40).min(text.len());
-        let tail = &text[i..tail_end];
-        if let Some(m) = semester_pattern().find(tail) {
-            out.push((i, m.as_str().to_string()));
-        }
-    }
-    out
+    semester_header_pattern()
+        .captures_iter(text)
+        .filter_map(|cap| {
+            let full = cap.get(0)?;
+            let sem = cap.get(1)?;
+            Some((full.start(), sem.as_str().to_string()))
+        })
+        .collect()
 }
 
 fn semester_for(boundaries: &[(usize, String)], course_start: usize) -> Option<String> {
@@ -364,5 +362,25 @@ mod tests {
         let (courses, mode) = parse_transcript(text);
         assert_eq!(mode, ParseMode::Registration);
         assert_eq!(courses[0].semester.as_deref(), Some("2/2568"));
+    }
+
+    #[test]
+    fn parse_does_not_panic_on_thai_text_after_semester_header() {
+        // Regression: the old implementation sliced the text at a fixed byte
+        // offset relative to the semester header, which panicked whenever the
+        // offset landed inside a Thai multi-byte UTF-8 character. This mirrors
+        // the layout produced by pdftotext on a real PSU SIS transcript.
+        let text = "\
+            ภาคการศึกษา 1/2567
+            รหัสวิชา ชื่อวิชา ตอน หน่วยกิต ผลการเรียน
+            322-101 CALCULUS I 04 3 B+
+            ภาคการศึกษา 2/2567
+            322-102 CALCULUS II 01 3 A";
+        // The panic used to surface as `RuntimeError: unreachable` in WASM.
+        // Running the parser to completion is the assertion.
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses.len(), 2);
+        assert_eq!(courses[0].semester.as_deref(), Some("1/2567"));
+        assert_eq!(courses[1].semester.as_deref(), Some("2/2567"));
     }
 }
