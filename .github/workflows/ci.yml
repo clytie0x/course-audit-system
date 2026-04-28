@@ -2,34 +2,41 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
   pull_request:
-    branches: ["main"]
+    branches: [main]
 
-env:
-  CARGO_TERM_COLOR: always
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  check:
-    name: fmt · clippy · test
+  build:
+    name: lint · check · test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          targets: wasm32-unknown-unknown
-          components: rustfmt, clippy
+          node-version: '22'
+          cache: pnpm
 
-      - name: Cache Cargo registry & build
-        uses: Swatinem/rust-cache@v2
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: cargo fmt --check
-        run: cargo fmt --all -- --check
+      - name: Lint
+        run: pnpm lint
 
-      - name: cargo clippy
-        run: cargo clippy --all-targets -- -D warnings
+      - name: Type-check
+        run: pnpm check
 
-      - name: cargo test
-        run: cargo test --all-targets
+      - name: Unit tests
+        run: pnpm test
