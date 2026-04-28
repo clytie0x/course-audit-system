@@ -25,6 +25,13 @@ yarn.lock
 .env
 .env.local
 
+# SvelteKit
+/.svelte-kit
+/build
+/playwright-report
+/test-results
+/coverage
+
 # OS
 Thumbs.db
 .DS_Store

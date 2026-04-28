@@ -1,21 +1,28 @@
 version: 2
 updates:
-  - package-ecosystem: "cargo"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
     groups:
-      leptos:
+      svelte:
         patterns:
-          - "leptos*"
-      wasm-bindgen:
+          - 'svelte*'
+          - '@sveltejs/*'
+      tailwind:
         patterns:
-          - "wasm-bindgen*"
-          - "js-sys"
-          - "web-sys"
+          - 'tailwindcss*'
+          - '@tailwindcss/*'
+      lint-test:
+        patterns:
+          - 'eslint*'
+          - 'prettier*'
+          - 'typescript-eslint'
+          - 'vitest*'
+          - '@playwright/*'
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "monthly"
+      interval: 'monthly'
