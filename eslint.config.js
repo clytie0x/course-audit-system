@@ -27,19 +27,6 @@ export default ts.config(
 		}
 	},
 	{
-		ignores: [
-			'build/',
-			'.svelte-kit/',
-			'dist/',
-			'node_modules/',
-			'target/',
-			'pkg/',
-			'src/app.rs',
-			'src/main.rs',
-			'src/models.rs',
-			'src/logic/**',
-			'src/components/**',
-			'src/data/**'
-		]
+		ignores: ['build/', '.svelte-kit/', 'dist/', 'node_modules/']
 	}
 );
