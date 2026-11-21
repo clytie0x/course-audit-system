@@ -1,3 +1,9 @@
+# Rust build artifacts.
+# Cargo.lock is intentionally tracked — this is a binary crate, not a library.
+/target
+/dist
+**/*.rs.bk
+
 # Node/npm
 node_modules/
 npm-debug.log*
@@ -13,17 +19,11 @@ yarn.lock
 .DS_Store
 
 # Build artifacts
+/.trunk
+/pkg
 *.log
 .env
 .env.local
-/dist
-
-# SvelteKit
-/.svelte-kit
-/build
-/playwright-report
-/test-results
-/coverage
 
 # OS
 Thumbs.db

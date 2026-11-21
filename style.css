@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+}
+
+@layer utilities {
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+
+    .text-balance {
+        text-wrap: balance;
+    }
+}
+
+/* Print view: hide navigation/upload pane, expand results, strip backgrounds
+   so PDF output is readable. Triggered by the browser's native Print dialog. */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    header,
+    aside,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    main {
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* All categorized course lists should expand automatically. */
+    details {
+        display: block !important;
+    }
+
+    /* Tone down brand colors for ink-friendly output. */
+    .bg-brand-50,
+    .bg-brand-100\/40,
+    .dark\:bg-brand-900\/20 {
+        background: transparent !important;
+    }
+
+    /* Avoid page breaks splitting a category card in half. */
+    .rounded-2xl {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
