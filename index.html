@@ -31,6 +31,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&family=Prompt:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <link data-trunk rel="rust" data-wasm-opt="z" />
     <link data-trunk rel="css" href="style.css" />
     <link data-trunk rel="tailwind-css" href="style.css" />
     <link data-trunk rel="copy-file" href="manifest.webmanifest" />
@@ -234,11 +235,10 @@
         })();
     </script>
 
-    <!-- PDF.js Library -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+    <!-- PDF.js 3.11.174, vendored from pdfjs-dist (same bytes as the cdnjs build) so it works offline -->
+    <link data-trunk rel="copy-dir" href="vendor/pdfjs" />
+    <script src="pdfjs/pdf.min.js"
         integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"
         onerror="(function(){window.__pdfjsCdnFailed=true;})();"></script>
 </head>
 
@@ -260,18 +260,16 @@
     <!-- PDF Text Extraction Helper -->
     <script>
         if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.js';
         }
 
         window.extractTextFromPDF = async function (arrayBuffer) {
             if (typeof pdfjsLib === 'undefined' || window.__pdfjsCdnFailed) {
-                throw new Error(
-                    'PDF.js could not be loaded. Please check your internet connection ' +
-                    'and reload the page — the app relies on cdnjs.cloudflare.com for PDF parsing.'
-                );
+                throw new Error('PDF.js could not be loaded. Please reload the page.');
             }
             try {
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                // isEvalSupported: false mitigates CVE-2024-4367 (font eval) in pdf.js < 4.2.67.
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, isEvalSupported: false }).promise;
                 let fullText = '';
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);

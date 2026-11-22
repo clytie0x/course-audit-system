@@ -4,12 +4,12 @@
 //! Minimal, clean design with smooth expand/collapse.
 
 use audit_core::models::Category;
-use leptos::*;
+use leptos::prelude::*;
 
 /// Collapsible accordion row for a course category
 #[component]
 pub fn CategoryCard(category: Category) -> impl IntoView {
-    let (is_expanded, set_is_expanded) = create_signal(false);
+    let (is_expanded, set_is_expanded) = signal(false);
     let percentage = (category.collected_credits / category.required_credits * 100.0).min(100.0);
     let complete = percentage >= 100.0;
     let category_clone = category.clone();
@@ -71,9 +71,9 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                             <svg class="w-4 h-4 text-emerald-500 shrink-0" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
                             </svg>
-                        }.into_view()
+                        }.into_any()
                     } else {
-                        view! { <span></span> }.into_view()
+                        view! { <span></span> }.into_any()
                     }}
                 </div>
                 <div class="flex items-center gap-3 shrink-0 ml-4">
@@ -103,7 +103,7 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                                             if is_thai { "ยังไม่มีวิชาที่เรียนสำเร็จในหมวดนี้" } else { "No courses completed in this category" }
                                         }}</p>
                                     </div>
-                                }.into_view()
+                                }.into_any()
                             } else {
                                 view! {
                                     <div class="divide-y divide-zinc-100/80 dark:divide-zinc-800/80">
@@ -129,12 +129,12 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                                             view! {
                                                 <div class="flex items-center justify-between px-5 py-2.5 hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-colors">
                                                     <div class="flex items-center gap-3 min-w-0 flex-1">
-                                                        <span class="font-mono text-2xs font-semibold text-zinc-400 dark:text-zinc-500 w-14 shrink-0">{&course.code}</span>
-                                                        <span class="text-[13px] text-zinc-700 dark:text-zinc-300 truncate">{&course.name}</span>
+                                                        <span class="font-mono text-2xs font-semibold text-zinc-400 dark:text-zinc-500 w-14 shrink-0">{course.code.clone()}</span>
+                                                        <span class="text-[13px] text-zinc-700 dark:text-zinc-300 truncate">{course.name.clone()}</span>
                                                     </div>
                                                     <div class="flex items-center gap-2.5 shrink-0 ml-3">
                                                         <span class={format!("text-2xs font-bold min-w-[1.75rem] h-5 px-1 flex items-center justify-center rounded border {}", grade_color)}>
-                                                            {&course.grade}
+                                                            {course.grade.clone()}
                                                         </span>
                                                         <span class="text-2xs text-zinc-400 dark:text-zinc-500 font-mono w-6 text-right">{credit_cell}</span>
                                                     </div>
@@ -142,12 +142,12 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                                             }
                                         }).collect::<Vec<_>>()}
                                     </div>
-                                }.into_view()
+                                }.into_any()
                             }}
                         </div>
-                    }.into_view()
+                    }.into_any()
                 } else {
-                    view! { <div></div> }.into_view()
+                    view! { <div></div> }.into_any()
                 }
             }}
         </div>
