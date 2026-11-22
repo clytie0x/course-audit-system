@@ -231,7 +231,7 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 
 | Category | 2564 (รหัส 64–68) | 2569 (รหัส 69+) |
 | --- | --- | --- |
-| **General Education** | 30 cr — 7 strands + 6 elective | 24 cr — GE1–GE7 (18) + GE8 (6), matched by GE tag |
+| **General Education** | 30 cr — 7 strands + 6 elective (accepts both the cohort 64–66 and 67–68 course sets) | 24 cr — GE1–GE7 (18) + GE8 (6), matched by GE tag |
 | **Basic / core science** | 12 cr — chemistry, biology, physics | 12 cr — 315-101, 322-101, 345-101, 346-101 |
 | **Required major** | 48 cr + capstone: project 344-492 (3) or co-op 344-495 (6, needs 344-494) | 56 cr incl. project 344-491 and co-op 344-492; 344-494 must be passed |
 | **Major electives** | 33 cr (project plan) or 30 cr (co-op plan); complete 2 clusters | 27 cr; at least 12 cr in one domain |
@@ -308,7 +308,7 @@ CI is paused while the project is experimental. Run these three gates locally be
 ```
 cargo fmt --all -- --check                       format
 cargo clippy --workspace --all-targets -D warnings  lints as errors
-cargo test --workspace --all-targets             59 unit tests
+cargo test --workspace --all-targets             63 unit tests
 ```
 
 Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).
