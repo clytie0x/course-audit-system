@@ -88,7 +88,8 @@ pub fn OfferingsPanel() -> impl IntoView {
             return Vec::new();
         };
         let cur = curriculum(&curriculum_id.get());
-        let outstanding = outstanding_codes(&attempts(), cur);
+        // Only what the transcript still lacks; planned courses are not taken yet.
+        let outstanding = outstanding_codes(&parsed_courses.get(), cur);
         search(&data.courses, &query.get())
             .into_iter()
             .filter(|c| !only_outstanding.get() || outstanding.contains(&c.code))

@@ -12,6 +12,7 @@ use crate::app::AppState;
 pub fn WhatIfSimulator() -> impl IntoView {
     let AppState {
         parsed_courses,
+        plan_result,
         curriculum_id,
         planned_courses,
         set_planned_courses,
@@ -174,7 +175,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
                     let planned = planned_courses.get();
                     (!planned.is_empty()).then(|| view! {
                         <div class="flex items-center justify-between pt-1">
-                            <p class="text-2xs text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { format!("{} วิชาในแผน — ผลลัพธ์ด้านบนรวมแผนแล้ว", planned_courses.get().len()) } else { format!("{} planned courses — results above include the plan", planned_courses.get().len()) }}</p>
+                            <p class="text-2xs text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { format!("{} วิชาในแผน — ผลคาดการณ์ด้านล่างรวมแผนแล้ว", planned_courses.get().len()) } else { format!("{} planned courses — the projection below includes the plan", planned_courses.get().len()) }}</p>
                             <button
                                 class="text-2xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded px-2 py-1"
                                 on:click=clear_plan
@@ -184,6 +185,22 @@ pub fn WhatIfSimulator() -> impl IntoView {
                         </div>
                     })
                 }}
+
+                // Projection: transcript plus plan
+                {move || plan_result.get().map(|r| {
+                    let counted = r.counted_credits();
+                    let required = r.required_credits();
+                    let gpa = r.gpa.map_or("—".to_string(), |g| format!("{g:.2}"));
+                    view! {
+                        <p class="text-xs text-zinc-700 dark:text-zinc-300 tabular-nums">
+                            {move || if is_thai.get() {
+                                format!("ผลคาดการณ์ หน่วยกิตที่นับได้ {counted:.0} / {required:.0} · เกรดเฉลี่ย {gpa}")
+                            } else {
+                                format!("Projection: counted credits {counted:.0} / {required:.0} · GPA {gpa}")
+                            }}
+                        </p>
+                    }
+                })}
             </div>
         </div>
     }

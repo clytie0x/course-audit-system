@@ -25,6 +25,9 @@ pub struct AppState {
     pub set_preview_url: WriteSignal<Option<String>>,
     pub audit_result: ReadSignal<Option<AuditResult>>,
     pub set_audit_result: WriteSignal<Option<AuditResult>>,
+    /// Transcript plus What-If planned courses; `None` when nothing is planned.
+    /// `audit_result` always reflects the transcript alone.
+    pub plan_result: ReadSignal<Option<AuditResult>>,
     pub is_loading: ReadSignal<bool>,
     pub set_is_loading: WriteSignal<bool>,
     pub set_error_msg: WriteSignal<Option<String>>,
@@ -67,6 +70,7 @@ pub fn App() -> impl IntoView {
     let (file_name, set_file_name) = signal(String::new());
     let (preview_url, set_preview_url) = signal(Option::<String>::None);
     let (audit_result, set_audit_result) = signal(Option::<AuditResult>::None);
+    let (plan_result, set_plan_result) = signal(Option::<AuditResult>::None);
     let (is_loading, set_is_loading) = signal(false);
     let (error_msg, set_error_msg) = signal(Option::<String>::None);
     // Stores the file from drag-and-drop (file input is not updated by drop events)
@@ -125,11 +129,12 @@ pub fn App() -> impl IntoView {
 
     // Re-run the audit whenever the parsed transcript or the simulator's
     // planned courses change. Skip when nothing has been parsed yet so the
-    // empty-state keeps rendering.
+    // empty-state keeps rendering. Planned courses only feed `plan_result`.
     Effect::new(move |_| {
         let parsed = parsed_courses.get();
         let planned = planned_courses.get();
-        if parsed.is_empty() && planned.is_empty() {
+        if parsed.is_empty() {
+            set_plan_result.set(None);
             return;
         }
         let cur_id = curriculum_id.get();
@@ -145,9 +150,12 @@ pub fn App() -> impl IntoView {
                 }
             }
         }
-        let mut combined: Vec<ParsedCourse> = parsed;
-        combined.extend(planned);
-        let result = build_audit(&combined, curriculum(&cur_id));
+        let result = build_audit(&parsed, curriculum(&cur_id));
+        set_plan_result.set((!planned.is_empty()).then(|| {
+            let mut combined = parsed;
+            combined.extend(planned);
+            build_audit(&combined, curriculum(&cur_id))
+        }));
         if save_enabled.get_untracked() {
             if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten())
             {
@@ -169,6 +177,7 @@ pub fn App() -> impl IntoView {
         set_preview_url,
         audit_result,
         set_audit_result,
+        plan_result,
         is_loading,
         set_is_loading,
         set_error_msg,
