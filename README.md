@@ -209,13 +209,14 @@ course-audit-system/
         └── data/
             ├── mod.rs                    Registry: curricula(), curriculum_for_cohort()
             ├── cs2564.json               หลักสูตร 2564 (JSON is source of truth)
-            └── cs2569.json               หลักสูตร 2569
+            ├── cs2569.json               หลักสูตร 2569
+            └── SOURCES.md                Official documents, URLs, SHA-256
 ```
 
 <details>
 <summary><b>Editing the curriculum</b></summary>
 
-Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json`, `cs2569.json`), transcribed from the official มคอ.2 on [sci.psu.ac.th](https://www.sci.psu.ac.th/academic-programs/bachelors-degree/bachelor-of-science-computer-science/). Edit them directly — no Rust knowledge needed. `cargo test -p audit-core` checks that each file's credit totals match its มคอ.2.
+Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json`, `cs2569.json`), transcribed from the official มคอ.2 on [sci.psu.ac.th](https://www.sci.psu.ac.th/academic-programs/bachelors-degree/bachelor-of-science-computer-science/). Edit them directly — no Rust knowledge needed. `cargo test -p audit-core` checks that each file's credit totals match its มคอ.2. [`SOURCES.md`](crates/audit-core/src/data/SOURCES.md) lists each source document with its URL and SHA-256.
 
 </details>
 
@@ -237,6 +238,7 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 
 - **Slot-fill vs credit count.** A passing grade fills its slot *and* adds credits. An **IP** (in-progress) course fills its slot but adds **0 credits** — the audit doesn't unfairly fail you for current-semester courses.
 - **Greedy matching.** Repeatable special topics (344-496…499 in 2564, 344-495…498 in 2569) accumulate across multiple enrollments.
+- **Prerequisites.** Each revision lists its "รายวิชาบังคับเรียนก่อน" from the มคอ.2; the What-If planner flags a planned course whose prerequisite has not been taken (any grade, or in progress, counts; W does not).
 - **Same code, different course.** Codes change meaning between revisions (344-491 is the seminar in 2564 but the project in 2569), so every check uses the selected revision's own list.
 - **Code normalization.** Legacy codes (`890-001 → 890-101`) and suffixed codes (`890-103G1 → 890-103`, tag `G1`) are mapped to the curriculum form.
 - **Credit cap.** Credits come from the curriculum definition, capped by the transcript value — guards against PDF-parse drift inflating a course's credit.
@@ -301,7 +303,7 @@ CI is paused while the project is experimental. Run these three gates locally be
 ```
 cargo fmt --all -- --check                       format
 cargo clippy --workspace --all-targets -D warnings  lints as errors
-cargo test --workspace --all-targets             52 unit tests
+cargo test --workspace --all-targets             54 unit tests
 ```
 
 Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).

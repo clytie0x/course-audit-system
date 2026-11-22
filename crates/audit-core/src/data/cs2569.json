@@ -655,5 +655,252 @@
         "only_with": null
       }
     ]
+  },
+  "prerequisites": {
+    "344-211": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 Fundamentals of Computer Programming or with the consent of the program"
+    },
+    "344-212": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 Fundamentals of Computer Programming or with the consent of the program"
+    },
+    "344-213": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211 Data Structures or with the consent of the program"
+    },
+    "344-214": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 Fundamentals of Computer Programming"
+    },
+    "344-221": {
+      "codes": [
+        "344-101"
+      ],
+      "any_of": false,
+      "text": "344-101 Fundamentals of Computer Science or with the consent of the program"
+    },
+    "344-222": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 Computer Architectures and Organization"
+    },
+    "344-231": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211 Data Structures"
+    },
+    "344-232": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211 Data Structures"
+    },
+    "344-236": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 Fundamentals of Computer Programming or with the consent of the program"
+    },
+    "344-251": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 Computer Architectures and Organization or with the consent of the program"
+    },
+    "344-301": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201 Mathematics for Computer Science or with the consent of the program"
+    },
+    "344-311": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 Fundamentals of Computer Programming or with the consent of the program"
+    },
+    "344-321": {
+      "codes": [
+        "344-251"
+      ],
+      "any_of": false,
+      "text": "344-251 Data Communications and Networking or with the consent of the program"
+    },
+    "344-322": {
+      "codes": [
+        "344-223"
+      ],
+      "any_of": false,
+      "text": "344-223 Embedded Computing Systems"
+    },
+    "344-334": {
+      "codes": [
+        "344-232"
+      ],
+      "any_of": false,
+      "text": "344-232 Principles of Database Systems"
+    },
+    "344-335": {
+      "codes": [
+        "344-232"
+      ],
+      "any_of": false,
+      "text": "344-232 Principles of Database Systems"
+    },
+    "344-341": {
+      "codes": [
+        "344-231"
+      ],
+      "any_of": false,
+      "text": "344-231 Information Systems Analysis and Design"
+    },
+    "344-342": {
+      "codes": [
+        "344-212"
+      ],
+      "any_of": false,
+      "text": "344-212 Introduction to Object-Oriented Programming"
+    },
+    "344-352": {
+      "codes": [
+        "344-252"
+      ],
+      "any_of": false,
+      "text": "344-252 Network Protocols"
+    },
+    "344-361": {
+      "codes": [
+        "344-213"
+      ],
+      "any_of": false,
+      "text": "344-213 Algorithm Analysis and Design"
+    },
+    "344-362": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 Fundamentals of Computer Programming or with the consent of the program"
+    },
+    "344-363": {
+      "codes": [
+        "344-362"
+      ],
+      "any_of": false,
+      "text": "344-362 Machine Learning"
+    },
+    "344-364": {
+      "codes": [
+        "344-361"
+      ],
+      "any_of": false,
+      "text": "344-361 Principles of Artificial Intelligence"
+    },
+    "344-371": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201 Mathematics for Computer Science or with the consent of the program"
+    },
+    "344-372": {
+      "codes": [
+        "344-371"
+      ],
+      "any_of": false,
+      "text": "344-371 Fundamentals of Digital Image Processing"
+    },
+    "344-401": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201 Mathematics for Computer Science"
+    },
+    "344-421": {
+      "codes": [
+        "344-252"
+      ],
+      "any_of": false,
+      "text": "344-252 Network Protocols"
+    },
+    "344-422": {
+      "codes": [
+        "344-222"
+      ],
+      "any_of": false,
+      "text": "344-222 Operating Systems"
+    },
+    "344-433": {
+      "codes": [
+        "344-232"
+      ],
+      "any_of": false,
+      "text": "344-232 Principles of Database Systems"
+    },
+    "344-441": {
+      "codes": [
+        "344-341"
+      ],
+      "any_of": false,
+      "text": "344-341 Software Engineering"
+    },
+    "344-451": {
+      "codes": [
+        "344-251"
+      ],
+      "any_of": false,
+      "text": "344-251 Data Communications and Networking"
+    },
+    "344-461": {
+      "codes": [
+        "344-361"
+      ],
+      "any_of": false,
+      "text": "344-361 Principles of Artificial Intelligence"
+    },
+    "344-464": {
+      "codes": [
+        "344-463"
+      ],
+      "any_of": false,
+      "text": "344-463 Introduction to Robotics"
+    },
+    "344-466": {
+      "codes": [
+        "344-364"
+      ],
+      "any_of": false,
+      "text": "344-364 Deep Learning or with the consent of the program"
+    },
+    "344-471": {
+      "codes": [
+        "344-371"
+      ],
+      "any_of": false,
+      "text": "344-371 Fundamentals of Digital Image Processing"
+    }
   }
 }

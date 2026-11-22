@@ -1,5 +1,7 @@
 //! What-If simulator: add hypothetical courses to the audit input.
 
+use audit_core::auditor::unmet_prerequisites;
+use audit_core::data::curriculum;
 use audit_core::models::ParsedCourse;
 use audit_core::parser::normalize_course_code;
 use leptos::prelude::*;
@@ -9,6 +11,8 @@ use crate::app::AppState;
 #[component]
 pub fn WhatIfSimulator() -> impl IntoView {
     let AppState {
+        parsed_courses,
+        curriculum_id,
         planned_courses,
         set_planned_courses,
         plan_code,
@@ -125,6 +129,10 @@ pub fn WhatIfSimulator() -> impl IntoView {
                     (!planned.is_empty()).then(|| view! {
                         <div class="rounded-lg border border-zinc-200/80 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
                             {planned.iter().enumerate().map(|(i, p)| {
+                                // Prerequisites met by the transcript or by other planned courses.
+                                let mut others = parsed_courses.get();
+                                others.extend(planned.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, c)| c.clone()));
+                                let unmet = unmet_prerequisites(&p.code, &others, curriculum(&curriculum_id.get()));
                                 let code = p.code.clone();
                                 let name = p.name.clone();
                                 let credit = p.parsed_credit;
@@ -134,6 +142,14 @@ pub fn WhatIfSimulator() -> impl IntoView {
                                         <div class="flex items-center gap-3 min-w-0 flex-1">
                                             <span class="font-mono text-2xs font-semibold text-zinc-400 dark:text-zinc-500 w-16 shrink-0">{code}</span>
                                             <span class="text-[13px] text-zinc-700 dark:text-zinc-300 truncate">{name}</span>
+                                            {(!unmet.is_empty()).then(|| {
+                                                let list = unmet.join(", ");
+                                                view! {
+                                                    <span class="shrink-0 text-2xs font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50" role="note">
+                                                        {move || if is_thai.get() { format!("ต้องเรียน {} ก่อน", list) } else { format!("Requires {}", list) }}
+                                                    </span>
+                                                }
+                                            })}
                                         </div>
                                         <div class="flex items-center gap-3 shrink-0 ml-3">
                                             <span class="text-2xs font-bold min-w-[1.75rem] h-5 px-1 flex items-center justify-center rounded border bg-purple-50 text-purple-700 border-purple-200/60 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-900/50">{grade}</span>
