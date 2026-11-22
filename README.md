@@ -27,8 +27,7 @@ Everything runs in your browser. Nothing ever leaves your device.
 <td width="50%" valign="top">
 
 ### Full audit engine
-Matches courses against the PSU CS curriculum:
-GenEd (30) · Basic Science (12) · Core (56) · Capstone (3–6) · Major Electives with cluster rules · Free Electives auto-detected.
+Matches courses against the PSU CS curriculum revision for your cohort (2564 for รหัส 64–68, 2569 for รหัส 69+), picked from the student ID and switchable in the sidebar.
 
 </td>
 <td width="50%" valign="top">
@@ -153,12 +152,14 @@ trunk build --release
 3. **Parse** — a regex-based parser (two patterns tried in order):
    - Grade-report: `code · name · section · credit · grade`
    - Registration: `code · name · section · category · credit-float` (tagged as IP)
-   - Semester headers (`ภาคการศึกษา X/YYYY`) anchor every course to its term.
-   - Course codes are normalized (`890-001 → 890-101`, trailing `G1/G4/G2A…` stripped).
+   - Semester headers (`ภาคการศึกษา X/YYYY`, or `Semester X/YYYY` with the year converted to B.E.) anchor every course to its term.
+   - Course codes are normalized (`890-001 → 890-101`); the trailing GE category (`G1/G4/G2A…`) is kept as the course's tag.
+   - The cohort is read from the student ID to pick the curriculum revision.
    - Repeated special topics (`344-496…499`) get greedy `(Topic N)` suffixes.
 4. **Audit** — `build_audit()` combines parsed + any What-If planned courses and runs:
-   - **GenEd**: 4 rules — `choose_all`, `choose_one`, `choose_sequential_pair`, `choose_all_sub_groups`.
-   - **Major**: exact-slot matching for Basic Science / Core / Capstone, cluster-completion for electives.
+   - **GenEd**: 5 rules — `choose_all`, `choose_one`, `choose_sequential_pair`, `choose_all_sub_groups`, `by_tag` (GE category from the code suffix).
+   - **Major**: exact-slot matching for Basic Science / Core / Capstone; electives by cluster completion (2564) or 12 credits in one domain (2569); non-credit courses that must be passed (344-494).
+   - **Overflow**: GenEd and major-elective credits beyond the requirement count as free electives.
    - **In-progress (IP)**: fills the slot, adds **0 credits** until graded.
 5. **Display** — Leptos renders donut charts, progress bars, per-semester accordion, missing requirements, What-If planner. GPA shown next to total credits.
 
@@ -206,20 +207,15 @@ course-audit-system/
         ├── parser.rs        Two regex patterns + semester detection
         ├── auditor.rs       GenEd / Major / FreeElective + build_audit()
         └── data/
-            ├── gen_ed.rs + gen_ed.json   JSON is source of truth
-            └── major.rs  + major.json    .rs loads via include_str!
+            ├── mod.rs                    Registry: curricula(), curriculum_for_cohort()
+            ├── cs2564.json               หลักสูตร 2564 (JSON is source of truth)
+            └── cs2569.json               หลักสูตร 2569
 ```
 
 <details>
 <summary><b>Editing the curriculum</b></summary>
 
-The JSON files under `crates/audit-core/src/data/` are the source of truth. Edit them directly — no Rust knowledge needed.
-
-If you'd rather tweak the Rust builders and regenerate JSON:
-
-```bash
-cargo test -p audit-core dump_curricula -- --ignored
-```
+Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json`, `cs2569.json`), transcribed from the official มคอ.2 on [sci.psu.ac.th](https://www.sci.psu.ac.th/academic-programs/bachelors-degree/bachelor-of-science-computer-science/). Edit them directly — no Rust knowledge needed. `cargo test -p audit-core` checks that each file's credit totals match its มคอ.2.
 
 </details>
 
@@ -227,22 +223,22 @@ cargo test -p audit-core dump_curricula -- --ignored
 
 ## Curriculum coverage
 
-| Category | Required | Details |
+| Category | 2564 (รหัส 64–68) | 2569 (รหัส 69+) |
 | --- | --- | --- |
-| **General Education** | 30 cr | 7 strands (choose-all · choose-one · choose-sequential-pair · sub-groups) + 6 elective sub-categories |
-| **Basic Science** | 12 cr | Math · Physics · Chemistry foundations |
-| **Core Courses** | 56 cr | All required CS courses |
-| **Capstone** | 3–6 cr | Senior Project **or** Co-operative Education — choose 1 |
-| **Major Electives** | 12 cr | Domain-based clusters — complete at least 2 full clusters |
-| **Free Electives** | 6 cr | Auto-detected from unmatched passing courses |
-| **Total** | **~132 cr** | Full B.Sc. (Computer Science) |
+| **General Education** | 30 cr — 7 strands + 6 elective | 24 cr — GE1–GE7 (18) + GE8 (6), matched by GE tag |
+| **Basic / core science** | 12 cr — chemistry, biology, physics | 12 cr — 315-101, 322-101, 345-101, 346-101 |
+| **Required major** | 48 cr + capstone: project 344-492 (3) or co-op 344-495 (6, needs 344-494) | 56 cr incl. project 344-491 and co-op 344-492; 344-494 must be passed |
+| **Major electives** | 33 cr (project plan) or 30 cr (co-op plan); complete 2 clusters | 27 cr; at least 12 cr in one domain |
+| **Free electives** | 6 cr | 6 cr |
+| **Total** | **132 cr**, GPA ≥ 2.00 | **125 cr**, GPA ≥ 2.00 |
 
 <details>
 <summary><b>Audit rules in detail</b></summary>
 
 - **Slot-fill vs credit count.** A passing grade fills its slot *and* adds credits. An **IP** (in-progress) course fills its slot but adds **0 credits** — the audit doesn't unfairly fail you for current-semester courses.
-- **Greedy matching.** Repeatable special topics (344-496…499) accumulate across multiple enrollments.
-- **Code normalization.** Legacy codes (`890-001 → 890-101`) and suffixed codes (`890-103G1 → 890-103`) are mapped to the curriculum form.
+- **Greedy matching.** Repeatable special topics (344-496…499 in 2564, 344-495…498 in 2569) accumulate across multiple enrollments.
+- **Same code, different course.** Codes change meaning between revisions (344-491 is the seminar in 2564 but the project in 2569), so every check uses the selected revision's own list.
+- **Code normalization.** Legacy codes (`890-001 → 890-101`) and suffixed codes (`890-103G1 → 890-103`, tag `G1`) are mapped to the curriculum form.
 - **Credit cap.** Credits come from the curriculum definition, capped by the transcript value — guards against PDF-parse drift inflating a course's credit.
 - **Deduplication.** Special topics are keyed by `code::name`; regular courses by code alone.
 
@@ -305,10 +301,10 @@ CI is paused while the project is experimental. Run these three gates locally be
 ```
 cargo fmt --all -- --check                       format
 cargo clippy --workspace --all-targets -D warnings  lints as errors
-cargo test --workspace --all-targets             35 unit tests
+cargo test --workspace --all-targets             52 unit tests
 ```
 
-Test coverage spans the parser (format auto-detect, code normalization, semester tagging, special-topic greedy match), the auditor (GenEd rules, IP slot-fill vs credits, free-elective bucket, retakes counted once, GenEd-elective overflow, credit-shortfall reporting), and utilities (GPA over every graded attempt, in-progress detection).
+Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).
 
 ---
 
