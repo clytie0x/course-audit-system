@@ -9,7 +9,6 @@ Everything runs in your browser. Nothing ever leaves your device.
 
 <br />
 
-[![CI](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/ci.yml)
 [![Deploy](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/deploy.yml)
 ![Rust](https://img.shields.io/badge/rust-stable-orange?logo=rust&logoColor=white)
 ![Leptos 0.6](https://img.shields.io/badge/leptos-0.6-purple)
@@ -205,7 +204,6 @@ course-audit-system/
 │
 └── .github/
     ├── workflows/
-    │   ├── ci.yml           fmt · clippy · test on every push/PR
     │   └── deploy.yml       trunk build → GitHub Pages
     └── dependabot.yml       Weekly cargo, monthly actions
 ```
@@ -300,7 +298,7 @@ codegen-units = 1
 
 ## Quality gates
 
-Every push and PR runs three gates (`.github/workflows/ci.yml`):
+CI is paused while the project is experimental. Run these three gates locally before every commit:
 
 ```
 cargo fmt --all -- --check                       format
