@@ -80,6 +80,10 @@ pub struct GenEdStrand {
     pub selection_rule: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sequence_groups: Option<Vec<Vec<String>>>,
+    /// For `selection_rule: "by_tag"`: GE category tags (e.g. "G2A") whose
+    /// courses fill this strand, read from the transcript code suffix.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
 }
 
 /// Elective sub-category within GenEd (e.g., language electives).
@@ -98,6 +102,9 @@ pub struct GenEdElectives {
     pub name: String,
     pub total_required_credits: f32,
     pub sub_categories: Vec<GenEdElectiveSubCategory>,
+    /// GE category tags (e.g. "G8") that also count as GenEd electives.
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 /// Top-level General Education curriculum definition.
@@ -160,14 +167,32 @@ pub struct MajorCapstone {
     pub options: Vec<MajorCourse>,
 }
 
-/// Elective requirements, including domains and other choices.
+/// Elective requirements, including domains and other choices. The credit
+/// target is derived: major total − basic science − core − chosen capstone.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MajorElectives {
     pub name: String,
-    pub total_required_credits: f32,
+    /// 2564 rule: complete every course of this many clusters.
     pub clusters_to_complete: u32,
+    /// 2569 rule: at least this many elective credits inside one domain.
+    #[serde(default)]
+    pub domain_min_credits: Option<f32>,
     pub domains: Vec<MajorDomain>,
     pub others: Vec<MajorCourse>,
+    /// Any other passing course with one of these code prefixes also counts
+    /// as a major elective (e.g. "344-").
+    #[serde(default)]
+    pub prefixes: Vec<String>,
+}
+
+/// A course that must be passed but earns no credit (e.g. pre-co-op, graded S/U).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NoncreditRequirement {
+    pub code: String,
+    pub name: String,
+    /// Only required when this capstone option was taken (e.g. co-op plan).
+    #[serde(default)]
+    pub only_with: Option<String>,
 }
 
 /// Top-level Major curriculum definition.
@@ -179,6 +204,21 @@ pub struct MajorCurriculum {
     pub core_courses: MajorCoreCourses,
     pub capstone: MajorCapstone,
     pub electives: MajorElectives,
+    #[serde(default)]
+    pub noncredit_required: Vec<NoncreditRequirement>,
+}
+
+/// One curriculum revision of the programme (e.g. หลักสูตรปรับปรุง 2564).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Curriculum {
+    pub id: String,
+    pub name: String,
+    /// First admission cohort (Buddhist year) that uses this revision.
+    pub first_cohort: u32,
+    pub free_elective_credits: f32,
+    pub min_gpa: f32,
+    pub gen_ed: GenEdCurriculum,
+    pub major: MajorCurriculum,
 }
 
 /// Parsed course details extracted from the transcript text.
@@ -192,6 +232,9 @@ pub struct ParsedCourse {
     /// that appeared outside any "ภาคการศึกษา X/YYYY" header, or for
     /// user-added planned courses.
     pub semester: Option<String>,
+    /// GE category tag from the code suffix or registration category column
+    /// (e.g. "G2A" from "315-100G2A"); `None` for non-GE courses.
+    pub tag: Option<String>,
 }
 
 /// Which PDF format was detected by the parser. Drives UI messaging: in
@@ -264,14 +307,13 @@ pub fn compute_gpa(courses: &[Course]) -> Option<f32> {
 }
 
 /// Builds a deduplication key for a course so that repeatable special-topic
-/// courses (344-496 … 344-499) are keyed by code **and** name, while all other
-/// courses are keyed by code alone.
+/// courses are keyed by code **and** name, while all other courses are keyed
+/// by code alone. Special topics are 344-496…499 in the 2564 curriculum and
+/// 344-495…498 in 2569; 344-495 (co-op in 2564) is safe to include because
+/// retakes of it share one name and so still collapse to one key.
 pub fn free_elective_dedupe_key(code: &str, name: &str) -> String {
     let is_repeatable_special_topic = code.starts_with("344-49")
-        && !matches!(
-            code,
-            "344-491" | "344-492" | "344-493" | "344-494" | "344-495"
-        );
+        && !matches!(code, "344-491" | "344-492" | "344-493" | "344-494");
 
     if is_repeatable_special_topic {
         format!("{}::{}", code, name)

@@ -22,7 +22,7 @@ fn grade_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
         Regex::new(
-            r"([A-Za-z0-9]{3}-?[0-9]{3}[A-Za-z]?[0-9]*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([0-9]+)\s+([A-D][+]?|[FWPSUGE])",
+            r"\b([A-Za-z0-9]{3}-?[0-9]{3}(?:[A-Za-z][0-9]*[A-Za-z]?)?)\b\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([0-9]+)\s+([A-D][+]?|[FWPSUGE])",
         )
         .expect("transcript grade regex must compile")
     })
@@ -35,7 +35,7 @@ fn registration_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
         Regex::new(
-            r"([A-Za-z0-9]{3}-?[0-9]{3}[A-Za-z]?[0-9]*[A-Za-z]?)\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([A-Z][0-9]?[A-Z]?)\s+([0-9]+(?:\.[0-9]+)?)",
+            r"\b([A-Za-z0-9]{3}-?[0-9]{3}(?:[A-Za-z][0-9]*[A-Za-z]?)?)\b\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([A-Z][0-9]?[A-Z]?)\s+([0-9]+(?:\.[0-9]+)?)",
         )
         .expect("registration regex must compile")
     })
@@ -45,25 +45,52 @@ fn registration_pattern() -> &'static Regex {
 // hand-slice the underlying text — the previous implementation sliced at a
 // fixed byte offset which panicked (RuntimeError: unreachable) whenever the
 // offset landed inside a Thai multi-byte UTF-8 character.
+// English reports say "Semester 1/2024" with a Gregorian year.
 fn semester_header_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
-        Regex::new(r"ภาคการศึกษา\s*(\d{1,2}/\d{4})").expect("semester header regex must compile")
+        Regex::new(r"(?:ภาคการศึกษา|Semester)\s*([0-9]{1,2})/([0-9]{4})")
+            .expect("semester header regex must compile")
     })
 }
 
 /// Returns every `(start_byte, "X/YYYY")` occurrence of a semester marker in
-/// the order it appears. Callers can then binary-search by course position
-/// to find the enclosing semester.
+/// the order it appears, with the year in the Buddhist era so Thai and English
+/// reports label semesters identically.
 fn collect_semester_boundaries(text: &str) -> Vec<(usize, String)> {
     semester_header_pattern()
         .captures_iter(text)
         .filter_map(|cap| {
             let full = cap.get(0)?;
-            let sem = cap.get(1)?;
-            Some((full.start(), sem.as_str().to_string()))
+            let term = cap.get(1)?.as_str();
+            let year: u32 = cap.get(2)?.as_str().parse().ok()?;
+            let year_be = if year < 2400 { year + 543 } else { year };
+            Some((full.start(), format!("{term}/{year_be}")))
         })
         .collect()
+}
+
+/// Admission cohort (Buddhist year) from the student ID on the report, whose
+/// first two digits are the cohort, e.g. "Student Id 67xxxxxxxx" -> 2567.
+pub fn detect_cohort(text: &str) -> Option<u32> {
+    static PATTERN: OnceLock<Regex> = OnceLock::new();
+    let re = PATTERN.get_or_init(|| {
+        Regex::new(r"(?:Student Id|รหัสนักศึกษา)\s*([0-9]{2})[0-9]{8}\b")
+            .expect("student id regex must compile")
+    });
+    let yy: u32 = re.captures(text)?.get(1)?.as_str().parse().ok()?;
+    Some(2500 + yy)
+}
+
+/// GE category tag (e.g. "G2A") from a raw transcript code like "315-100G2A".
+fn ge_tag(raw_code: &str) -> Option<String> {
+    let suffix: String = raw_code.chars().skip(7).collect();
+    is_ge_tag(&suffix).then_some(suffix)
+}
+
+fn is_ge_tag(s: &str) -> bool {
+    let b = s.as_bytes();
+    matches!(b, [b'G', d] | [b'G', d, b'A'..=b'Z'] if d.is_ascii_digit())
 }
 
 fn semester_for(boundaries: &[(usize, String)], course_start: usize) -> Option<String> {
@@ -142,6 +169,7 @@ fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<Par
             continue;
         };
 
+        let mut tag = ge_tag(raw_code.as_str());
         let (credit_str, grade) = match format {
             CourseFormat::Grade => {
                 // groups: 1=code 2=name 3=section 4=credit(int) 5=grade
@@ -159,6 +187,9 @@ fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<Par
                 let Some(credit) = captures.get(5) else {
                     continue;
                 };
+                if let Some(category) = captures.get(4).filter(|c| is_ge_tag(c.as_str())) {
+                    tag.get_or_insert_with(|| category.as_str().to_string());
+                }
                 (credit.as_str(), "IP".to_string())
             }
         };
@@ -196,6 +227,7 @@ fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<Par
             grade,
             parsed_credit,
             semester,
+            tag,
         });
     }
 
@@ -392,5 +424,49 @@ mod tests {
         assert_eq!(courses.len(), 2);
         assert_eq!(courses[0].semester.as_deref(), Some("1/2567"));
         assert_eq!(courses[1].semester.as_deref(), Some("2/2567"));
+    }
+
+    // Header layout of the English SIS grade report (pdf.js joins items by spaces).
+    const EN_REPORT: &str = "Study Result Mister SOMEONE Student Id 6710210999 Prince of Songkla \
+        University Hat Yai Campus Faculty of Science Division of Computational Science Computer \
+        Science Semester 2/2024 Subject Code Subject Name Section Credit Grade 003-001 VOL LEADER \
+        FOR SUS COM DEL 02 3 A 315-100G2A THE ART OF COMPUTING 07 2 B+";
+
+    #[test]
+    fn student_id_is_not_read_as_a_course_code() {
+        // Regression: "6710210999" used to match as code "671021…", swallowing
+        // the header text up to and including the first real course.
+        let (courses, _) = parse_transcript(EN_REPORT);
+        let codes: Vec<&str> = courses.iter().map(|c| c.code.as_str()).collect();
+        assert_eq!(codes, ["003-001", "315-100"]);
+    }
+
+    #[test]
+    fn english_semester_header_uses_buddhist_year() {
+        let (courses, _) = parse_transcript(EN_REPORT);
+        assert_eq!(courses[0].semester.as_deref(), Some("2/2567"));
+    }
+
+    #[test]
+    fn ge_tag_comes_from_code_suffix() {
+        let (courses, _) = parse_transcript(EN_REPORT);
+        assert_eq!(courses[0].tag, None);
+        assert_eq!(courses[1].tag.as_deref(), Some("G2A"));
+    }
+
+    #[test]
+    fn ge_tag_comes_from_registration_category() {
+        let text = "145-101 COMPANION ANIMALS 02 G8 3.0 344-201 MODULE COMPUTING 01 C 6.0";
+        let (courses, mode) = parse_transcript(text);
+        assert_eq!(mode, ParseMode::Registration);
+        assert_eq!(courses[0].tag.as_deref(), Some("G8"));
+        assert_eq!(courses[1].tag, None);
+    }
+
+    #[test]
+    fn cohort_from_student_id() {
+        assert_eq!(detect_cohort(EN_REPORT), Some(2567));
+        assert_eq!(detect_cohort("รหัสนักศึกษา 6910210001"), Some(2569));
+        assert_eq!(detect_cohort("no id here"), None);
     }
 }
