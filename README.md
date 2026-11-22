@@ -272,11 +272,11 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 </tr>
 <tr>
 <td><b>Styling</b></td>
-<td>Tailwind CSS v3 (class-based dark mode) — utility-first</td>
+<td>Tailwind CSS v3 (class-based dark mode), zinc monochrome in the style of shadcn/ui</td>
 </tr>
 <tr>
 <td><b>Fonts</b></td>
-<td>Inter Variable · Prompt (Thai) · JetBrains Mono</td>
+<td>Geist · Noto Sans Thai · Geist Mono, self-hosted in <code>vendor/fonts</code> (SIL OFL)</td>
 </tr>
 <tr>
 <td><b>PDF</b></td>

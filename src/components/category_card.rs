@@ -17,7 +17,7 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
     let progress_color = if complete {
         "bg-emerald-500"
     } else {
-        "bg-brand-500"
+        "bg-zinc-900 dark:bg-zinc-50"
     };
 
     let panel_id = format!(

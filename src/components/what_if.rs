@@ -75,7 +75,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
                     <input
                         type="text"
                         placeholder={move || if is_thai.get() { "รหัส เช่น 344-301" } else { "Code e.g. 344-301" }}
-                        class="text-[13px] font-mono px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                        class="min-w-0 text-[13px] font-mono px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                         aria-label={move || if is_thai.get() { "รหัสวิชา" } else { "Course code" }}
                         prop:value=move || plan_code.get()
                         on:input=move |ev| set_plan_code.set(event_target_value(&ev))
@@ -83,7 +83,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
                     <input
                         type="text"
                         placeholder={move || if is_thai.get() { "ชื่อวิชา (ไม่จำเป็น)" } else { "Course name (optional)" }}
-                        class="text-[13px] px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                        class="min-w-0 text-[13px] px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                         aria-label={move || if is_thai.get() { "ชื่อวิชา" } else { "Course name" }}
                         prop:value=move || plan_name.get()
                         on:input=move |ev| set_plan_name.set(event_target_value(&ev))
@@ -115,7 +115,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
                         <option value="IP">"IP"</option>
                     </select>
                     <button
-                        class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                        class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
                         on:click=add_planned
                     >
                         <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
