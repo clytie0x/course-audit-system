@@ -10,7 +10,7 @@ Everything runs in your browser. Nothing ever leaves your device.
 <br />
 
 ![Rust](https://img.shields.io/badge/rust-stable-orange?logo=rust&logoColor=white)
-![Leptos 0.6](https://img.shields.io/badge/leptos-0.6-purple)
+![Leptos 0.8](https://img.shields.io/badge/leptos-0.8-purple)
 ![WASM](https://img.shields.io/badge/wasm-WebAssembly-654ff0?logo=webassembly&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](#license)
 
@@ -105,7 +105,7 @@ Off by default. Optional checkbox keeps your last result in `localStorage` for n
 | Tool | Version | Purpose |
 | --- | --- | --- |
 | [Rust](https://rustup.rs) | stable | Compiler + `wasm32-unknown-unknown` target |
-| [Trunk](https://trunkrs.dev) | 0.17+ | WASM bundler · dev server · Tailwind CLI |
+| [Trunk](https://trunkrs.dev) | 0.22+ | WASM bundler · dev server · Tailwind CLI (pinned to v3.4.17 in Trunk.toml) |
 
 **One-time setup**
 
@@ -251,7 +251,7 @@ cargo test -p audit-core dump_curricula -- --ignored
 </tr>
 <tr>
 <td><b>UI</b></td>
-<td>Leptos 0.6 (CSR) — reactive UI with fine-grained signals</td>
+<td>Leptos 0.8 (CSR) — reactive UI with fine-grained signals</td>
 </tr>
 <tr>
 <td><b>Build</b></td>
@@ -259,7 +259,7 @@ cargo test -p audit-core dump_curricula -- --ignored
 </tr>
 <tr>
 <td><b>Styling</b></td>
-<td>Tailwind CSS (class-based dark mode) — utility-first</td>
+<td>Tailwind CSS v3 (class-based dark mode) — utility-first</td>
 </tr>
 <tr>
 <td><b>Fonts</b></td>

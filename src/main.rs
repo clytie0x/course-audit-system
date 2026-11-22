@@ -11,9 +11,9 @@ mod app;
 mod components;
 mod pdf;
 
-use leptos::{mount_to_body, view};
+use leptos::prelude::*;
 
 fn main() {
     console_error_panic_hook::set_once();
-    mount_to_body(|| view! { <app::App/> });
+    leptos::mount::mount_to_body(|| view! { <app::App/> });
 }

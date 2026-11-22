@@ -5,8 +5,9 @@
 //! `audit_core::auditor::build_audit`. Split out of `main.rs` to keep the binary
 //! entry point small and to isolate the UI from the crate's module layout.
 
-use leptos::*;
-use leptos_meta::*;
+use leptos::prelude::*;
+use leptos::task::spawn_local;
+use leptos_meta::{provide_meta_context, Title};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{DragEvent, Event, HtmlInputElement};
 
@@ -25,29 +26,29 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     // State management for file upload and audit processing
-    let (file_name, set_file_name) = create_signal(String::new());
-    let (preview_url, set_preview_url) = create_signal(Option::<String>::None);
-    let (audit_result, set_audit_result) = create_signal(Option::<AuditResult>::None);
-    let (is_loading, set_is_loading) = create_signal(false);
-    let (error_msg, set_error_msg) = create_signal(Option::<String>::None);
+    let (file_name, set_file_name) = signal(String::new());
+    let (preview_url, set_preview_url) = signal(Option::<String>::None);
+    let (audit_result, set_audit_result) = signal(Option::<AuditResult>::None);
+    let (is_loading, set_is_loading) = signal(false);
+    let (error_msg, set_error_msg) = signal(Option::<String>::None);
     // Stores the file from drag-and-drop (file input is not updated by drop events)
-    let (dropped_file, set_dropped_file) = create_signal(Option::<web_sys::File>::None);
+    let (dropped_file, set_dropped_file) = signal_local(Option::<web_sys::File>::None);
     // Which PDF format was detected during parsing (drives the mode banner).
-    let (parse_mode, set_parse_mode) = create_signal(ParseMode::Grade);
+    let (parse_mode, set_parse_mode) = signal(ParseMode::Grade);
     // Raw parsed courses from the PDF (kept around so the What-If simulator
     // can re-run audits without re-parsing).
-    let (parsed_courses, set_parsed_courses) = create_signal(Vec::<ParsedCourse>::new());
+    let (parsed_courses, set_parsed_courses) = signal(Vec::<ParsedCourse>::new());
     // User-added hypothetical courses appended to the audit input.
-    let (planned_courses, set_planned_courses) = create_signal(Vec::<ParsedCourse>::new());
+    let (planned_courses, set_planned_courses) = signal(Vec::<ParsedCourse>::new());
     // Form fields for the simulator
-    let (plan_code, set_plan_code) = create_signal(String::new());
-    let (plan_name, set_plan_name) = create_signal(String::new());
-    let (plan_credit, set_plan_credit) = create_signal(3.0_f32);
-    let (plan_grade, set_plan_grade) = create_signal("A".to_string());
+    let (plan_code, set_plan_code) = signal(String::new());
+    let (plan_name, set_plan_name) = signal(String::new());
+    let (plan_credit, set_plan_credit) = signal(3.0_f32);
+    let (plan_grade, set_plan_grade) = signal("A".to_string());
 
     // Persistence — opt-in localStorage of the last audit result (key "audit_v1").
     // Remains off by default to stay privacy-first.
-    let (save_enabled, set_save_enabled) = create_signal(false);
+    let (save_enabled, set_save_enabled) = signal(false);
 
     // Try to rehydrate both the toggle and a prior result on mount.
     if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
@@ -129,7 +130,7 @@ pub fn App() -> impl IntoView {
     // Re-run the audit whenever the parsed transcript or the simulator's
     // planned courses change. Skip when nothing has been parsed yet so the
     // empty-state keeps rendering.
-    create_effect(move |_| {
+    Effect::new(move |_| {
         let parsed = parsed_courses.get();
         let planned = planned_courses.get();
         if parsed.is_empty() && planned.is_empty() {
@@ -205,7 +206,7 @@ pub fn App() -> impl IntoView {
     };
 
     // Language toggle: true = Thai (default), false = English
-    let (is_thai, set_is_thai) = create_signal(true);
+    let (is_thai, set_is_thai) = signal(true);
     provide_context(is_thai);
 
     // Dark-mode state. Initial value is sourced from the `dark` class applied
@@ -215,7 +216,7 @@ pub fn App() -> impl IntoView {
         .and_then(|d| d.document_element())
         .map(|el| el.class_list().contains("dark"))
         .unwrap_or(false);
-    let (is_dark, set_is_dark) = create_signal(initial_dark);
+    let (is_dark, set_is_dark) = signal(initial_dark);
 
     let toggle_dark = move |_| {
         set_is_dark.update(|v| *v = !*v);
@@ -401,7 +402,6 @@ pub fn App() -> impl IntoView {
     };
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/course-audit-system.css"/>
         <Title text="Course Audit — PSU CS"/>
 
         <div class="min-h-screen font-sans text-zinc-900 dark:text-zinc-100 flex flex-col selection:bg-brand-100 dark:selection:bg-brand-900/60">
@@ -440,13 +440,13 @@ pub fn App() -> impl IntoView {
                                     <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
                                     </svg>
-                                }.into_view()
+                                }.into_any()
                             } else {
                                 view! {
                                     <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
                                     </svg>
-                                }.into_view()
+                                }.into_any()
                             }}
                         </button>
                         <div class="flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
@@ -517,12 +517,12 @@ pub fn App() -> impl IntoView {
                                 view! {
                                     <svg class="animate-spin h-4 w-4 text-white/70" aria-hidden="true" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
                                     <span>{move || if is_thai.get() { "กำลังวิเคราะห์..." } else { "Analyzing..." }}</span>
-                                }.into_view()
+                                }.into_any()
                             } else {
                                 view! {
                                     <span>{move || if is_thai.get() { "วิเคราะห์ใบแสดงผลการเรียน" } else { "Analyze Transcript" }}</span>
                                     <svg class="w-4 h-4 opacity-50" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                                }.into_view()
+                                }.into_any()
                             }}
                         </button>
                     </div>
@@ -587,7 +587,7 @@ pub fn App() -> impl IntoView {
                                         <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{move || if is_thai.get() { "กำลังดึงข้อมูลวิชาและตรวจสอบข้อกำหนด" } else { "Parsing courses and validating requirements" }}</p>
                                     </div>
                                 </div>
-                            }.into_view()
+                            }.into_any()
                         } else if let Some(err) = error_msg.get() {
                             // Error state
                             view! {
@@ -602,7 +602,7 @@ pub fn App() -> impl IntoView {
                                         <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm leading-relaxed">{err}</p>
                                     </div>
                                 </div>
-                            }.into_view()
+                            }.into_any()
                         } else if let Some(result) = audit_result.get() {
                             // Results view
                             view! {
@@ -1038,7 +1038,7 @@ pub fn App() -> impl IntoView {
                                         }
                                     })}
                                 </div>
-                            }.into_view()
+                            }.into_any()
                         } else {
                             // Empty state
                             view! {
@@ -1053,7 +1053,7 @@ pub fn App() -> impl IntoView {
                                         <p class="text-sm text-zinc-400 dark:text-zinc-500 max-w-xs leading-relaxed">{move || if is_thai.get() { "อัปโหลดใบแสดงผลการเรียน PDF เพื่อดูความคืบหน้าในการสำเร็จการศึกษา" } else { "Upload your PDF transcript to see a breakdown of your progress toward graduation." }}</p>
                                     </div>
                                 </div>
-                            }.into_view()
+                            }.into_any()
                         }
                     }}
                 </main>

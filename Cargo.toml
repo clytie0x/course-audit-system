@@ -8,9 +8,8 @@ members = ["crates/audit-core"]
 
 [dependencies]
 audit-core = { path = "crates/audit-core" }
-leptos = { version = "0.6", features = ["csr"] }
-leptos_meta = { version = "0.6", features = ["csr"] }
-leptos_router = { version = "0.6" }
+leptos = { version = "0.8", features = ["csr"] }
+leptos_meta = "0.8"
 web-sys = { version = "0.3", features = [
     "File",
     "FileList",
