@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: fmt · clippy · test · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: cargo fmt
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy (native, all targets)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: cargo clippy (wasm)
+        run: cargo clippy --target wasm32-unknown-unknown -- -D warnings
+
+      - name: cargo test
+        run: cargo test --workspace --all-targets
+
+      - name: Install Trunk
+        uses: jetli/trunk-action@v0.5.1
+        with:
+          version: v0.22.2
+
+      - name: trunk build (release)
+        run: trunk build --release --public-url /course-audit-system/
+
+  tools:
+    name: scraper syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: node --check
+        run: |
+          node --check tools/sis-scraper/scrape.mjs
+          node --check tools/sis-scraper/coop-hours.mjs
+      - name: Offerings JSON is valid and free of personal numbers
+        run: |
+          for f in data/offerings/*.json; do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"; done
+          if grep -niE '\b[0-9]{10}\b|Passcode *[:：]? *[0-9]|Zoom *ID *[:：]? *[0-9]' data/offerings/*.json; then
+            echo "::error::10-digit numbers, passcodes or Zoom IDs found in data/offerings"; exit 1
+          fi

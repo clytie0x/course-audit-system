@@ -4,9 +4,13 @@
 //
 // Usage:
 //   node scrape.mjs                      # every term SIS lists, curriculum courses
+//   node scrape.mjs --latest 2 --ge      # the 2 newest terms, plus GenEd prefixes (weekly CI job)
 //   node scrape.mjs --terms 1/2569,2/2569 --ge
 //   node scrape.mjs --keywords 344-,322-101 --terms 2/2569
 //
+// A run with the default keywords replaces each term's file, so withdrawn courses
+// disappear; --keywords merges into it. A file is only rewritten when its courses
+// change, so scheduled runs do not create empty commits.
 // Only public pages are visited (no login). Requests are sequential with a delay.
 
 import { chromium } from 'playwright-core';
@@ -39,6 +43,7 @@ function curriculumKeywords() {
     for (const x of c.major.core_courses.courses) codes.add(x.code);
     const ge = JSON.stringify(c.gen_ed);
     for (const m of ge.matchAll(/"code":\s*"([0-9A-Z]{3})-\d{3}"/g)) gePrefixes.add(`${m[1]}-`);
+    for (const p of c.gen_ed.electives.language_prefixes || []) gePrefixes.add(p);
   }
   const major = ['344-', ...[...codes].filter((c) => !c.startsWith('344-')).sort()];
   return { major, ge: [...gePrefixes].sort() };
@@ -115,6 +120,7 @@ async function readDetail(page, href) {
         students:
           get(/^ผู้เรียน:\s*/)
             ?.replace(/\b\d{10}\b/g, '[ซ่อน]')
+            .replace(/(Zoom\s*ID\s*[:：]?\s*)\d[\d ]{7,}\d/gi, '$1[ซ่อน]')
             .replace(/(Passcode|รหัสผ่าน)\s*[:：]?\s*\S+/gi, '$1 [ซ่อน]') ?? null,
         rows: rows.map(([times, rooms, teachers]) => ({ times: times || '', rooms: rooms || '', teachers: teachers || '' })),
         midterm: get(/^สอบกลางภาค:\s*/),
@@ -191,7 +197,8 @@ async function availableTerms(page) {
 async function main() {
   const browser = await chromium.launch({ channel: 'chrome', headless: !args.headed });
   const page = await browser.newPage({ locale: 'th-TH' });
-  const terms = args.terms ? String(args.terms).split(',') : await availableTerms(page);
+  const listed = args.terms ? String(args.terms).split(',') : await availableTerms(page);
+  const terms = args.latest ? listed.slice(0, Number(args.latest)) : listed;
   const kw = curriculumKeywords();
   const keywords = args.keywords ? String(args.keywords).split(',') : [...kw.major, ...(args.ge ? kw.ge : [])];
   mkdirSync(OUT, { recursive: true });
@@ -201,7 +208,8 @@ async function main() {
     const [term, year] = t.split('/');
     const file = join(OUT, `${year}-${term}.json`);
     const existing = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : { courses: [] };
-    const byKey = new Map(existing.courses.map((c) => [c.id, c]));
+    const fresh = new Map();
+    let failures = 0;
     const started = Date.now();
     const hrefs = new Map();
     for (const k of keywords) {
@@ -209,6 +217,7 @@ async function main() {
       try {
         rows = await searchRows(page, term, year, k);
       } catch (e) {
+        failures++;
         console.warn(`  ! search ${t} ${k}: ${e.message.split('\n')[0]}`);
       }
       // A code keyword like "322-101" also matches other text; keep exact-code hits.
@@ -219,14 +228,23 @@ async function main() {
     for (const { href } of hrefs.values()) {
       try {
         const course = normalize(await readDetail(page, href), href);
-        if (course.code) byKey.set(course.id, course);
+        if (course.code) fresh.set(course.id, course);
       } catch (e) {
+        failures++;
         console.warn(`  ! ${href}: ${e.message.split('\n')[0]}`);
       }
       if (++n % 20 === 0) console.log(`  ${t}: ${n}/${hrefs.size}`);
       await sleep(DELAY_MS);
     }
+    // Replace on a full default run without errors; otherwise merge so nothing is lost.
+    const replace = !args.keywords && failures === 0;
+    const byKey = new Map(replace ? [] : existing.courses.map((c) => [c.id, c]));
+    for (const [id, c] of fresh) byKey.set(id, c);
     const courses = [...byKey.values()].sort((a, b) => a.code.localeCompare(b.code) || (a.name_en || '').localeCompare(b.name_en || ''));
+    if (JSON.stringify(courses) === JSON.stringify(existing.courses)) {
+      console.log(`${t}: unchanged (${courses.length} courses)`);
+      continue;
+    }
     const out = {
       term: `${term}/${year}`,
       campus: 'หาดใหญ่',
@@ -245,7 +263,8 @@ async function main() {
     .filter((k) => existsSync(join(OUT, `${k}.json`)));
   const prev = existsSync(join(OUT, 'index.json')) ? JSON.parse(readFileSync(join(OUT, 'index.json'), 'utf8')).terms : [];
   const all = [...new Set([...index, ...prev])].sort((a, b) => b.localeCompare(a));
-  writeFileSync(join(OUT, 'index.json'), JSON.stringify({ terms: all }, null, 1) + '\n');
+  const indexJson = JSON.stringify({ terms: all }, null, 1) + '\n';
+  if (indexJson !== JSON.stringify({ terms: prev }, null, 1) + '\n') writeFileSync(join(OUT, 'index.json'), indexJson);
   await browser.close();
 }
 
