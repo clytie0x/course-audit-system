@@ -19,7 +19,7 @@ const MAX_RESULTS: usize = 40;
 const DAYS_TH: [&str; 8] = ["", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."];
 const DAYS_EN: [&str; 8] = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-async fn fetch_json<T: DeserializeOwned>(url: String) -> Option<T> {
+pub(crate) async fn fetch_json<T: DeserializeOwned>(url: String) -> Option<T> {
     let window = web_sys::window()?;
     let resp: web_sys::Response = JsFuture::from(window.fetch_with_str(&url))
         .await

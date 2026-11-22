@@ -2,10 +2,10 @@
 //! tabbed sections (overview, courses, semesters, plan, offerings).
 
 use crate::components::category_card::CategoryCard;
-use crate::components::coop_hours::{CoopHours, CoopHoursState, TOTAL_REQUIRED};
+use crate::components::coop_hours::{CoopHoursState, TOTAL_REQUIRED};
 use crate::components::empty_state::SaveToggle;
-use crate::components::missing_requirements::MissingRequirements;
 use crate::components::offerings::OfferingsPanel;
+use crate::components::overview::Overview;
 use crate::components::semester_breakdown::SemesterBreakdown;
 use crate::components::status::{fmt_credits, label, status_line};
 use crate::components::ui::{BUTTON, CARD, TAG, TAG_ACCENT, TAG_OK};
@@ -63,6 +63,10 @@ impl Tab {
     }
 }
 
+/// Selected tab, shared so a section can switch tabs (e.g. "offered next term").
+#[derive(Clone, Copy)]
+pub struct SelectedTab(pub RwSignal<Tab>);
+
 #[component]
 pub fn ResultsView(result: AuditResult) -> impl IntoView {
     let AppState {
@@ -80,6 +84,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
         ..
     } = expect_context::<CoopHoursState>();
     let tab = RwSignal::new(Tab::Overview);
+    provide_context(SelectedTab(tab));
 
     // Download the AuditResult as a JSON file.
     let export_json = move |_| {
@@ -402,12 +407,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
 
-            {panel(Tab::Overview, view! {
-                <div class="space-y-4">
-                    <MissingRequirements result=result.clone()/>
-                    <CoopHours/>
-                </div>
-            }.into_any())}
+            {panel(Tab::Overview, view! { <Overview result=result.clone()/> }.into_any())}
             {panel(Tab::Courses, view! {
                 <div class=format!("{CARD} overflow-hidden divide-y divide-zinc-200 dark:divide-zinc-800")>
                     {categories.iter().map(|category| {
