@@ -107,6 +107,56 @@ fn missing_credits_in(description: &str) -> Option<f32> {
     rest.strip_suffix(" credits")?.parse().ok()
 }
 
+/// Thai wording for the auditor's English rule descriptions (course codes and
+/// curriculum names stay as they are). Unknown text is returned unchanged.
+pub fn rule_text(description: &str, is_thai: bool) -> String {
+    if !is_thai {
+        return description.to_string();
+    }
+    let d = description;
+    if let Some(rest) = d.strip_prefix("Choose 1: ") {
+        return format!("เลือก 1 วิชา: {}", rest.replace(" OR ", " หรือ "));
+    }
+    if let Some((strand, rest)) = d.split_once(": choose one pair (") {
+        return format!("{strand}: เลือก 1 คู่ ({}", rest.replace(" OR ", " หรือ "));
+    }
+    if let Some((strand, rest)) = d.split_once(": choose 1 (") {
+        return format!("{strand}: เลือก 1 วิชา ({}", rest.replace(" OR ", " หรือ "));
+    }
+    if let Some(rest) = d.strip_prefix("Required: ") {
+        // "Required: N Clusters, Completed: M. Please complete ..."
+        if let Some((n, rest)) = rest.split_once(" Clusters, Completed: ") {
+            if let Some((m, _)) = rest.split_once('.') {
+                return format!("ต้องเรียนครบทุกวิชาในกลุ่มวิชาเลือกอย่างน้อย {n} กลุ่ม (ครบแล้ว {m} กลุ่ม)");
+            }
+        }
+    }
+    if let Some(rest) = d.strip_prefix("At least ") {
+        // "At least N elective credits within one specialisation domain (best so far: B)"
+        if let Some((n, rest)) =
+            rest.split_once(" elective credits within one specialisation domain (best so far: ")
+        {
+            let best = rest.trim_end_matches(')');
+            return format!("ต้องมีวิชาเลือกอย่างน้อย {n} หน่วยกิตในแขนงเดียวกัน (ตอนนี้มากที่สุด {best})");
+        }
+    }
+    if let Some(rest) = d.strip_prefix("Cumulative GPA ") {
+        if let Some((g, m)) = rest.split_once(" is below the minimum ") {
+            return format!("เกรดเฉลี่ยสะสม {g} ต่ำกว่าเกณฑ์ {m}");
+        }
+    }
+    if let Some((strand, rest)) = d.split_once(": at least ") {
+        if let Some((n, rest)) =
+            rest.split_once(" credits of English or another foreign language (")
+        {
+            return format!(
+                "{strand}: ต้องมีวิชาภาษาอังกฤษหรือภาษาต่างประเทศอื่นอย่างน้อย {n} หน่วยกิต ({rest}"
+            );
+        }
+    }
+    d.to_string()
+}
+
 /// Credits without a trailing ".0": 9.0 -> "9", 1.5 -> "1.5".
 pub fn fmt_credits(c: f32) -> String {
     // `+ 0.0` turns -0.0 (the sum of an empty list) into 0.0.
@@ -377,6 +427,45 @@ mod tests {
                 },
             ]
         );
+    }
+
+    #[test]
+    fn rule_text_translates_known_rules_to_thai() {
+        let cases = [
+            (
+                "Choose 1: 344-492 (Projects in Computer Science) OR 344-495 (Cooperative Education)",
+                "เลือก 1 วิชา: 344-492 (Projects in Computer Science) หรือ 344-495 (Cooperative Education)",
+            ),
+            (
+                "Required: 2 Clusters, Completed: 0. Please complete all courses within at least 2 clusters.",
+                "ต้องเรียนครบทุกวิชาในกลุ่มวิชาเลือกอย่างน้อย 2 กลุ่ม (ครบแล้ว 0 กลุ่ม)",
+            ),
+            (
+                "At least 12 elective credits within one specialisation domain (best so far: 9)",
+                "ต้องมีวิชาเลือกอย่างน้อย 12 หน่วยกิตในแขนงเดียวกัน (ตอนนี้มากที่สุด 9)",
+            ),
+            (
+                "Cumulative GPA 1.90 is below the minimum 2.00",
+                "เกรดเฉลี่ยสะสม 1.90 ต่ำกว่าเกณฑ์ 2.00",
+            ),
+            (
+                "Living with Awareness: choose 1 (315-201 - Life OR 315-202 - Mind)",
+                "Living with Awareness: เลือก 1 วิชา (315-201 - Life หรือ 315-202 - Mind)",
+            ),
+            (
+                "Citizenship: choose one pair (A + B OR C + D)",
+                "Citizenship: เลือก 1 คู่ (A + B หรือ C + D)",
+            ),
+            (
+                "GenEd Electives: at least 3 credits of English or another foreign language (890-, 896-)",
+                "GenEd Electives: ต้องมีวิชาภาษาอังกฤษหรือภาษาต่างประเทศอื่นอย่างน้อย 3 หน่วยกิต (890-, 896-)",
+            ),
+        ];
+        for (en, th) in cases {
+            assert_eq!(rule_text(en, true), th);
+            assert_eq!(rule_text(en, false), en);
+        }
+        assert_eq!(rule_text("Something new", true), "Something new");
     }
 
     #[test]

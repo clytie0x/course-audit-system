@@ -117,6 +117,8 @@ pub fn CoopHours() -> impl IntoView {
                 <p class="text-[13px] text-zinc-500">{move || t("เงื่อนไขก่อนลงวิชาสหกิจศึกษา", "Required before the co-op course")}</p>
             </div>
             <div class="px-4 sm:px-[18px] py-4 space-y-3">
+                // Inputs stay narrow so label and value line up on a full-width card.
+                <div class="max-w-xl space-y-3">
                 {row("กิจกรรมของคณะ สาขา หรือหลักสูตร", "Faculty / programme activities", faculty, set_faculty, FACULTY_REQUIRED)}
                 {row("กิจกรรมของมหาวิทยาลัยหรืออื่น ๆ", "University / other activities", university, set_university, UNIVERSITY_REQUIRED)}
                 <p class=move || format!("text-xs font-semibold {}", if faculty.get() >= FACULTY_REQUIRED && university.get() >= UNIVERSITY_REQUIRED { "text-emerald-600" } else { "text-amber-700" })>
@@ -132,6 +134,7 @@ pub fn CoopHours() -> impl IntoView {
                         }
                     }}
                 </p>
+                </div>
                 // Official report for this cohort, loaded only on request (it is heavy).
                 {move || cohort.get().and_then(report_for).map(|url| view! {
                     <div class="space-y-2">
