@@ -1,8 +1,10 @@
 pub mod category_card;
 pub mod category_summary;
+pub mod coop_hours;
 pub mod header;
 pub mod hero;
 pub mod missing_requirements;
+pub mod offerings;
 pub mod results;
 pub mod semester_breakdown;
 pub mod sidebar;

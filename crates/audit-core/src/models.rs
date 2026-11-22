@@ -235,8 +235,9 @@ pub struct Prerequisite {
     pub text: String,
 }
 
-/// Parsed course details extracted from the transcript text.
-#[derive(Debug, Clone)]
+/// Parsed course details extracted from the transcript text. Serializable so
+/// the UI can persist the transcript (opt-in) and re-audit it after a reload.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParsedCourse {
     pub code: String,
     pub name: String,
@@ -245,9 +246,11 @@ pub struct ParsedCourse {
     /// Semester label scraped from the PDF, e.g. "1/2567". `None` for courses
     /// that appeared outside any "ภาคการศึกษา X/YYYY" header, or for
     /// user-added planned courses.
+    #[serde(default)]
     pub semester: Option<String>,
     /// GE category tag from the code suffix or registration category column
     /// (e.g. "G2A" from "315-100G2A"); `None` for non-GE courses.
+    #[serde(default)]
     pub tag: Option<String>,
 }
 
