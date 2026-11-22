@@ -8264,6 +8264,477 @@
    "incomplete": false
   },
   {
+   "id": "2569200250130346",
+   "code": "340-211",
+   "name_th": "วิทยาศาสตร์อุตสาหกรรมการชุบโลหะ",
+   "name_en": "METAL PLATING INDUSTRIAL SCIENCE",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 30,
+     "students": "วท",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "วท1",
+       "teachers": "วรากร ลิ่มบุตร"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200250060346",
+   "code": "340-231",
+   "name_th": "เคมีและชีวประสิทธิผลของอาหาร",
+   "name_en": "FOOD CHEMISTRY AND BIOAVAILABILITY",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ทั่วไป ชั้นปี 2,3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc3",
+       "teachers": "การุณ ทองประจุแก้ว"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200320550346",
+   "code": "340-244",
+   "name_th": "หลักการการตรวจสถานที่เกิดเหตุและการพิสูจน์หลักฐาน",
+   "name_en": "PRINCIPLES OF CRIME SCENE INVESTIGATION AND CRIMINALISTICS",
+   "credits": 2,
+   "credit_pattern": "2((1)-2-3)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 20,
+     "students": null,
+     "meetings": [
+      {
+       "day": 3,
+       "start": "16:00",
+       "end": "17:50",
+       "room": "-",
+       "teachers": "วงศ์กฏ ภู่ภูมิรัตน์, เกียรติศักดิ์ พรหมสุวรรณ์, เทิดทูน ดำรงค์ฤทธามาตย์"
+      },
+      {
+       "day": 2,
+       "start": "16:30",
+       "end": "17:20",
+       "room": "BSc0308",
+       "teachers": "วงศ์กฏ ภู่ภูมิรัตน์, เกียรติศักดิ์ พรหมสุวรรณ์, เทิดทูน ดำรงค์ฤทธามาตย์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200320560346",
+   "code": "340-281",
+   "name_th": "การสื่อสารวิทยาศาสตร์",
+   "name_en": "SCIENCE COMMUNICATION",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "เคมี-ชีววิทยาประยุกต์ 2",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "13:00",
+       "end": "13:50",
+       "room": "BSc0304",
+       "teachers": "เครือวัลย์ ยุนรัมย์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200280530346",
+   "code": "340-312",
+   "name_th": "เซนเซอร์ไฟฟ้าเคมีสำหรับสิ่งแวดล้อม",
+   "name_en": "ELECTROCHEMICAL SENSORS FOR ENVIRONMENT",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 30,
+     "students": "วท",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0308",
+       "teachers": "วรากร ลิ่มบุตร, เกียรติศักดิ์ พรหมสุวรรณ์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200250150346",
+   "code": "340-334",
+   "name_th": "การรู้เท่าทันผลิตภัณฑ์เสริมอาหารและผลิตภัณฑ์ เสริมความงาม",
+   "name_en": "DIETARY SUPPLEMENTS AND BEAUTY PRODUCTS LITERACY",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 100,
+     "students": "เคมี-ชีววิทยาประยุกต์",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0502",
+       "teachers": "เครือวัลย์ ยุนรัมย์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200250010346",
+   "code": "340-335",
+   "name_th": "ชุดวิชาเคมี-ชีววิทยาอุตสาหกรรม",
+   "name_en": "MODULE : INDUSTRIAL CHEMISTRY- BIOLOGY",
+   "credits": 9,
+   "credit_pattern": "9((7)-6-14)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "เคมี-ชีว ประยุกต์ 3, 4",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "17:50",
+       "room": "BSc0307",
+       "teachers": "การุณ ทองประจุแก้ว, วรากร ลิ่มบุตร, เครือวัลย์ ยุนรัมย์, อภิชัย พลชัย, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, ภูวดล ธนะเกียรติไกร, ฐิติกา กิจพิพิธ, ธีรเดช เสนาสุ, กอบัว ไชยศิวามงคล"
+      },
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "17:50",
+       "room": "BSc0307",
+       "teachers": "การุณ ทองประจุแก้ว, วรากร ลิ่มบุตร, เครือวัลย์ ยุนรัมย์, อภิชัย พลชัย, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, ภูวดล ธนะเกียรติไกร, ฐิติกา กิจพิพิธ, ธีรเดช เสนาสุ, กอบัว ไชยศิวามงคล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200250020346",
+   "code": "340-342",
+   "name_th": "ชุดวิชานิติวิทยาศาสตร์เพื่อความยุติธรรม",
+   "name_en": "MODULE:FORENSIC SCIENCE IN CRIMINAL JUSTICE",
+   "credits": 9,
+   "credit_pattern": "9((7)-6-14)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "เคมี-ชีวประยุกต์ 3, 4",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0304, BSc0502, ห้องปฏิบัติการNML",
+       "teachers": "อภิชัย พลชัย, ภูวดล ธนะเกียรติไกร, ฐิติกา กิจพิพิธ, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, กอบัว ไชยศิวามงคล, เกียรติศักดิ์ พรหมสุวรรณ์"
+      },
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "17:50",
+       "room": "BSc0304, BSc0502, ห้องปฏิบัติการNML",
+       "teachers": "อภิชัย พลชัย, ภูวดล ธนะเกียรติไกร, ฐิติกา กิจพิพิธ, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, กอบัว ไชยศิวามงคล, เกียรติศักดิ์ พรหมสุวรรณ์"
+      },
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0304, BSc0502, ห้องปฏิบัติการNML",
+       "teachers": "อภิชัย พลชัย, ภูวดล ธนะเกียรติไกร, ฐิติกา กิจพิพิธ, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, กอบัว ไชยศิวามงคล, เกียรติศักดิ์ พรหมสุวรรณ์"
+      },
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0304, BSc0502, ห้องปฏิบัติการNML",
+       "teachers": "อภิชัย พลชัย, ภูวดล ธนะเกียรติไกร, ฐิติกา กิจพิพิธ, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, กอบัว ไชยศิวามงคล, เกียรติศักดิ์ พรหมสุวรรณ์"
+      }
+     ],
+     "midterm": "15 ม.ค. 2570 13:30–16:30",
+     "final": "10 มี.ค. 2570 13:30–16:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200155380346",
+   "code": "340-353",
+   "name_th": "วิทยาศาสตร์การถ่ายภาพ 1",
+   "name_en": "PHOTOGRAPHIC SCIENCE I",
+   "credits": 2,
+   "credit_pattern": "2(2-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 250,
+     "students": "ทั่วไป(หลักสูตรปี55เป็นต้นไป)",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "15:00",
+       "end": "16:50",
+       "room": "L3",
+       "teachers": "สุกรี แวววรรณจิตร"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200250080346",
+   "code": "340-391",
+   "name_th": "ทักษะวิจัยทางเคมี-ชีววิทยาประยุกต์",
+   "name_en": "RESEARCH SKILLS IN APPLIED CHEMISTRY-BIOLOGY",
+   "credits": 3,
+   "credit_pattern": "3((1)-4-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "เคมี-ชีวประยุกต์3",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0306",
+       "teachers": "ธีรเดช เสนาสุ, การุณ ทองประจุแก้ว, วรากร ลิ่มบุตร, เครือวัลย์ ยุนรัมย์, อภิชัย พลชัย, วงศ์กฏ ภู่ภูมิรัตน์, เทิดทูน ดำรงค์ฤทธามาตย์, ภูวดล ธนะเกียรติไกร, กอบัว ไชยศิวามงคล, เกียรติศักดิ์ พรหมสุวรรณ์, ชนวีร์ จักรวาลพิทักษ์, สุทธิวรรณ วุ่นหนู"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200280570346",
+   "code": "340-442",
+   "name_th": "นิติเคมีเบื้องต้น",
+   "name_en": "INTRODUCTION TO FORENSIC CHEMISTRY",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "เคมี-ชีววิทยาประยุกต์",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0502",
+       "teachers": "กอบัว ไชยศิวามงคล, อภิชัย พลชัย"
+      }
+     ],
+     "midterm": "15 ม.ค. 2570 09:00–12:00",
+     "final": "08 มี.ค. 2570 09:00–11:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200305420346",
+   "code": "340-451",
+   "name_th": "หัวข้อพิเศษทางเคมี-ชีววิทยาประยุกต์ 1(เทคโนโลยีเชิงแสงทางเคมีและการประยุกต์ใช้)",
+   "name_en": "SPECIAL TOPICS IN APPLIED CHEMISTRY-BIOLOGY I (PHOTOCHEMICAL TECHNOLOGIES AND APPLICATIONS)",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "ทั่วไป ชั้นปี 2,3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "15:30",
+       "end": "17:20",
+       "room": "BSc0304",
+       "teachers": "ธีรเดช เสนาสุ"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200155580346",
+   "code": "340-454",
+   "name_th": "ระบบประกันคุณภาพสากล",
+   "name_en": "INTERNATIONAL QUALITY ASSURANCE SYSTEM",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "ทั่วไป3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0503/2",
+       "teachers": "เทิดทูน ดำรงค์ฤทธามาตย์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200119780346",
+   "code": "340-481",
+   "name_th": "การสัมมนาทางวิทยาศาสตร์",
+   "name_en": "SEMINAR IN SCIENCE",
+   "credits": 1,
+   "credit_pattern": "1(0-2-1)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์สุขภาพและวิทยาศาสตร์ประยุกต์",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "เคมี-ชีววิทยาประยุกต์",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0308",
+       "teachers": "เครือวัลย์ ยุนรัมย์, การุณ ทองประจุแก้ว, วรากร ลิ่มบุตร, อภิชัย พลชัย, เทิดทูน ดำรงค์ฤทธามาตย์, ธีรเดช เสนาสุ, กอบัว ไชยศิวามงคล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 40,
+     "students": "เคมี-ชีววิทยาประยุกต์",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0308",
+       "teachers": "เครือวัลย์ ยุนรัมย์, การุณ ทองประจุแก้ว, วรากร ลิ่มบุตร, อภิชัย พลชัย, เทิดทูน ดำรงค์ฤทธามาตย์, ธีรเดช เสนาสุ, กอบัว ไชยศิวามงคล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
    "id": "2569200319230249",
    "code": "344-101",
    "name_th": "พื้นฐานทางวิทยาการคอมพิวเตอร์",
@@ -11208,6 +11679,68 @@
    "incomplete": false
   },
   {
+   "id": "2569200212700245",
+   "code": "472-660",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 36,
+   "credit_pattern": "36(0-108-0)",
+   "faculty": "คณะวิทยาการจัดการ",
+   "department": "สาขาวิชาบริหารธุรกิจ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "M.B.A. International (รหัสนักศึกษา 65-69) - หลักสูตรปรับปรุง พ.ศ. 2565",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 999,
+     "students": "M.B.A. International (รหัสนักศึกษา 65-69) - หลักสูตรปรับปรุง พ.ศ. 2565",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "03",
+     "seats": 999,
+     "students": "M.B.A. International (รหัสนักศึกษา 65-69) - หลักสูตรปรับปรุง พ.ศ. 2565",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "04",
+     "seats": 999,
+     "students": "M.B.A. International (รหัสนักศึกษา 65-69) - หลักสูตรปรับปรุง พ.ศ. 2565",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "05",
+     "seats": 999,
+     "students": "M.B.A. International (รหัสนักศึกษา 65-69) - หลักสูตรปรับปรุง พ.ศ. 2565",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "06",
+     "seats": 999,
+     "students": "M.B.A. International (รหัสนักศึกษา 65-69) - หลักสูตรปรับปรุง พ.ศ. 2565",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
    "id": "2569200006470274",
    "code": "473-001",
    "name_th": "เงินทองต้องรอบรู้",
@@ -12619,28 +13152,6 @@
    "incomplete": false
   },
   {
-   "id": "2569200041510139",
-   "code": "820-800",
-   "name_th": "วิทยานิพนธ์",
-   "name_en": "THESIS",
-   "credits": 18,
-   "credit_pattern": "18(0-54-0)",
-   "faculty": "คณะการจัดการสิ่งแวดล้อม",
-   "department": "คณะการจัดการสิ่งแวดล้อม",
-   "fee": null,
-   "sections": [
-    {
-     "section": "01",
-     "seats": 999,
-     "students": "ป.โท การจัดการสิ่งแวดล้อมและความยั่งยืน - หลักสูตรปรับปรุง พ.ศ. 2562",
-     "meetings": [],
-     "midterm": "-",
-     "final": "-"
-    }
-   ],
-   "incomplete": false
-  },
-  {
    "id": "2569200253120139",
    "code": "820-800",
    "name_th": "วิทยานิพนธ์",
@@ -12735,6 +13246,28 @@
      "section": "11",
      "seats": 999,
      "students": "ป.โท การจัดการสิ่งแวดล้อมและความยั่งยืน (รหัสนักศึกษา 64-68) - หลักสูตรปรับปรุง พ.ศ. 2564",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2569200041510139",
+   "code": "820-800",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 18,
+   "credit_pattern": "18(0-54-0)",
+   "faculty": "คณะการจัดการสิ่งแวดล้อม",
+   "department": "คณะการจัดการสิ่งแวดล้อม",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.โท การจัดการสิ่งแวดล้อมและความยั่งยืน - หลักสูตรปรับปรุง พ.ศ. 2562",
      "meetings": [],
      "midterm": "-",
      "final": "-"
