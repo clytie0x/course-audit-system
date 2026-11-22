@@ -9,7 +9,6 @@ Everything runs in your browser. Nothing ever leaves your device.
 
 <br />
 
-[![Deploy](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/Teerapat-Vatpitak/course-audit-system/actions/workflows/deploy.yml)
 ![Rust](https://img.shields.io/badge/rust-stable-orange?logo=rust&logoColor=white)
 ![Leptos 0.6](https://img.shields.io/badge/leptos-0.6-purple)
 ![WASM](https://img.shields.io/badge/wasm-WebAssembly-654ff0?logo=webassembly&logoColor=white)
@@ -193,19 +192,14 @@ course-audit-system/
 │   └── components/
 │       └── category_card.rs Collapsible category accordion
 │
-├── crates/audit-core/       Pure Rust core, no wasm deps (tests run natively)
-│   └── src/
-│       ├── models.rs        Data types + utilities (GPA, dedupe, IP)
-│       ├── parser.rs        Two regex patterns + semester detection
-│       ├── auditor.rs       GenEd / Major / FreeElective + build_audit()
-│       └── data/
-│           ├── gen_ed.rs + gen_ed.json   JSON is source of truth
-│           └── major.rs  + major.json    .rs loads via include_str!
-│
-└── .github/
-    ├── workflows/
-    │   └── deploy.yml       trunk build → GitHub Pages
-    └── dependabot.yml       Weekly cargo, monthly actions
+└── crates/audit-core/       Pure Rust core, no wasm deps (tests run natively)
+    └── src/
+        ├── models.rs        Data types + utilities (GPA, dedupe, IP)
+        ├── parser.rs        Two regex patterns + semester detection
+        ├── auditor.rs       GenEd / Major / FreeElective + build_audit()
+        └── data/
+            ├── gen_ed.rs + gen_ed.json   JSON is source of truth
+            └── major.rs  + major.json    .rs loads via include_str!
 ```
 
 <details>
@@ -312,9 +306,7 @@ Test coverage spans the parser (format auto-detect, code normalization, semester
 
 ## Deployment
 
-**GitHub Pages (automatic)** — push to `main` → `.github/workflows/deploy.yml` builds with Trunk and deploys.
-
-**Manual / other hosts**
+Automatic GitHub Pages deploys are paused while the project is experimental. Build and upload manually:
 
 ```bash
 trunk build --release --public-url /your-base-path/
