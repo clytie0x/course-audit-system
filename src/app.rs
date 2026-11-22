@@ -45,6 +45,9 @@ pub struct AppState {
     pub plan_grade: ReadSignal<String>,
     pub set_plan_grade: WriteSignal<String>,
     pub curriculum_id: ReadSignal<String>,
+    /// Admission cohort from the student ID on the analysed PDF (e.g. 2567).
+    pub cohort: ReadSignal<Option<u32>>,
+    pub set_cohort: WriteSignal<Option<u32>>,
     pub set_curriculum_id: WriteSignal<String>,
     pub save_enabled: ReadSignal<bool>,
     pub set_save_enabled: WriteSignal<bool>,
@@ -86,6 +89,7 @@ pub fn App() -> impl IntoView {
     let (save_enabled, set_save_enabled) = signal(false);
     // Curriculum revision the audit runs against (see audit_core::data).
     let (curriculum_id, set_curriculum_id) = signal(curricula()[0].id.clone());
+    let (cohort, set_cohort) = signal(None::<u32>);
 
     // Try to rehydrate both the toggle and a prior result on mount.
     if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
@@ -106,6 +110,9 @@ pub fn App() -> impl IntoView {
                 }
                 if let Ok(Some(id)) = storage.get_item("audit_curriculum_v1") {
                     set_curriculum_id.set(id);
+                }
+                if let Ok(Some(c)) = storage.get_item("audit_cohort_v1") {
+                    set_cohort.set(c.parse().ok());
                 }
                 if let Ok(Some(mode_raw)) = storage.get_item("audit_mode_v1") {
                     if mode_raw == "registration" {
@@ -133,6 +140,9 @@ pub fn App() -> impl IntoView {
                     let _ = storage.set_item("audit_parsed_v1", &json);
                 }
                 let _ = storage.set_item("audit_curriculum_v1", &cur_id);
+                if let Some(c) = cohort.get_untracked() {
+                    let _ = storage.set_item("audit_cohort_v1", &c.to_string());
+                }
             }
         }
         let mut combined: Vec<ParsedCourse> = parsed;
@@ -180,6 +190,8 @@ pub fn App() -> impl IntoView {
         set_plan_grade,
         curriculum_id,
         set_curriculum_id,
+        cohort,
+        set_cohort,
         save_enabled,
         set_save_enabled,
         is_thai,

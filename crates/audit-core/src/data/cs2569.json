@@ -87,7 +87,13 @@
       "sub_categories": [],
       "tags": [
         "G8"
-      ]
+      ],
+      "language_prefixes": [
+        "848-",
+        "890-",
+        "891-"
+      ],
+      "language_min_credits": 2.0
     }
   },
   "major": {

@@ -31,6 +31,7 @@ pub fn Sidebar() -> impl IntoView {
         set_parse_mode,
         curriculum_id,
         set_curriculum_id,
+        set_cohort,
         parsed_courses,
         set_parsed_courses,
         set_planned_courses,
@@ -49,6 +50,7 @@ pub fn Sidebar() -> impl IntoView {
                 let _ = storage.remove_item("audit_mode_v1");
                 let _ = storage.remove_item("audit_parsed_v1");
                 let _ = storage.remove_item("audit_curriculum_v1");
+                let _ = storage.remove_item("audit_cohort_v1");
             } else if let Some(result) = audit_result.get_untracked() {
                 if let Ok(json) = serde_json::to_string(&parsed_courses.get_untracked()) {
                     let _ = storage.set_item("audit_parsed_v1", &json);
@@ -182,7 +184,9 @@ pub fn Sidebar() -> impl IntoView {
                             if let Some(text) = text_value.as_string() {
                                 let (courses, mode) = parse_transcript(&text);
                                 // Pick the curriculum revision from the cohort in the student ID.
-                                if let Some(cohort) = detect_cohort(&text) {
+                                let detected = detect_cohort(&text);
+                                set_cohort.set(detected);
+                                if let Some(cohort) = detected {
                                     set_curriculum_id.set(curriculum_for_cohort(cohort).id.clone());
                                 }
                                 set_parse_mode.set(mode);

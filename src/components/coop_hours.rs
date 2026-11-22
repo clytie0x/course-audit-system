@@ -1,14 +1,29 @@
 //! Co-op preparation hours (อบรมเตรียมความพร้อมสหกิจศึกษา 30 ชั่วโมง): 24 hours
 //! of faculty/programme activities plus 6 of university/other activities, as set
-//! by the Faculty of Science report. The app cannot read that report itself
-//! (it is a Looker Studio embed), so hours are entered here; values are kept in
-//! localStorage only when "save results" is on.
+//! by the Faculty of Science report.
+//!
+//! That report is a Looker Studio embed whose data API needs a per-session
+//! XSRF token and sends no CORS headers, so a static site cannot query it.
+//! Instead the card embeds the official report for the student's cohort (the
+//! student searches their ID inside it) and takes the two totals by hand;
+//! values are kept in localStorage only when "save results" is on.
 
 use leptos::prelude::*;
 
 use crate::app::AppState;
 
 const REPORT_URL: &str = "https://regis.sci.psu.ac.th/activity30hr";
+
+/// Looker Studio reports embedded on REPORT_URL, by cohort (Buddhist year).
+fn report_for(cohort: u32) -> Option<&'static str> {
+    Some(match cohort {
+        2568 => "https://lookerstudio.google.com/embed/reporting/5fef4d4d-1390-4355-a8db-e474288de19d/page/GMqoF",
+        2567 => "https://lookerstudio.google.com/embed/reporting/1163cf47-a57e-4a7b-bc0c-3bf993066912/page/oMooF",
+        2566 => "https://lookerstudio.google.com/embed/reporting/3e4be6a9-e1e7-41c3-8a52-b322181fb4ff/page/e3UIE",
+        2565 => "https://lookerstudio.google.com/embed/reporting/4c2412cf-3357-4e3c-999c-c48f78df4a3c/page/C7YVD",
+        _ => return None,
+    })
+}
 const KEY: &str = "coop_hours_v1";
 const FACULTY_REQUIRED: f32 = 24.0;
 const UNIVERSITY_REQUIRED: f32 = 6.0;
@@ -22,8 +37,10 @@ pub fn CoopHours() -> impl IntoView {
     let AppState {
         is_thai,
         save_enabled,
+        cohort,
         ..
     } = expect_context::<AppState>();
+    let (show_report, set_show_report) = signal(false);
 
     let saved = storage()
         .and_then(|s| s.get_item(KEY).ok().flatten())
@@ -90,6 +107,35 @@ pub fn CoopHours() -> impl IntoView {
                         }
                     }}
                 </p>
+                // Official report for this cohort, loaded only on request (it is heavy).
+                {move || cohort.get().and_then(report_for).map(|url| view! {
+                    <div class="space-y-2">
+                        <button
+                            class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-brand-300 text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-950/40"
+                            on:click=move |_| set_show_report.update(|v| *v = !*v)
+                        >
+                            {move || {
+                                let yy = cohort.get().map(|c| c % 100).unwrap_or_default();
+                                match (show_report.get(), is_thai.get()) {
+                                    (false, true) => format!("ดูชั่วโมงของรหัส {yy} จากรายงานของคณะ"),
+                                    (false, false) => format!("Show the faculty report for cohort {yy}"),
+                                    (true, true) => "ซ่อนรายงาน".to_string(),
+                                    (true, false) => "Hide report".to_string(),
+                                }
+                            }}
+                        </button>
+                        {move || show_report.get().then(|| view! {
+                            <p class="text-2xs text-zinc-500 dark:text-zinc-400">{move || t("พิมพ์รหัสนักศึกษาในช่อง \"รหัสนักศึกษา\" ของรายงาน แล้วกรอกผลรวมสองช่องด้านบน", "Type your student ID into the report's search box, then enter the two totals above")}</p>
+                            <iframe
+                                src=url
+                                title="Co-op preparation hours report"
+                                class="w-full h-[560px] rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white"
+                                referrerpolicy="no-referrer"
+                                sandbox="allow-scripts allow-same-origin allow-popups"
+                            ></iframe>
+                        })}
+                    </div>
+                })}
                 <p class="text-2xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
                     {move || t("ดูชั่วโมงของตัวเองได้ที่ ", "Look up your hours at ")}
                     <a class="text-brand-600 dark:text-brand-400 underline" href=REPORT_URL target="_blank" rel="noopener noreferrer">"regis.sci.psu.ac.th/activity30hr"</a>
