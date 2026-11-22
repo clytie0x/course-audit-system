@@ -261,6 +261,17 @@
             return pdfJsLoading;
         }
 
+        // Print every collapsed course list, then restore what was closed.
+        let openedForPrint = [];
+        window.addEventListener('beforeprint', function () {
+            openedForPrint = Array.from(document.querySelectorAll('details:not([open])'));
+            openedForPrint.forEach(function (d) { d.open = true; });
+        });
+        window.addEventListener('afterprint', function () {
+            openedForPrint.forEach(function (d) { d.open = false; });
+            openedForPrint = [];
+        });
+
         window.extractTextFromPDF = async function (arrayBuffer) {
             await loadPdfJs();
             try {

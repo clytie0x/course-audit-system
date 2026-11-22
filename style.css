@@ -151,7 +151,6 @@
     }
 
     header,
-    aside,
     .print\:hidden {
         display: none !important;
     }
@@ -161,20 +160,22 @@
         max-width: 100% !important;
     }
 
-    /* All categorized course lists should expand automatically. */
+    /* Every tab prints, one after another. */
+    .tab-panel[hidden] {
+        display: block !important;
+    }
+
+    .tab-panel + .tab-panel {
+        margin-top: 1.5rem;
+    }
+
+    /* index.html opens every <details> on beforeprint; this covers the rest. */
     details {
         display: block !important;
     }
 
-    /* Tone down brand colors for ink-friendly output. */
-    .bg-brand-50,
-    .bg-brand-100\/40,
-    .dark\:bg-brand-900\/20 {
-        background: transparent !important;
-    }
-
-    /* Avoid page breaks splitting a category card in half. */
-    .rounded-2xl {
+    /* Avoid page breaks splitting a card in half. */
+    .rounded-xl {
         break-inside: avoid;
         page-break-inside: avoid;
     }
