@@ -63,7 +63,8 @@ impl Tab {
     }
 }
 
-/// Selected tab, shared so a section can switch tabs (e.g. "offered next term").
+/// Selected tab, provided by `App` so it survives the results view being
+/// rebuilt (e.g. a curriculum switch) and lets a section switch tabs.
 #[derive(Clone, Copy)]
 pub struct SelectedTab(pub RwSignal<Tab>);
 
@@ -83,8 +84,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
         university,
         ..
     } = expect_context::<CoopHoursState>();
-    let tab = RwSignal::new(Tab::Overview);
-    provide_context(SelectedTab(tab));
+    let SelectedTab(tab) = expect_context::<SelectedTab>();
 
     // Download the AuditResult as a JSON file.
     let export_json = move |_| {

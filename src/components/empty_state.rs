@@ -14,6 +14,7 @@ use web_sys::Event;
 use web_sys::HtmlInputElement;
 
 use crate::app::AppState;
+use crate::components::results::{SelectedTab, Tab};
 
 /// Turns "save results in this browser" on or off and syncs localStorage.
 pub fn apply_save_choice(state: AppState, new_val: bool) {
@@ -114,6 +115,10 @@ pub fn EmptyState() -> impl IntoView {
         is_thai,
         ..
     } = expect_context::<AppState>();
+    // A new transcript opens on the Overview tab.
+    if let Some(SelectedTab(tab)) = use_context::<SelectedTab>() {
+        tab.set(Tab::Overview);
+    }
     // "Auto" picks the curriculum from the student ID; a hand-picked one wins.
     let (auto_curriculum, set_auto_curriculum) = signal(true);
 

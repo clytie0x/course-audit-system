@@ -12,7 +12,7 @@ use crate::components::coop_hours::provide_coop_hours;
 use crate::components::empty_state::EmptyState;
 use crate::components::header::Header;
 use crate::components::offerings::OfferingsPanel;
-use crate::components::results::ResultsView;
+use crate::components::results::{ResultsView, SelectedTab, Tab};
 use audit_core::auditor::build_audit;
 use audit_core::data::{curricula, curriculum};
 use audit_core::models::{AuditResult, ParseMode, ParsedCourse};
@@ -129,14 +129,13 @@ pub fn App() -> impl IntoView {
         }
     }
 
-    // Re-run the audit whenever the parsed transcript or the simulator's
-    // planned courses change. Skip when nothing has been parsed yet so the
-    // empty-state keeps rendering. Planned courses only feed `plan_result`.
+    // Re-run the audit whenever the parsed transcript or the curriculum
+    // changes. Skip when nothing has been parsed yet so the empty-state keeps
+    // rendering. Planned courses are not read here, so planning never rebuilds
+    // the results view.
     Effect::new(move |_| {
         let parsed = parsed_courses.get();
-        let planned = planned_courses.get();
         if parsed.is_empty() {
-            set_plan_result.set(None);
             return;
         }
         let cur_id = curriculum_id.get();
@@ -153,11 +152,6 @@ pub fn App() -> impl IntoView {
             }
         }
         let result = build_audit(&parsed, curriculum(&cur_id));
-        set_plan_result.set((!planned.is_empty()).then(|| {
-            let mut combined = parsed;
-            combined.extend(planned);
-            build_audit(&combined, curriculum(&cur_id))
-        }));
         if save_enabled.get_untracked() {
             if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten())
             {
@@ -169,7 +163,20 @@ pub fn App() -> impl IntoView {
         set_audit_result.set(Some(result));
     });
 
+    // Transcript plus What-If courses, for the Plan tab's projection only.
+    Effect::new(move |_| {
+        let planned = planned_courses.get();
+        let parsed = parsed_courses.get();
+        let cur_id = curriculum_id.get();
+        set_plan_result.set((!planned.is_empty() && !parsed.is_empty()).then(|| {
+            let mut combined = parsed;
+            combined.extend(planned);
+            build_audit(&combined, curriculum(&cur_id))
+        }));
+    });
+
     provide_coop_hours(save_enabled);
+    provide_context(SelectedTab(RwSignal::new(Tab::Overview)));
 
     // Language toggle: true = Thai (default), false = English
     let (is_thai, set_is_thai) = signal(true);
