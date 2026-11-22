@@ -1462,5 +1462,350 @@
         "only_with": "344-495"
       }
     ]
+  },
+  "prerequisites": {
+    "322-102": {
+      "codes": [
+        "322-101"
+      ],
+      "any_of": false,
+      "text": "322-101"
+    },
+    "325-101": {
+      "codes": [
+        "324-101"
+      ],
+      "any_of": false,
+      "text": "324-101 or Concurrent"
+    },
+    "331-101": {
+      "codes": [
+        "330-101"
+      ],
+      "any_of": false,
+      "text": "330-101 or concurrent"
+    },
+    "344-212": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-222": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-242": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-261": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-271": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-311": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-312": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-321": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 or with the consent of the program"
+    },
+    "344-322": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 or with the consent of the program"
+    },
+    "344-323": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 or with the consent of the program"
+    },
+    "344-324": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 or with the consent of the program"
+    },
+    "344-331": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-332": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-333": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111"
+    },
+    "344-334": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111"
+    },
+    "344-335": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-341": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211 or with the consent of the program"
+    },
+    "344-342": {
+      "codes": [
+        "344-341"
+      ],
+      "any_of": false,
+      "text": "344-341"
+    },
+    "344-343": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-344": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-351": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 or with the consent of the program"
+    },
+    "344-352": {
+      "codes": [
+        "344-351"
+      ],
+      "any_of": false,
+      "text": "344-351 or with the consent of the program"
+    },
+    "344-353": {
+      "codes": [
+        "344-223"
+      ],
+      "any_of": false,
+      "text": "344-223 or with the consent of the program"
+    },
+    "344-361": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-362": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201 or with the consent of the program"
+    },
+    "344-363": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-371": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111 or with the consent of the program"
+    },
+    "344-372": {
+      "codes": [
+        "344-371"
+      ],
+      "any_of": false,
+      "text": "344-371 or with the consent of the program"
+    },
+    "344-373": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201 or with the consent of the program"
+    },
+    "344-374": {
+      "codes": [
+        "344-373"
+      ],
+      "any_of": false,
+      "text": "344-373"
+    },
+    "344-401": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201"
+    },
+    "344-431": {
+      "codes": [
+        "344-111"
+      ],
+      "any_of": false,
+      "text": "344-111"
+    },
+    "344-432": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-433": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-434": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-441": {
+      "codes": [
+        "344-341"
+      ],
+      "any_of": false,
+      "text": "344-341"
+    },
+    "344-442": {
+      "codes": [
+        "344-341"
+      ],
+      "any_of": false,
+      "text": "344-341"
+    },
+    "344-443": {
+      "codes": [
+        "344-341"
+      ],
+      "any_of": false,
+      "text": "344-341"
+    },
+    "344-444": {
+      "codes": [
+        "344-211"
+      ],
+      "any_of": false,
+      "text": "344-211"
+    },
+    "344-451": {
+      "codes": [
+        "344-221"
+      ],
+      "any_of": false,
+      "text": "344-221 or with the consent of the program"
+    },
+    "344-461": {
+      "codes": [
+        "344-361"
+      ],
+      "any_of": false,
+      "text": "344-361"
+    },
+    "344-462": {
+      "codes": [
+        "344-361"
+      ],
+      "any_of": false,
+      "text": "344-361"
+    },
+    "344-463": {
+      "codes": [
+        "344-361"
+      ],
+      "any_of": false,
+      "text": "344-361"
+    },
+    "344-464": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201"
+    },
+    "344-465": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201"
+    },
+    "344-471": {
+      "codes": [
+        "344-201"
+      ],
+      "any_of": false,
+      "text": "344-201"
+    }
   }
 }
