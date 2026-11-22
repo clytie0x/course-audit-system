@@ -109,7 +109,8 @@ fn missing_credits_in(description: &str) -> Option<f32> {
 
 /// Credits without a trailing ".0": 9.0 -> "9", 1.5 -> "1.5".
 pub fn fmt_credits(c: f32) -> String {
-    let rounded = (c * 10.0).round() / 10.0;
+    // `+ 0.0` turns -0.0 (the sum of an empty list) into 0.0.
+    let rounded = (c * 10.0).round() / 10.0 + 0.0;
     if rounded.fract() == 0.0 {
         format!("{rounded:.0}")
     } else {
@@ -260,6 +261,9 @@ mod tests {
     fn credits_format_without_trailing_zero() {
         assert_eq!(fmt_credits(9.0), "9");
         assert_eq!(fmt_credits(1.5), "1.5");
+        // Summing an empty list of f32 gives -0.0.
+        assert_eq!(fmt_credits(-0.0), "0");
+        assert_eq!(fmt_credits(Vec::<f32>::new().into_iter().sum()), "0");
     }
 
     fn attempt(code: &str, sem: Option<&str>) -> audit_core::models::Course {
