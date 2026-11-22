@@ -3,6 +3,10 @@ name: Refresh SIS offerings
 # Weekly: scrape the two newest terms SIS lists (new terms are picked up
 # automatically) and commit data/offerings when anything changed. Deploy runs
 # afterwards via its workflow_run trigger.
+#
+# Runs on a self-hosted runner: SIS sits behind Cloudflare, which answers
+# GitHub-hosted runners with HTTP 403. If the runner is offline the job waits
+# in the queue for up to 24 hours. Setup and safety notes are in the README.
 on:
   schedule:
     - cron: '0 20 * * 0' # Sunday 20:00 UTC = Monday 03:00 in Thailand
@@ -21,8 +25,11 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash # Git Bash on a Windows runner
     steps:
       - uses: actions/checkout@v4
 

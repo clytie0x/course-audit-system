@@ -345,6 +345,12 @@ A static site cannot query those reports: their data API needs a per-session XSR
 - It commits `data/offerings` only when something changed.
 - Deploy then republishes the site.
 
+The job runs on a self-hosted runner, because SIS is behind Cloudflare and GitHub-hosted runners get HTTP 403 ("Sorry, you have been blocked"). Any machine on a normal Thai connection with Google Chrome, Node and Git Bash works. One-time setup:
+
+1. Settings → Actions → Runners → New self-hosted runner, pick the OS and follow GitHub's download and `config` commands (the token comes from that page).
+2. Start it with `run.cmd` (or install it as a service under your own account). Jobs wait up to 24 hours for the runner to come online.
+3. Settings → Actions → General → "Approval for running fork pull request workflows from contributors" → **Require approval for all external contributors**. This is a public repo, and a pull request from a fork could otherwise edit a workflow to run on your machine.
+
 Refresh the data by hand with the scraper. SIS is a Blazor Server app, so the scraper uses `playwright-core` to drive the installed Google Chrome. It visits only public pages, one request at a time with a delay:
 
 ```bash
