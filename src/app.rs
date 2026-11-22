@@ -9,6 +9,7 @@ use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
 
 use crate::components::header::Header;
+use crate::components::offerings::OfferingsPanel;
 use crate::components::results::ResultsView;
 use crate::components::sidebar::Sidebar;
 use audit_core::auditor::build_audit;
@@ -96,6 +97,16 @@ pub fn App() -> impl IntoView {
                         set_audit_result.set(Some(saved));
                     }
                 }
+                // The transcript itself, so What-If and curriculum changes re-audit it
+                // (older saves only have the result above).
+                if let Ok(Some(raw)) = storage.get_item("audit_parsed_v1") {
+                    if let Ok(saved) = serde_json::from_str::<Vec<ParsedCourse>>(&raw) {
+                        set_parsed_courses.set(saved);
+                    }
+                }
+                if let Ok(Some(id)) = storage.get_item("audit_curriculum_v1") {
+                    set_curriculum_id.set(id);
+                }
                 if let Ok(Some(mode_raw)) = storage.get_item("audit_mode_v1") {
                     if mode_raw == "registration" {
                         set_parse_mode.set(ParseMode::Registration);
@@ -114,9 +125,19 @@ pub fn App() -> impl IntoView {
         if parsed.is_empty() && planned.is_empty() {
             return;
         }
+        let cur_id = curriculum_id.get();
+        if save_enabled.get_untracked() {
+            if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten())
+            {
+                if let Ok(json) = serde_json::to_string(&parsed) {
+                    let _ = storage.set_item("audit_parsed_v1", &json);
+                }
+                let _ = storage.set_item("audit_curriculum_v1", &cur_id);
+            }
+        }
         let mut combined: Vec<ParsedCourse> = parsed;
         combined.extend(planned);
-        let result = build_audit(&combined, curriculum(&curriculum_id.get()));
+        let result = build_audit(&combined, curriculum(&cur_id));
         if save_enabled.get_untracked() {
             if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten())
             {
@@ -216,9 +237,10 @@ pub fn App() -> impl IntoView {
                             // Results view
                             view! { <ResultsView result=result/> }.into_any()
                         } else {
-                            // Empty state
+                            // Empty state (offerings stay searchable without a transcript)
                             view! {
-                                <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft h-full min-h-[500px] flex flex-col items-center justify-center gap-5 px-8 text-center">
+                                <div class="space-y-5">
+                                <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft min-h-[320px] flex flex-col items-center justify-center gap-5 px-8 text-center">
                                     <div class="w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
                                         <svg class="w-7 h-7 text-zinc-300 dark:text-zinc-600" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
@@ -228,6 +250,8 @@ pub fn App() -> impl IntoView {
                                         <h3 class="text-base font-semibold text-zinc-800 dark:text-zinc-200 mb-1">{move || if is_thai.get() { "ยังไม่ได้อัปโหลดใบแสดงผลการเรียน" } else { "No transcript uploaded" }}</h3>
                                         <p class="text-sm text-zinc-400 dark:text-zinc-500 max-w-xs leading-relaxed">{move || if is_thai.get() { "อัปโหลดใบแสดงผลการเรียน PDF เพื่อดูความคืบหน้าในการสำเร็จการศึกษา" } else { "Upload your PDF transcript to see a breakdown of your progress toward graduation." }}</p>
                                     </div>
+                                </div>
+                                <OfferingsPanel/>
                                 </div>
                             }.into_any()
                         }

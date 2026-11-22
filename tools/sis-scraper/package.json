@@ -1,0 +1,12 @@
+{
+  "name": "sis-scraper",
+  "private": true,
+  "type": "module",
+  "description": "Scrapes public PSU SIS course offerings into data/offerings/*.json",
+  "scripts": {
+    "scrape": "node scrape.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.48.2"
+  }
+}

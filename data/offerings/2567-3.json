@@ -1,0 +1,292 @@
+{
+ "term": "3/2567",
+ "campus": "หาดใหญ่",
+ "source": "https://sis.psu.ac.th/explore/subject",
+ "scraped_at": "2026-11-22",
+ "courses": [
+  {
+   "id": "2567300000910257",
+   "code": "322-101",
+   "name_th": "CALCULUS I",
+   "name_en": "CALCULUS I",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "-",
+   "fee": "1,500.00 บาท",
+   "sections": [
+    {
+     "section": "01",
+     "seats": 99,
+     "students": "ผู้เรียนทดสอบระบบ",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2567300193030249",
+   "code": "322-102",
+   "name_th": "แคลคูลัส 2",
+   "name_en": "CALCULUS II",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 120,
+     "students": "วท ทุกชั้นปี",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0304",
+       "teachers": "อมรรัตน์ รัตนะ"
+      },
+      {
+       "day": 2,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0304",
+       "teachers": "อมรรัตน์ รัตนะ"
+      },
+      {
+       "day": 3,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0304",
+       "teachers": "อมรรัตน์ รัตนะ"
+      },
+      {
+       "day": 4,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0304",
+       "teachers": "อมรรัตน์ รัตนะ"
+      },
+      {
+       "day": 5,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "BSc0304",
+       "teachers": "อมรรัตน์ รัตนะ"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 120,
+     "students": "วท ทุกชั้นปี",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0304",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0304",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0304",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0304",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 5,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0304",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2567300238170361",
+   "code": "332-101",
+   "name_th": "ฟิสิกส์พื้นฐาน",
+   "name_en": "FUNDAMENTAL PHYSICS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": null,
+     "meetings": [
+      {
+       "day": 1,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "-",
+       "teachers": "คมฤทธิ์ วัฒนวาที"
+      },
+      {
+       "day": 2,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "-",
+       "teachers": "คมฤทธิ์ วัฒนวาที"
+      },
+      {
+       "day": 3,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "-",
+       "teachers": "คมฤทธิ์ วัฒนวาที"
+      },
+      {
+       "day": 4,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "-",
+       "teachers": "คมฤทธิ์ วัฒนวาที"
+      },
+      {
+       "day": 5,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "-",
+       "teachers": "คมฤทธิ์ วัฒนวาที"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2567300275110249",
+   "code": "344-221",
+   "name_th": "สถาปัตยกรรมและองค์ประกอบคอมพิวเตอร์",
+   "name_en": "COMPUTER ARCHITECTURE AND ORGANIZATION",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัส 64-65)",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      },
+      {
+       "day": 2,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      },
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      },
+      {
+       "day": 4,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2567300148570249",
+   "code": "344-221",
+   "name_th": "สถาปัตยกรรมและองค์ประกอบคอมพิวเตอร์",
+   "name_en": "COMPUTER ARCHITECTURES AND ORGANIZATION",
+   "credits": 3,
+   "credit_pattern": "3(2-2-5)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัส 63)",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      },
+      {
+       "day": 2,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      },
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      },
+      {
+       "day": 4,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS203, BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์, สุภาภรณ์ กานต์สมเกียรติ"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  }
+ ]
+}

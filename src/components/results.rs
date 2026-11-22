@@ -2,8 +2,10 @@
 
 use crate::components::category_card::CategoryCard;
 use crate::components::category_summary::CategorySummary;
+use crate::components::coop_hours::CoopHours;
 use crate::components::hero::HeroCard;
 use crate::components::missing_requirements::MissingRequirements;
+use crate::components::offerings::OfferingsPanel;
 use crate::components::semester_breakdown::SemesterBreakdown;
 use crate::components::what_if::WhatIfSimulator;
 use audit_core::models::AuditResult;
@@ -112,6 +114,8 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
             </div>
 
             <WhatIfSimulator/>
+            <OfferingsPanel/>
+            <CoopHours/>
             <SemesterBreakdown result=result.clone()/>
             <MissingRequirements result=result.clone()/>
         </div>

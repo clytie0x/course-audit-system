@@ -169,7 +169,7 @@ trunk build --release
 | --- | --- |
 | **Processing** | 100% in-browser WebAssembly |
 | **Network** | Same-origin static assets (PDF.js is bundled) — no user data ever sent |
-| **Storage** | Nothing by default. Opt-in `localStorage` for last result |
+| **Storage** | Nothing by default. Opt-in `localStorage` for the last result, its parsed courses (so What-If and curriculum changes re-audit after a reload) and co-op hours |
 | **Code** | Open source, fully auditable |
 
 ---
@@ -199,18 +199,23 @@ course-audit-system/
 │       ├── category_card.rs Collapsible category accordion
 │       ├── what_if.rs       What-If simulator
 │       ├── semester_breakdown.rs  Per-semester GPA + credits
-│       └── missing_requirements.rs  Missing list + copy
+│       ├── missing_requirements.rs  Missing list + copy
+│       └── offerings.rs     SIS offerings search + personal timetable
 │
-└── crates/audit-core/       Pure Rust core, no wasm deps (tests run natively)
-    └── src/
-        ├── models.rs        Data types + utilities (GPA, dedupe, IP)
-        ├── parser.rs        Two regex patterns + semester detection
-        ├── auditor.rs       GenEd / Major / FreeElective + build_audit()
-        └── data/
-            ├── mod.rs                    Registry: curricula(), curriculum_for_cohort()
-            ├── cs2564.json               หลักสูตร 2564 (JSON is source of truth)
-            ├── cs2569.json               หลักสูตร 2569
-            └── SOURCES.md                Official documents, URLs, SHA-256
+├── crates/audit-core/       Pure Rust core, no wasm deps (tests run natively)
+│   └── src/
+│       ├── models.rs        Data types + utilities (GPA, dedupe, IP)
+│       ├── parser.rs        Two regex patterns + semester detection
+│       ├── auditor.rs       GenEd / Major / FreeElective + build_audit()
+│       ├── offerings.rs     Offering types, search, clash detection
+│       └── data/
+│           ├── mod.rs                    Registry: curricula(), curriculum_for_cohort()
+│           ├── cs2564.json               หลักสูตร 2564 (JSON is source of truth)
+│           ├── cs2569.json               หลักสูตร 2569
+│           └── SOURCES.md                Official documents, URLs, SHA-256
+│
+├── data/offerings/          SIS course offerings per term (JSON, scraped)
+└── tools/sis-scraper/       Playwright scraper for data/offerings
 ```
 
 <details>
@@ -226,7 +231,7 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 
 | Category | 2564 (รหัส 64–68) | 2569 (รหัส 69+) |
 | --- | --- | --- |
-| **General Education** | 30 cr — 7 strands + 6 elective | 24 cr — GE1–GE7 (18) + GE8 (6), matched by GE tag |
+| **General Education** | 30 cr — 7 strands + 6 elective (accepts both the cohort 64–66 and 67–68 course sets) | 24 cr — GE1–GE7 (18) + GE8 (6), matched by GE tag |
 | **Basic / core science** | 12 cr — chemistry, biology, physics | 12 cr — 315-101, 322-101, 345-101, 346-101 |
 | **Required major** | 48 cr + capstone: project 344-492 (3) or co-op 344-495 (6, needs 344-494) | 56 cr incl. project 344-491 and co-op 344-492; 344-494 must be passed |
 | **Major electives** | 33 cr (project plan) or 30 cr (co-op plan); complete 2 clusters | 27 cr; at least 12 cr in one domain |
@@ -303,10 +308,33 @@ CI is paused while the project is experimental. Run these three gates locally be
 ```
 cargo fmt --all -- --check                       format
 cargo clippy --workspace --all-targets -D warnings  lints as errors
-cargo test --workspace --all-targets             54 unit tests
+cargo test --workspace --all-targets             63 unit tests
 ```
 
 Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).
+
+---
+
+## Course offerings (SIS)
+
+`data/offerings/<year>-<term>.json` holds the public course offerings of the Hat Yai campus, as listed by SIS: sections, seats, target students, class times, rooms, instructors and exam dates. Trunk copies the folder to `dist/offerings/`, and the **รายวิชาที่เปิดสอน** panel loads it. In that panel you can:
+
+- search by code or name
+- filter to required courses you have not taken yet
+- see prerequisite warnings
+- pick sections into a personal timetable, which flags class-time and exam clashes
+
+**Co-op preparation hours.** The co-op course needs 30 preparation hours: at least 24 from faculty or programme activities and at least 6 from university or other activities. The Faculty of Science publishes these in a Looker Studio report at [regis.sci.psu.ac.th/activity30hr](https://regis.sci.psu.ac.th/activity30hr). The app cannot read that report, so the co-op card takes the two totals by hand. `node tools/sis-scraper/coop-hours.mjs <student id>` filters the report to that ID and prints only that student's rows and totals.
+
+Refresh the data with the scraper. SIS is a Blazor Server app, so the scraper uses `playwright-core` to drive the installed Google Chrome. It visits only public pages, one request at a time with a delay:
+
+```bash
+cd tools/sis-scraper
+npm ci
+node scrape.mjs                          # every term SIS lists: 344- plus the curricula's science courses
+node scrape.mjs --terms 2/2569 --ge      # also GenEd course prefixes for one term
+node scrape.mjs --terms 2/2569 --keywords 344-,322-101
+```
 
 ---
 
