@@ -8,10 +8,10 @@
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
 
+use crate::components::empty_state::EmptyState;
 use crate::components::header::Header;
 use crate::components::offerings::OfferingsPanel;
 use crate::components::results::ResultsView;
-use crate::components::sidebar::Sidebar;
 use audit_core::auditor::build_audit;
 use audit_core::data::{curricula, curriculum};
 use audit_core::models::{AuditResult, ParseMode, ParsedCourse};
@@ -30,6 +30,7 @@ pub struct AppState {
     pub plan_result: ReadSignal<Option<AuditResult>>,
     pub is_loading: ReadSignal<bool>,
     pub set_is_loading: WriteSignal<bool>,
+    pub error_msg: ReadSignal<Option<String>>,
     pub set_error_msg: WriteSignal<Option<String>>,
     pub dropped_file: ReadSignal<Option<web_sys::File>, LocalStorage>,
     pub set_dropped_file: WriteSignal<Option<web_sys::File>, LocalStorage>,
@@ -180,6 +181,7 @@ pub fn App() -> impl IntoView {
         plan_result,
         is_loading,
         set_is_loading,
+        error_msg,
         set_error_msg,
         dropped_file,
         set_dropped_file,
@@ -207,78 +209,30 @@ pub fn App() -> impl IntoView {
         set_is_thai,
     });
 
+    // Switch views only when a result appears or goes away, so re-setting
+    // `audit_result` to None does not rebuild (and dispose) the empty state.
+    let has_result = Memo::new(move |_| audit_result.with(Option::is_some));
+
     view! {
         <Title text="Course Audit — PSU CS"/>
 
-        <div class="min-h-screen font-sans text-zinc-900 dark:text-zinc-100 flex flex-col selection:bg-brand-100 dark:selection:bg-brand-900/60">
-
+        <div class="min-h-screen font-sans bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-accent-100 dark:selection:bg-accent-900">
             <Header/>
-
-            // ── Main Content ────────────────────────────────────────────
-            <div class="flex-1 flex flex-col lg:flex-row max-w-[1440px] w-full mx-auto p-4 sm:p-6 gap-5 animate-fade-in">
-
-                // ── Left Sidebar ────────────────────────────────────────
-                <aside class="w-full lg:w-[360px] shrink-0 flex flex-col gap-4">
-                    <Sidebar/>
-                </aside>
-
-                // ── Right Panel — Results ────────────────────────────────
-                <main class="flex-1 min-w-0" aria-live="polite" aria-atomic="false">
-                    {move || {
-                        if is_loading.get() {
-                            // Loading state
-                            view! {
-                                <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft h-full min-h-[500px] flex flex-col items-center justify-center gap-4" role="status" aria-live="polite">
-                                    <div class="relative">
-                                        <div class="w-12 h-12 rounded-full border-2 border-zinc-200 dark:border-zinc-700"></div>
-                                        <div class="absolute inset-0 w-12 h-12 rounded-full border-2 border-brand-500 border-t-transparent animate-spin"></div>
-                                    </div>
-                                    <div class="text-center">
-                                        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{move || if is_thai.get() { "กำลังวิเคราะห์ใบแสดงผลการเรียน..." } else { "Analyzing transcript..." }}</p>
-                                        <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{move || if is_thai.get() { "กำลังดึงข้อมูลวิชาและตรวจสอบข้อกำหนด" } else { "Parsing courses and validating requirements" }}</p>
-                                    </div>
-                                </div>
-                            }.into_any()
-                        } else if let Some(err) = error_msg.get() {
-                            // Error state
-                            view! {
-                                <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft h-full min-h-[500px] flex flex-col items-center justify-center gap-4 px-8 text-center" role="alert">
-                                    <div class="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-red-500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{move || if is_thai.get() { "การวิเคราะห์ล้มเหลว" } else { "Analysis Failed" }}</p>
-                                        <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm leading-relaxed">{err}</p>
-                                    </div>
-                                </div>
-                            }.into_any()
-                        } else if let Some(result) = audit_result.get() {
-                            // Results view
-                            view! { <ResultsView result=result/> }.into_any()
-                        } else {
-                            // Empty state (offerings stay searchable without a transcript)
-                            view! {
-                                <div class="space-y-5">
-                                <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft min-h-[320px] flex flex-col items-center justify-center gap-5 px-8 text-center">
-                                    <div class="w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
-                                        <svg class="w-7 h-7 text-zinc-300 dark:text-zinc-600" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-base font-semibold text-zinc-800 dark:text-zinc-200 mb-1">{move || if is_thai.get() { "ยังไม่ได้อัปโหลดใบแสดงผลการเรียน" } else { "No transcript uploaded" }}</h3>
-                                        <p class="text-sm text-zinc-400 dark:text-zinc-500 max-w-xs leading-relaxed">{move || if is_thai.get() { "อัปโหลดใบแสดงผลการเรียน PDF เพื่อดูความคืบหน้าในการสำเร็จการศึกษา" } else { "Upload your PDF transcript to see a breakdown of your progress toward graduation." }}</p>
-                                    </div>
-                                </div>
-                                <OfferingsPanel/>
-                                </div>
-                            }.into_any()
-                        }
-                    }}
-                </main>
-            </div>
+            <main class="max-w-[1200px] w-full mx-auto px-3.5 sm:px-5 pt-5 sm:pt-7 pb-20" aria-live="polite" aria-atomic="false">
+                {move || if has_result.get() {
+                    view! {
+                        {move || audit_result.get().map(|result| view! { <ResultsView result=result/> })}
+                    }.into_any()
+                } else {
+                    // Offerings stay searchable without a transcript.
+                    view! {
+                        <EmptyState/>
+                        <div class="mt-12">
+                            <OfferingsPanel/>
+                        </div>
+                    }.into_any()
+                }}
+            </main>
         </div>
     }
 }
