@@ -76,10 +76,16 @@ impl AuditResult {
 }
 
 /// A single missing required course, tagged with its curriculum category
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MissingCourse {
     pub category: String,    // e.g. "General Education", "Major Courses"
     pub description: String, // e.g. "344-101 - Calculus I"
+    /// The one course this item asks for, when it names one.
+    #[serde(default)]
+    pub code: Option<String>,
+    /// Credits still needed (a course's credits, or a credit gap).
+    #[serde(default)]
+    pub credits: Option<f32>,
 }
 
 /// Final audit result containing all categories and missing requirements
