@@ -1,0 +1,101 @@
+//! Co-op preparation hours (อบรมเตรียมความพร้อมสหกิจศึกษา 30 ชั่วโมง): 24 hours
+//! of faculty/programme activities plus 6 of university/other activities, as set
+//! by the Faculty of Science report. The app cannot read that report itself
+//! (it is a Looker Studio embed), so hours are entered here; values are kept in
+//! localStorage only when "save results" is on.
+
+use leptos::prelude::*;
+
+use crate::app::AppState;
+
+const REPORT_URL: &str = "https://regis.sci.psu.ac.th/activity30hr";
+const KEY: &str = "coop_hours_v1";
+const FACULTY_REQUIRED: f32 = 24.0;
+const UNIVERSITY_REQUIRED: f32 = 6.0;
+
+fn storage() -> Option<web_sys::Storage> {
+    web_sys::window().and_then(|w| w.local_storage().ok().flatten())
+}
+
+#[component]
+pub fn CoopHours() -> impl IntoView {
+    let AppState {
+        is_thai,
+        save_enabled,
+        ..
+    } = expect_context::<AppState>();
+
+    let saved = storage()
+        .and_then(|s| s.get_item(KEY).ok().flatten())
+        .and_then(|v| {
+            let (a, b) = v.split_once(',')?;
+            Some((a.parse::<f32>().ok()?, b.parse::<f32>().ok()?))
+        })
+        .unwrap_or((0.0, 0.0));
+    let (faculty, set_faculty) = signal(saved.0);
+    let (university, set_university) = signal(saved.1);
+
+    Effect::new(move |_| {
+        let value = format!("{},{}", faculty.get(), university.get());
+        if let Some(s) = storage() {
+            if save_enabled.get() {
+                let _ = s.set_item(KEY, &value);
+            } else {
+                let _ = s.remove_item(KEY);
+            }
+        }
+    });
+
+    let t = move |th: &'static str, en: &'static str| if is_thai.get() { th } else { en };
+    let row = move |label_th: &'static str,
+                    label_en: &'static str,
+                    value: ReadSignal<f32>,
+                    set: WriteSignal<f32>,
+                    required: f32| {
+        view! {
+            <label class="flex items-center gap-3">
+                <span class="text-[13px] text-zinc-700 dark:text-zinc-300 flex-1">{move || t(label_th, label_en)}</span>
+                <input
+                    type="number" min="0" step="1"
+                    class="w-20 text-[13px] font-mono text-center px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    prop:value=move || value.get().to_string()
+                    on:input=move |ev| set.set(event_target_value(&ev).parse::<f32>().unwrap_or(0.0).max(0.0))
+                />
+                <span class=move || format!("text-xs font-semibold w-20 text-right {}", if value.get() >= required { "text-emerald-600" } else { "text-amber-600" })>
+                    {move || format!("{} / {}", value.get(), required)}
+                </span>
+            </label>
+        }
+    };
+
+    view! {
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft overflow-hidden print:hidden">
+            <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center gap-2.5">
+                <h3 class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{move || t("ชั่วโมงเตรียมความพร้อมสหกิจ 30 ชั่วโมง", "Co-op preparation hours (30)")}</h3>
+                <span class="text-2xs text-zinc-500 dark:text-zinc-400">{move || t("เงื่อนไขก่อนลงวิชาสหกิจศึกษา", "Required before the co-op course")}</span>
+            </div>
+            <div class="p-5 space-y-3">
+                {row("กิจกรรมของคณะ สาขา หรือหลักสูตร", "Faculty / programme activities", faculty, set_faculty, FACULTY_REQUIRED)}
+                {row("กิจกรรมของมหาวิทยาลัยหรืออื่น ๆ", "University / other activities", university, set_university, UNIVERSITY_REQUIRED)}
+                <p class=move || format!("text-xs font-semibold {}", if faculty.get() >= FACULTY_REQUIRED && university.get() >= UNIVERSITY_REQUIRED { "text-emerald-600" } else { "text-amber-700 dark:text-amber-300" })>
+                    {move || {
+                        let missing_f = (FACULTY_REQUIRED - faculty.get()).max(0.0);
+                        let missing_u = (UNIVERSITY_REQUIRED - university.get()).max(0.0);
+                        if missing_f == 0.0 && missing_u == 0.0 {
+                            t("ครบเกณฑ์ 30 ชั่วโมงแล้ว", "All 30 hours done").to_string()
+                        } else if is_thai.get() {
+                            format!("ยังขาด: คณะ {missing_f} ชั่วโมง, มหาวิทยาลัย {missing_u} ชั่วโมง")
+                        } else {
+                            format!("Still needed: faculty {missing_f} h, university {missing_u} h")
+                        }
+                    }}
+                </p>
+                <p class="text-2xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                    {move || t("ดูชั่วโมงของตัวเองได้ที่ ", "Look up your hours at ")}
+                    <a class="text-brand-600 dark:text-brand-400 underline" href=REPORT_URL target="_blank" rel="noopener noreferrer">"regis.sci.psu.ac.th/activity30hr"</a>
+                    {move || t(" (เลือกแท็บรหัสรุ่น แล้วค้นด้วยรหัสนักศึกษา) หรือรัน tools/sis-scraper/coop-hours.mjs", " (pick your cohort tab, search your student ID) or run tools/sis-scraper/coop-hours.mjs")}
+                </p>
+            </div>
+        </div>
+    }
+}

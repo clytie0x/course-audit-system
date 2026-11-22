@@ -1,0 +1,190 @@
+{
+ "term": "3/2566",
+ "campus": "หาดใหญ่",
+ "source": "https://sis.psu.ac.th/explore/subject",
+ "scraped_at": "2026-11-22",
+ "courses": [
+  {
+   "id": "2566300117520249",
+   "code": "322-102",
+   "name_th": "คณิตศาสตร์พื้นฐาน 2",
+   "name_en": "BASIC MATHEMATICS II",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 90,
+     "students": "วิทย์กายภาพ 62 61 60 59 58 57 เท่านั้น",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M315",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M315",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M315",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M315",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 5,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M315",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566300193030249",
+   "code": "322-102",
+   "name_th": "แคลคูลัส 2",
+   "name_en": "CALCULUS II",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 120,
+     "students": "วท ทุกชั้นปี",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M309",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M309",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M309",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M309",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 5,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "M309",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566300238170361",
+   "code": "332-101",
+   "name_th": "ฟิสิกส์พื้นฐาน",
+   "name_en": "FUNDAMENTAL PHYSICS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "วิทยาศาสตร์รหัส 58-64 และวิศวกรรมศาสตร์รหัส 61-63 ทีเคยได้รับเกรด Eและ W เท่านั้น",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "09:00",
+       "end": "09:50",
+       "room": "ONLINE",
+       "teachers": "สุทธิดา รักกะเปา, วนิดา สุเมธากุลวัฒน์"
+      },
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "09:50",
+       "room": "ONLINE",
+       "teachers": "สุทธิดา รักกะเปา, วนิดา สุเมธากุลวัฒน์"
+      },
+      {
+       "day": 5,
+       "start": "09:00",
+       "end": "09:50",
+       "room": "ONLINE",
+       "teachers": "สุทธิดา รักกะเปา, วนิดา สุเมธากุลวัฒน์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566300062940361",
+   "code": "332-101",
+   "name_th": "ฟิสิกส์พื้นฐาน 1",
+   "name_en": "FUNDAMENTAL PHYSICS I",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "เพื่อการคำนวณ",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  }
+ ]
+}
