@@ -10,6 +10,7 @@ use crate::components::ui::{CARD, SECTION_TITLE, TAG, TAG_MUTED, TAG_OK, TAG_WAR
 use audit_core::models::{compute_gpa, AuditResult};
 use audit_core::offerings::{OfferingsIndex, TermOfferings};
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 
 /// Newest term in the offerings index and the course codes it lists.
 async fn newest_term() -> Option<(String, Vec<String>)> {
@@ -32,6 +33,8 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
     let SelectedTab(tab) = expect_context::<SelectedTab>();
     let offered = LocalResource::new(newest_term);
 
+    // None until a copy is tried; then whether the clipboard accepted it.
+    let (copied, set_copied) = signal(None::<bool>);
     let copy_missing = move |_| {
         let Some(result) = audit_result.get_untracked() else {
             return;
@@ -42,7 +45,13 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
             .map(|m| format!("[{}] {}\n", m.category, m.description))
             .collect();
         if let Some(clipboard) = web_sys::window().map(|w| w.navigator().clipboard()) {
-            let _ = clipboard.write_text(&out);
+            // Await the promise: a refused write (no focus, no permission) would
+            // otherwise be an unhandled rejection and open the fatal-error overlay.
+            let promise = clipboard.write_text(&out);
+            spawn_local(async move {
+                let ok = wasm_bindgen_futures::JsFuture::from(promise).await.is_ok();
+                let _ = set_copied.try_set(Some(ok));
+            });
         }
     };
 
@@ -148,7 +157,14 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                         {(todo_count > 0).then(|| view! {
                             <span class=format!("{TAG} {TAG_WARN} tabular-nums")>{move || if is_thai.get() { format!("{todo_count} รายการ") } else { format!("{todo_count} items") }}</span>
                             <button type="button" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" on:click=copy_missing>
-                                {move || if is_thai.get() { "คัดลอก" } else { "Copy" }}
+                                {move || match (copied.get(), is_thai.get()) {
+                                    (None, true) => "คัดลอก",
+                                    (None, false) => "Copy",
+                                    (Some(true), true) => "คัดลอกแล้ว",
+                                    (Some(true), false) => "Copied",
+                                    (Some(false), true) => "คัดลอกไม่ได้",
+                                    (Some(false), false) => "Couldn't copy",
+                                }}
                             </button>
                         })}
                     </div>
