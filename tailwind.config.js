@@ -1,14 +1,26 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./index.html", "./src/**/*.rs"],
-  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Geist", "Noto Sans Thai", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["Geist Mono", "ui-monospace", "monospace"],
+        sans: ["Anuphan", "IBM Plex Sans", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
       },
       colors: {
+        // One blue accent for in-progress bars and the active state.
+        accent: {
+          50: "#eef2fe",
+          100: "#dfe6fd",
+          200: "#c5d2fb",
+          300: "#a9bbff",
+          400: "#7d98ff",
+          500: "#4f6fe6",
+          600: "#2347c5",
+          700: "#1d3aa6",
+          800: "#1b2f80",
+          900: "#1b2246",
+        },
         // Monochrome zinc accents, as in shadcn/ui.
         brand: {
           50: "#fafafa",

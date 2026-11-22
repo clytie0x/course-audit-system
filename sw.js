@@ -5,7 +5,7 @@
 
 // Bump this on every release that ships a parser/audit change — the old
 // hashed wasm may still be served from cache otherwise.
-const CACHE = 'course-audit-v3';
+const CACHE = 'course-audit-v4';
 const CORE_ASSETS = [
     './',
     './index.html',

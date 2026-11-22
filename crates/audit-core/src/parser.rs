@@ -10,14 +10,13 @@
 //!    Registration-matched courses are tagged with `grade = "IP"` (In Progress).
 
 use crate::models::{ParseMode, ParsedCourse};
-use regex::Regex;
+use regex_lite::Regex;
 use std::sync::OnceLock;
 
 // Grade-report pattern: `code name section credit grade`
 // Example: 322-101   CALCULUS I   04   3   B+
-// Uses [0-9] (not \d) because the regex crate's \d is Unicode-aware and
-// would happily match Thai numerals, producing multi-byte captures that
-// break downstream byte slicing.
+// Uses [0-9] (not \d) so the pattern never matches Thai numerals, whatever
+// the regex engine's \d means; multi-byte captures would break byte slicing.
 fn grade_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
@@ -78,8 +77,32 @@ pub fn detect_cohort(text: &str) -> Option<u32> {
         Regex::new(r"(?:Student Id|รหัสนักศึกษา)\s*([0-9]{2})[0-9]{8}\b")
             .expect("student id regex must compile")
     });
-    let yy: u32 = re.captures(text)?.get(1)?.as_str().parse().ok()?;
+    let text = &normalize_spaces(text);
+    let cap = re
+        .captures_iter(text)
+        .find(|c| !text[c.get(0).map_or(0, |m| m.end())..].starts_with(is_word_char))?;
+    let yy: u32 = cap.get(1)?.as_str().parse().ok()?;
     Some(2500 + yy)
+}
+
+/// regex-lite's `\s` is ASCII-only, so turn non-ASCII whitespace (no-break,
+/// thin, ideographic spaces) that some PDFs emit into plain spaces first.
+fn normalize_spaces(text: &str) -> String {
+    text.chars()
+        .map(|c| {
+            if !c.is_ascii() && c.is_whitespace() {
+                ' '
+            } else {
+                c
+            }
+        })
+        .collect()
+}
+
+/// Unicode word character as the full `regex` crate's `\b` saw it; regex-lite's
+/// `\b` is ASCII-only, so matches glued to Thai letters are filtered with this.
+fn is_word_char(c: char) -> bool {
+    c.is_alphanumeric() || c == '_' || ('\u{0E00}'..='\u{0E7F}').contains(&c)
 }
 
 /// GE category tag (e.g. "G2A") from a raw transcript code like "315-100G2A".
@@ -103,10 +126,9 @@ fn semester_for(boundaries: &[(usize, String)], course_start: usize) -> Option<S
 }
 
 pub fn normalize_course_code(raw_code: &str) -> String {
-    // The Rust regex crate is Unicode-aware by default, so `\d` can match
-    // Thai numerals (๐-๙) — each 3 bytes. Byte-slicing at `[..7]` therefore
-    // panics mid-character and compiles to `RuntimeError: unreachable` in
-    // WASM. Count chars explicitly and use a char-aware take(7) instead.
+    // A code may hold multi-byte characters (e.g. Thai numerals ๐-๙, 3 bytes
+    // each). Byte-slicing at `[..7]` would panic mid-character and compiles to
+    // `RuntimeError: unreachable` in WASM, so count chars and take(7) instead.
     let char_count = raw_code.chars().count();
     let has_dash_at_3 = raw_code.chars().nth(3) == Some('-');
     let trimmed = if char_count >= 7 && has_dash_at_3 {
@@ -131,6 +153,7 @@ pub fn normalize_course_code(raw_code: &str) -> String {
 /// Returns the detected `ParseMode` alongside the courses so callers can
 /// distinguish registration (grades not yet issued) from grade-report results.
 pub fn parse_transcript(text: &str) -> (Vec<ParsedCourse>, ParseMode) {
+    let text = &normalize_spaces(text);
     // Prefer the grade-report format when present, otherwise fall back to the
     // registration format — they have disjoint signatures so no overlap.
     let grade_courses = collect_courses(text, grade_pattern(), CourseFormat::Grade);
@@ -165,6 +188,9 @@ fn collect_courses(text: &str, pattern: &Regex, format: CourseFormat) -> Vec<Par
         let Some(raw_code) = captures.get(1) else {
             continue;
         };
+        if text[..raw_code.start()].ends_with(is_word_char) {
+            continue;
+        }
         let Some(name) = captures.get(2) else {
             continue;
         };
@@ -468,5 +494,43 @@ mod tests {
         assert_eq!(detect_cohort(EN_REPORT), Some(2567));
         assert_eq!(detect_cohort("รหัสนักศึกษา 6900000001"), Some(2569));
         assert_eq!(detect_cohort("no id here"), None);
+    }
+
+    #[test]
+    fn grade_line_with_no_break_space_parses() {
+        let text = "344-111\u{a0}PROGRAMMING CONCEPTS\u{a0}6\u{a0}6\u{a0}A";
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses.len(), 1);
+        assert_eq!(courses[0].code, "344-111");
+        assert_eq!(courses[0].grade, "A");
+    }
+
+    #[test]
+    fn grade_line_with_other_unicode_spaces_parses() {
+        // Thin space, narrow no-break space and ideographic space.
+        let text = "344-111\u{2009}PROGRAMMING CONCEPTS\u{202f}6\u{3000}6 A";
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses.len(), 1);
+        assert_eq!(courses[0].code, "344-111");
+    }
+
+    #[test]
+    fn course_code_after_thai_text_parses() {
+        let text = "ภาคการศึกษา 1/2567 344-111 PROGRAMMING CONCEPTS 6 6 A";
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses.len(), 1);
+        assert_eq!(courses[0].semester.as_deref(), Some("1/2567"));
+    }
+
+    #[test]
+    fn cohort_ignores_id_glued_to_thai_letter() {
+        assert_eq!(detect_cohort("รหัสนักศึกษา 6700000001ก"), None);
+    }
+
+    #[test]
+    fn course_code_glued_to_thai_letter_is_not_a_course() {
+        let text = "วิชา344-111 PROGRAMMING CONCEPTS 6 6 A";
+        let (courses, _) = parse_transcript(text);
+        assert!(courses.is_empty());
     }
 }

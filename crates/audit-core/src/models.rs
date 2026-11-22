@@ -29,13 +29,63 @@ pub struct Category {
     pub required_credits: f32,  // Total credits required
     pub collected_credits: f32, // Credits earned so far
     pub courses: Vec<Course>,   // Courses in this category
+    /// Sub-requirements shown under the category (filled for the major only).
+    #[serde(default)]
+    pub groups: Vec<CategoryGroup>,
+}
+
+/// One sub-requirement of a category, e.g. the major's "Core Courses".
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CategoryGroup {
+    pub name: String,
+    pub required_credits: f32,
+    pub collected_credits: f32,
+}
+
+impl Category {
+    /// Credits that count toward the curriculum: collected, capped at required.
+    pub fn counted_credits(&self) -> f32 {
+        self.collected_credits.min(self.required_credits)
+    }
+
+    /// Credits collected beyond the requirement.
+    pub fn overflow_credits(&self) -> f32 {
+        (self.collected_credits - self.required_credits).max(0.0)
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.collected_credits >= self.required_credits
+    }
+}
+
+impl AuditResult {
+    /// Sum of each category's counted credits.
+    pub fn counted_credits(&self) -> f32 {
+        self.categories.iter().map(Category::counted_credits).sum()
+    }
+
+    /// Sum of each category's required credits.
+    pub fn required_credits(&self) -> f32 {
+        self.categories.iter().map(|c| c.required_credits).sum()
+    }
+
+    /// All credits earned, overflow included.
+    pub fn earned_credits(&self) -> f32 {
+        self.total_credits
+    }
 }
 
 /// A single missing required course, tagged with its curriculum category
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MissingCourse {
     pub category: String,    // e.g. "General Education", "Major Courses"
     pub description: String, // e.g. "344-101 - Calculus I"
+    /// The one course this item asks for, when it names one.
+    #[serde(default)]
+    pub code: Option<String>,
+    /// Credits still needed (a course's credits, or a credit gap).
+    #[serde(default)]
+    pub credits: Option<f32>,
 }
 
 /// Final audit result containing all categories and missing requirements
@@ -361,6 +411,42 @@ mod tests {
             grade: grade.to_string(),
             semester: None,
         }
+    }
+
+    fn cat(required: f32, collected: f32) -> Category {
+        Category {
+            name: "X".to_string(),
+            required_credits: required,
+            collected_credits: collected,
+            courses: vec![],
+            groups: vec![],
+        }
+    }
+
+    #[test]
+    fn counted_credits_caps_each_category() {
+        let r = AuditResult {
+            total_credits: 138.0,
+            categories: vec![cat(30.0, 30.0), cat(96.0, 87.0), cat(6.0, 21.0)],
+            missing_subjects: vec![],
+            gpa: Some(3.81),
+            attempts: vec![],
+        };
+        assert_eq!(r.counted_credits(), 123.0);
+        assert_eq!(r.required_credits(), 132.0);
+        assert_eq!(r.earned_credits(), 138.0);
+        assert_eq!(r.categories[2].overflow_credits(), 15.0);
+        assert_eq!(r.categories[1].overflow_credits(), 0.0);
+        assert!(!r.categories[1].is_complete());
+        assert!(r.categories[2].is_complete());
+    }
+
+    #[test]
+    fn old_saved_result_without_groups_loads() {
+        let json = r#"{"total_credits":3.0,"categories":[{"name":"Major Courses","required_credits":96.0,"collected_credits":3.0,"courses":[]}],"missing_subjects":[{"category":"Core Courses","description":"344-111 - X"}],"attempts":[]}"#;
+        let r: AuditResult = serde_json::from_str(json).unwrap();
+        assert!(r.categories[0].groups.is_empty());
+        assert_eq!(r.gpa, None);
     }
 
     #[test]

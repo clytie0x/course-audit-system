@@ -8,7 +8,8 @@
 
 use crate::models::{
     compute_gpa, free_elective_dedupe_key, is_in_progress, is_passing_grade, AuditResult, Category,
-    Course, Curriculum, GenEdCurriculum, MajorCourse, MajorCurriculum, MissingCourse, ParsedCourse,
+    CategoryGroup, Course, Curriculum, GenEdCurriculum, MajorCourse, MajorCurriculum,
+    MissingCourse, ParsedCourse,
 };
 use std::collections::HashSet;
 
@@ -54,6 +55,8 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
                 major.electives.name,
                 mj.elective_required - elective_credits
             ),
+            credits: Some(mj.elective_required - elective_credits),
+            ..Default::default()
         });
     }
     if major_credits + elective_credits < major.total_required_credits {
@@ -63,6 +66,8 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
                 "Overall Major Courses: missing {:.1} credits",
                 major.total_required_credits - major_credits - elective_credits
             ),
+            credits: Some(major.total_required_credits - major_credits - elective_credits),
+            ..Default::default()
         });
     }
     if free_elective_credits < free_required {
@@ -72,10 +77,38 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
                 "Free Electives: missing {:.1} credits",
                 free_required - free_elective_credits
             ),
+            credits: Some(free_required - free_elective_credits),
+            ..Default::default()
         });
     }
 
     let total_credits = gen_ed_credits + major_credits + elective_credits + free_elective_credits;
+
+    let group = |name: &str, required_credits: f32, collected_credits: f32| CategoryGroup {
+        name: name.to_string(),
+        required_credits,
+        collected_credits,
+    };
+    let mut major_groups = vec![
+        group(
+            "Basic Science",
+            major.basic_science.required_credits,
+            mj.basic_credits,
+        ),
+        group(
+            "Core Courses",
+            major.core_courses.required_credits,
+            mj.core_credits,
+        ),
+    ];
+    if mj.capstone_required > 0.0 {
+        major_groups.push(group("Capstone", mj.capstone_required, mj.capstone_credits));
+    }
+    major_groups.push(group(
+        "Major Electives",
+        mj.elective_required,
+        elective_credits,
+    ));
 
     let mut gen_ed_courses = Vec::new();
     let mut major_courses = Vec::new();
@@ -121,6 +154,7 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
                 "Cumulative GPA {g:.2} is below the minimum {:.2}",
                 curriculum.min_gpa
             ),
+            ..Default::default()
         });
     }
 
@@ -132,18 +166,21 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
                 required_credits: gen_ed.total_required_credits,
                 collected_credits: gen_ed_credits,
                 courses: gen_ed_courses,
+                groups: Vec::new(),
             },
             Category {
                 name: "Major Courses".to_string(),
                 required_credits: major.total_required_credits,
                 collected_credits: major_credits + elective_credits,
                 courses: major_courses,
+                groups: major_groups,
             },
             Category {
                 name: "Free Electives".to_string(),
                 required_credits: free_required,
                 collected_credits: free_elective_credits,
                 courses: free_elective_courses,
+                groups: Vec::new(),
             },
         ],
         missing_subjects: all_missing,
@@ -278,6 +315,7 @@ pub fn audit_gen_ed(
                                 "{}: choose one pair ({})",
                                 strand.name, pair_text
                             ),
+                            ..Default::default()
                         });
                     }
                 }
@@ -311,6 +349,7 @@ pub fn audit_gen_ed(
                         missing_courses.push(MissingCourse {
                             category: "General Education".to_string(),
                             description: format!("{}: choose 1 ({})", strand.name, options),
+                            ..Default::default()
                         });
                     }
                 }
@@ -365,6 +404,8 @@ pub fn audit_gen_ed(
                                     sub_group.required_credits - sub_group_filled,
                                     options
                                 ),
+                                credits: Some(sub_group.required_credits - sub_group_filled),
+                                ..Default::default()
                             });
                         }
                     }
@@ -397,6 +438,8 @@ pub fn audit_gen_ed(
                             strand.name,
                             strand.required_credits - strand_credits
                         ),
+                        credits: Some(strand.required_credits - strand_credits),
+                        ..Default::default()
                     });
                 }
             }
@@ -420,6 +463,8 @@ pub fn audit_gen_ed(
                                     "{}: {} - {}",
                                     strand.name, course.code, course.name
                                 ),
+                                code: Some(course.code.clone()),
+                                credits: Some(course.credits),
                             });
                         }
                     }
@@ -457,6 +502,8 @@ pub fn audit_gen_ed(
                     sub_cat.name,
                     sub_cat.required_credits - sub_cat_credits
                 ),
+                credits: Some(sub_cat.required_credits - sub_cat_credits),
+                ..Default::default()
             });
         }
     }
@@ -506,6 +553,7 @@ pub fn audit_gen_ed(
                 electives.language_min_credits,
                 electives.language_prefixes.join(", ")
             ),
+            ..Default::default()
         });
     }
 
@@ -517,6 +565,10 @@ pub fn audit_gen_ed(
                 curriculum.electives.name,
                 curriculum.electives.total_required_credits - gen_ed_elective_total_credits
             ),
+            credits: Some(
+                curriculum.electives.total_required_credits - gen_ed_elective_total_credits,
+            ),
+            ..Default::default()
         });
     }
 
@@ -533,6 +585,8 @@ pub fn audit_gen_ed(
                     "Overall General Education: missing {:.1} credits",
                     curriculum.total_required_credits - completed_credits
                 ),
+                credits: Some(curriculum.total_required_credits - completed_credits),
+                ..Default::default()
             });
         }
     }
@@ -544,6 +598,12 @@ pub fn audit_gen_ed(
 pub struct MajorOutcome {
     /// Basic science + core + capstone credits.
     pub completed_credits: f32,
+    pub basic_credits: f32,
+    pub core_credits: f32,
+    /// Credits earned from the capstone option taken.
+    pub capstone_credits: f32,
+    /// Credits the capstone requires: the option taken, else the first option.
+    pub capstone_required: f32,
     /// All major-elective credits earned (may exceed `elective_required`).
     pub elective_credits: f32,
     /// Elective credits this plan needs: major total − basic − core − capstone.
@@ -561,7 +621,9 @@ pub fn audit_major(
     curriculum: &MajorCurriculum,
     exclude: &HashSet<usize>,
 ) -> MajorOutcome {
-    let mut completed_credits = 0.0;
+    let mut basic_credits = 0.0;
+    let mut core_credits = 0.0;
+    let mut capstone_earned = 0.0;
     let mut elective_credits = 0.0;
     let mut missing_courses: Vec<MissingCourse> = Vec::new();
     let mut used_indices = exclude.clone();
@@ -573,12 +635,14 @@ pub fn audit_major(
                 && matches_curriculum_slot(parsed)
         }) {
             let matched_credits = earned_credits(course.credits, parsed);
-            completed_credits += matched_credits;
+            basic_credits += matched_credits;
             used_indices.insert(idx);
         } else {
             missing_courses.push(MissingCourse {
                 category: "Basic Science".to_string(),
                 description: format!("{} - {}", course.code, course.name),
+                code: Some(course.code.clone()),
+                credits: Some(course.credits),
             });
         }
     }
@@ -590,12 +654,14 @@ pub fn audit_major(
                 && matches_curriculum_slot(parsed)
         }) {
             let matched_credits = earned_credits(course.credits, parsed);
-            completed_credits += matched_credits;
+            core_credits += matched_credits;
             used_indices.insert(idx);
         } else {
             missing_courses.push(MissingCourse {
                 category: "Core Courses".to_string(),
                 description: format!("{} - {}", course.code, course.name),
+                code: Some(course.code.clone()),
+                credits: Some(course.credits),
             });
         }
     }
@@ -608,7 +674,7 @@ pub fn audit_major(
                 && matches_curriculum_slot(parsed)
         }) {
             let matched_credits = earned_credits(option.credits, parsed);
-            completed_credits += matched_credits;
+            capstone_earned += matched_credits;
             used_indices.insert(idx);
             capstone_taken = Some(option);
 
@@ -644,6 +710,8 @@ pub fn audit_major(
             missing_courses.push(MissingCourse {
                 category: "Core Courses".to_string(),
                 description: format!("{} - {} (non-credit, must pass)", req.code, req.name),
+                code: Some(req.code.clone()),
+                credits: Some(0.0),
             });
         }
     }
@@ -660,6 +728,7 @@ pub fn audit_major(
         missing_courses.push(MissingCourse {
             category: "Capstone".to_string(),
             description: format!("Choose 1: {}", options_desc),
+            ..Default::default()
         });
     }
 
@@ -711,6 +780,7 @@ pub fn audit_major(
                 description: format!(
                     "At least {min:.0} elective credits within one specialisation domain (best so far: {best_domain_credits:.0})"
                 ),
+                ..Default::default()
             });
         }
     }
@@ -724,6 +794,7 @@ pub fn audit_major(
                 completed_clusters_count,
                 curriculum.electives.clusters_to_complete
             ),
+            ..Default::default()
         });
     }
 
@@ -763,7 +834,11 @@ pub fn audit_major(
 
     used_indices.retain(|i| !exclude.contains(i));
     MajorOutcome {
-        completed_credits,
+        completed_credits: basic_credits + core_credits + capstone_earned,
+        basic_credits,
+        core_credits,
+        capstone_credits: capstone_earned,
+        capstone_required: capstone_credits,
         elective_credits,
         elective_required,
         missing: missing_courses,
@@ -829,6 +904,79 @@ mod tests {
             .missing_subjects
             .iter()
             .any(|m| m.category == category)
+    }
+
+    #[test]
+    fn missing_core_course_has_code_and_credits() {
+        let r = build_audit(&[], cs64());
+        let m = r
+            .missing_subjects
+            .iter()
+            .find(|m| m.code.as_deref() == Some("344-111"))
+            .unwrap();
+        assert_eq!(m.credits, Some(6.0));
+        assert_eq!(m.category, "Core Courses");
+    }
+
+    #[test]
+    fn missing_elective_credit_gap_has_credits_no_code() {
+        let r = build_audit(&[], cs64());
+        let m = r
+            .missing_subjects
+            .iter()
+            .find(|m| m.category == "Major Electives" && m.credits.is_some())
+            .unwrap();
+        assert!(m.code.is_none());
+        assert!(m.credits.unwrap() > 0.0);
+    }
+
+    #[test]
+    fn rule_misses_have_no_code_or_credits() {
+        let r = build_audit(&[], cs64());
+        let m = r
+            .missing_subjects
+            .iter()
+            .find(|m| m.category == "Capstone")
+            .unwrap();
+        assert!(m.code.is_none() && m.credits.is_none());
+    }
+
+    #[test]
+    fn major_groups_sum_to_major_collected() {
+        let r = build_audit(
+            &[parsed("322-101", "A", 3.0), parsed("344-331", "A", 3.0)],
+            cs64(),
+        );
+        let major = category(&r, "Major Courses");
+        let names: Vec<_> = major.groups.iter().map(|g| g.name.as_str()).collect();
+        assert_eq!(
+            names,
+            [
+                "Basic Science",
+                "Core Courses",
+                "Capstone",
+                "Major Electives"
+            ]
+        );
+        let sum: f32 = major.groups.iter().map(|g| g.collected_credits).sum();
+        assert_eq!(sum, major.collected_credits);
+        let req: f32 = major.groups.iter().map(|g| g.required_credits).sum();
+        assert_eq!(req, major.required_credits);
+    }
+
+    #[test]
+    fn cs69_has_no_capstone_group() {
+        let r = build_audit(&[parsed("322-101", "A", 3.0)], curriculum("cs2569"));
+        let major = category(&r, "Major Courses");
+        assert!(major.groups.iter().all(|g| g.name != "Capstone"));
+        assert_eq!(major.groups.len(), 3);
+    }
+
+    #[test]
+    fn only_major_has_groups() {
+        let r = build_audit(&[parsed("322-101", "A", 3.0)], cs64());
+        assert!(category(&r, "General Education").groups.is_empty());
+        assert!(category(&r, "Free Electives").groups.is_empty());
     }
 
     #[test]

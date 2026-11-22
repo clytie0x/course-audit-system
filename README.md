@@ -29,7 +29,7 @@ Everything runs in your browser. Nothing ever leaves your device.
 <td width="50%" valign="top">
 
 ### Full audit engine
-Matches courses against the PSU CS curriculum revision for your cohort (2564 for รหัส 64–68, 2569 for รหัส 69+), picked from the student ID and switchable in the sidebar.
+Matches courses against the PSU CS curriculum revision for your cohort (2564 for รหัส 64–68, 2569 for รหัส 69+), picked from the student ID and switchable on the upload screen or in the results header.
 
 </td>
 <td width="50%" valign="top">
@@ -70,8 +70,8 @@ JSON download · Print / Save-PDF (print stylesheet) · Copy missing requirement
 <tr>
 <td valign="top">
 
-### Dark mode
-System-preference aware, toggleable, flash-free on first paint (pre-hydration script).
+### Works on any screen
+One layout from phones to wide desktops: status, KPIs and tabs instead of one long page.
 
 </td>
 <td valign="top">
@@ -186,23 +186,24 @@ course-audit-system/
 ├── manifest.webmanifest     PWA manifest (standalone, theme colors)
 ├── sw.js                    Service worker (app-shell cache, network-first)
 ├── style.css                Tailwind directives + print stylesheet
-├── tailwind.config.js       darkMode: 'class' + brand palette + animations
+├── tailwind.config.js       zinc and accent palettes + animations
 │
 ├── src/                     Web crate (Leptos UI, wasm only)
 │   ├── main.rs              Tiny entry — panic hook + mount App
 │   ├── app.rs               App shell · shared AppState signals · re-audit effect
 │   ├── pdf.rs               PDF.js interop (extractTextFromPDF)
 │   └── components/
-│       ├── header.rs        Navbar · language + dark-mode toggles
-│       ├── sidebar.rs       Upload + analysis · how-it-works · save toggle
-│       ├── results.rs       Results layout · export JSON / print
-│       ├── hero.rs          Total credits + GPA
-│       ├── category_summary.rs  Donut card per category
-│       ├── category_card.rs Collapsible category accordion
-│       ├── what_if.rs       What-If simulator
-│       ├── semester_breakdown.rs  Per-semester GPA + credits
-│       ├── missing_requirements.rs  Missing list + copy
-│       └── offerings.rs     SIS offerings search + personal timetable
+│       ├── header.rs        Top bar · file chip ("Change file") · language toggle
+│       ├── empty_state.rs   Upload + analysis · curriculum choice · how-it-works · save toggle
+│       ├── results.rs       Status banner · KPI row · tabs · export JSON / print
+│       ├── overview.rs      Progress by category and group · what to do next · GPA by semester
+│       ├── category_card.rs Courses tab: collapsible category with course table
+│       ├── semester_breakdown.rs  Semesters tab: term cards with credits + GPA
+│       ├── what_if.rs       Plan tab: What-If courses + projection
+│       ├── offerings.rs     Offerings tab: SIS offerings search + personal timetable
+│       ├── coop_hours.rs    Co-op prep hours (shared with the KPI row)
+│       ├── status.rs        Status line, labels, semester grouping, to-do rows (tested)
+│       └── ui.rs            Shared Tailwind class strings
 │
 ├── crates/audit-core/       Pure Rust core, no wasm deps (tests run natively)
 │   └── src/
@@ -272,11 +273,11 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 </tr>
 <tr>
 <td><b>Styling</b></td>
-<td>Tailwind CSS v3 (class-based dark mode), zinc monochrome in the style of shadcn/ui</td>
+<td>Tailwind CSS v3, zinc monochrome in the style of shadcn/ui with one blue accent</td>
 </tr>
 <tr>
 <td><b>Fonts</b></td>
-<td>Geist · Noto Sans Thai · Geist Mono, self-hosted in <code>vendor/fonts</code> (SIL OFL)</td>
+<td>Anuphan (Thai and Latin) · IBM Plex Mono, self-hosted in <code>vendor/fonts</code> (SIL OFL)</td>
 </tr>
 <tr>
 <td><b>PDF</b></td>

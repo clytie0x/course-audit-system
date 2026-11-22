@@ -1,155 +1,82 @@
-//! Category Card Component
-//!
-//! Displays an expandable/collapsible category with progress tracking.
-//! Minimal, clean design with smooth expand/collapse.
+//! One collapsible category in the Courses tab, with its course table.
 
+use crate::components::status::{fmt_credits, label};
+use crate::components::ui::{grade_class, TAG, TAG_MUTED, TAG_OK, TAG_WARN};
 use audit_core::models::Category;
 use leptos::prelude::*;
 
-/// Collapsible accordion row for a course category
+use crate::app::AppState;
+
 #[component]
 pub fn CategoryCard(category: Category) -> impl IntoView {
-    let (is_expanded, set_is_expanded) = signal(false);
-    let percentage = (category.collected_credits / category.required_credits * 100.0).min(100.0);
-    let complete = percentage >= 100.0;
-    let category_clone = category.clone();
-
-    let progress_color = if complete {
-        "bg-emerald-500"
-    } else {
-        "bg-zinc-900 dark:bg-zinc-50"
-    };
-
-    let panel_id = format!(
-        "category-panel-{}",
-        category
-            .name
-            .chars()
-            .filter(|c| c.is_ascii_alphanumeric())
-            .collect::<String>()
-            .to_lowercase()
-    );
-    let panel_id_attr = panel_id.clone();
+    let AppState { is_thai, .. } = expect_context::<AppState>();
+    let name = category.name.clone();
+    let (collected, required) = (category.collected_credits, category.required_credits);
+    let overflow = category.overflow_credits();
+    let complete = category.is_complete();
+    let gap = required - category.counted_credits();
+    let courses = category.courses.clone();
+    let n = courses.len();
 
     view! {
-        <div class="group">
-            // Header row
-            <button
-                class="w-full px-5 py-3.5 flex items-center justify-between hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-inset"
-                aria-expanded={move || if is_expanded.get() { "true" } else { "false" }}
-                aria-controls=panel_id_attr
-                on:click=move |_| set_is_expanded.update(|v| *v = !*v)
-            >
-                <div class="flex items-center gap-3 min-w-0">
-                    // Expand icon
-                    <div class="shrink-0">
-                        <svg
-                            class={move || format!(
-                                "w-4 h-4 text-zinc-400 dark:text-zinc-500 transition-transform duration-200 {}",
-                                if is_expanded.get() { "rotate-90" } else { "" }
-                            )}
-                            aria-hidden="true"
-                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                        </svg>
-                    </div>
-                    <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">{
-                        let name = category.name.clone();
-                        move || {
-                            let is_thai = use_context::<ReadSignal<bool>>().map(|s| s.get()).unwrap_or(false);
-                            match name.as_str() {
-                                "General Education" if is_thai => "หมวดวิชาศึกษาทั่วไป".to_string(),
-                                "Major Courses" if is_thai => "หมวดวิชาเฉพาะ".to_string(),
-                                "Free Electives" if is_thai => "หมวดวิชาเลือกเสรี".to_string(),
-                                _ => name.clone(),
-                            }
-                        }
-                    }</span>
-                    {if complete {
-                        view! {
-                            <svg class="w-4 h-4 text-emerald-500 shrink-0" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
-                            </svg>
-                        }.into_any()
-                    } else {
-                        view! { <span></span> }.into_any()
-                    }}
+        <details class="group">
+            <summary class="list-none cursor-pointer grid grid-cols-[20px_minmax(0,1fr)_auto] gap-3 items-center px-4 sm:px-[18px] py-3.5 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500 [&::-webkit-details-marker]:hidden">
+                <svg class="w-4 h-4 text-zinc-400 transition-transform group-open:rotate-90" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                <div class="min-w-0">
+                    <p class="font-semibold text-[15px] text-zinc-900 truncate">{move || label(&name, is_thai.get())}</p>
+                    <p class="text-[13px] text-zinc-500 tabular-nums">
+                        {move || if is_thai.get() {
+                            format!("{} จาก {} หน่วยกิต · {} วิชา", fmt_credits(collected), fmt_credits(required), n)
+                        } else {
+                            format!("{} of {} credits · {} courses", fmt_credits(collected), fmt_credits(required), n)
+                        }}
+                    </p>
                 </div>
-                <div class="flex items-center gap-3 shrink-0 ml-4">
-                    // Mini progress bar
-                    <div class="hidden sm:block w-20 bg-zinc-100 dark:bg-zinc-800 rounded-full h-1 overflow-hidden">
-                        <div
-                            class={format!("h-full rounded-full progress-animated {}", progress_color)}
-                            style={format!("width: {}%", percentage)}
-                        ></div>
-                    </div>
-                    <span class="text-xs font-mono font-medium text-zinc-500 dark:text-zinc-400 tabular-nums w-16 text-right">
-                        {format!("{:.0}/{:.0} cr", category.collected_credits, category.required_credits)}
-                    </span>
-                </div>
-            </button>
-
-            // Expanded course list
-            {move || {
-                if is_expanded.get() {
-                    view! {
-                        <div id=panel_id.clone() class="border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/40 dark:bg-zinc-900/60 animate-fade-in">
-                            {if category_clone.courses.is_empty() {
-                                view! {
-                                    <div class="px-5 py-6 text-center">
-                                        <p class="text-xs text-zinc-400 dark:text-zinc-500 font-medium">{move || {
-                                            let is_thai = use_context::<ReadSignal<bool>>().map(|s| s.get()).unwrap_or(false);
-                                            if is_thai { "ยังไม่มีวิชาที่เรียนสำเร็จในหมวดนี้" } else { "No courses completed in this category" }
-                                        }}</p>
-                                    </div>
-                                }.into_any()
-                            } else {
-                                view! {
-                                    <div class="divide-y divide-zinc-100/80 dark:divide-zinc-800/80">
-                                        {category_clone.courses.iter().map(|course| {
-                                            let course = course.clone();
-                                            let is_ip = course.grade.eq_ignore_ascii_case("IP");
-                                            let grade_color = if is_ip {
-                                                "bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50"
-                                            } else {
-                                                match course.grade.chars().next().unwrap_or('F') {
-                                                    'A' => "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50",
-                                                    'B' => "bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50",
-                                                    'C' => "bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50",
-                                                    'D' => "bg-orange-50 text-orange-700 border-orange-200/60 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-900/50",
-                                                    _ => "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-300 dark:border-zinc-700",
-                                                }
-                                            };
-                                            let credit_cell = if is_ip {
-                                                "—".to_string()
-                                            } else {
-                                                format!("{}", course.credit as u32)
-                                            };
-                                            view! {
-                                                <div class="flex items-center justify-between px-5 py-2.5 hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-colors">
-                                                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                                                        <span class="font-mono text-2xs font-semibold text-zinc-400 dark:text-zinc-500 w-14 shrink-0">{course.code.clone()}</span>
-                                                        <span class="text-[13px] text-zinc-700 dark:text-zinc-300 truncate">{course.name.clone()}</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2.5 shrink-0 ml-3">
-                                                        <span class={format!("text-2xs font-bold min-w-[1.75rem] h-5 px-1 flex items-center justify-center rounded border {}", grade_color)}>
-                                                            {course.grade.clone()}
-                                                        </span>
-                                                        <span class="text-2xs text-zinc-400 dark:text-zinc-500 font-mono w-6 text-right">{credit_cell}</span>
-                                                    </div>
-                                                </div>
-                                            }
-                                        }).collect::<Vec<_>>()}
-                                    </div>
-                                }.into_any()
-                            }}
-                        </div>
-                    }.into_any()
+                {if overflow > 0.0 {
+                    view! { <span class=format!("{TAG} {TAG_MUTED}")>{move || if is_thai.get() { format!("เกิน +{}", fmt_credits(overflow)) } else { format!("+{} over", fmt_credits(overflow)) }}</span> }.into_any()
+                } else if complete {
+                    view! { <span class=format!("{TAG} {TAG_OK}")>{move || if is_thai.get() { "ครบ" } else { "Done" }}</span> }.into_any()
                 } else {
-                    view! { <div></div> }.into_any()
-                }
+                    view! { <span class=format!("{TAG} {TAG_WARN}")>{move || if is_thai.get() { format!("ขาด {}", fmt_credits(gap)) } else { format!("{} short", fmt_credits(gap)) }}</span> }.into_any()
+                }}
+            </summary>
+            {if courses.is_empty() {
+                view! {
+                    <p class="px-4 sm:px-[18px] py-5 text-center text-[13px] text-zinc-500 border-t border-zinc-200">
+                        {move || if is_thai.get() { "ยังไม่มีวิชาที่นับในหมวดนี้" } else { "No courses count toward this category yet" }}
+                    </p>
+                }.into_any()
+            } else {
+                view! {
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-zinc-50 text-left text-[12.5px] text-zinc-500">
+                                    <th class="font-medium px-4 sm:px-[18px] py-2 border-y border-zinc-200 whitespace-nowrap">{move || if is_thai.get() { "รหัส" } else { "Code" }}</th>
+                                    <th class="font-medium px-2 py-2 border-y border-zinc-200">{move || if is_thai.get() { "ชื่อวิชา" } else { "Course" }}</th>
+                                    <th class="hidden sm:table-cell font-medium px-2 py-2 border-y border-zinc-200">{move || if is_thai.get() { "เทอม" } else { "Term" }}</th>
+                                    <th class="font-medium px-2 py-2 border-y border-zinc-200 text-right">{move || if is_thai.get() { "นก." } else { "Cr" }}</th>
+                                    <th class="font-medium px-4 sm:px-[18px] py-2 border-y border-zinc-200 text-right">{move || if is_thai.get() { "เกรด" } else { "Grade" }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {courses.into_iter().map(|c| {
+                                    let ip = c.grade.eq_ignore_ascii_case("IP");
+                                    view! {
+                                        <tr class="border-b last:border-b-0 border-zinc-200 align-top">
+                                            <td class="px-4 sm:px-[18px] py-2.5 font-mono text-[0.86em] text-zinc-500 whitespace-nowrap">{c.code.clone()}</td>
+                                            <td class="px-2 py-2.5 text-zinc-800">{c.name.clone()}</td>
+                                            <td class="hidden sm:table-cell px-2 py-2.5 text-zinc-400 tabular-nums whitespace-nowrap">{c.semester.clone().unwrap_or_default()}</td>
+                                            <td class="px-2 py-2.5 text-right tabular-nums text-zinc-700">{if ip { "—".to_string() } else { fmt_credits(c.credit) }}</td>
+                                            <td class="px-4 sm:px-[18px] py-2.5 text-right"><span class=grade_class(&c.grade)>{c.grade.clone()}</span></td>
+                                        </tr>
+                                    }
+                                }).collect::<Vec<_>>()}
+                            </tbody>
+                        </table>
+                    </div>
+                }.into_any()
             }}
-        </div>
+        </details>
     }
 }
