@@ -12,7 +12,6 @@ pub fn HeroCard(result: AuditResult) -> impl IntoView {
     view! {
         // ── Hero: Total Credits ─────────────────
         <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-16 -top-16 w-48 h-48 bg-brand-100/40 dark:bg-brand-900/20 rounded-full blur-3xl pointer-events-none"></div>
             <div class="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div>
                     <p class="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-1">{move || if is_thai.get() { "ความคืบหน้าทั้งหมด" } else { "Total Progress" }}</p>
