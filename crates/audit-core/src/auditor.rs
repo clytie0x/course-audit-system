@@ -461,20 +461,52 @@ pub fn audit_gen_ed(
         }
     }
 
-    // Tag-based GenEd electives (e.g. any "G8" course).
-    for (idx, parsed) in courses.iter().enumerate() {
-        if gen_ed_elective_total_credits >= curriculum.electives.total_required_credits {
-            break;
+    // Tag-based GenEd electives (e.g. any "G8" course): language courses
+    // first, up to the language minimum, then anything else tagged.
+    let electives = &curriculum.electives;
+    let is_language = |p: &ParsedCourse| {
+        electives
+            .language_prefixes
+            .iter()
+            .any(|x| p.code.starts_with(x.as_str()))
+    };
+    let mut language_filled = 0.0;
+    for pass_language in [true, false] {
+        for (idx, parsed) in courses.iter().enumerate() {
+            if gen_ed_elective_total_credits >= electives.total_required_credits
+                || (pass_language && language_filled >= electives.language_min_credits)
+            {
+                break;
+            }
+            if !used_indices.contains(&idx)
+                && has_tag(parsed, &electives.tags)
+                && matches_curriculum_slot(parsed)
+                && (!pass_language || is_language(parsed))
+            {
+                let matched_credits = earned_credits(parsed.parsed_credit, parsed);
+                completed_credits += matched_credits;
+                gen_ed_elective_total_credits += matched_credits;
+                if is_language(parsed) {
+                    language_filled += if is_in_progress(&parsed.grade) {
+                        parsed.parsed_credit
+                    } else {
+                        matched_credits
+                    };
+                }
+                used_indices.insert(idx);
+            }
         }
-        if !used_indices.contains(&idx)
-            && has_tag(parsed, &curriculum.electives.tags)
-            && matches_curriculum_slot(parsed)
-        {
-            let matched_credits = earned_credits(parsed.parsed_credit, parsed);
-            completed_credits += matched_credits;
-            gen_ed_elective_total_credits += matched_credits;
-            used_indices.insert(idx);
-        }
+    }
+    if language_filled < electives.language_min_credits {
+        missing_courses.push(MissingCourse {
+            category: "General Education".to_string(),
+            description: format!(
+                "{}: at least {:.0} credits of English or another foreign language ({})",
+                electives.name,
+                electives.language_min_credits,
+                electives.language_prefixes.join(", ")
+            ),
+        });
     }
 
     if gen_ed_elective_total_credits < curriculum.electives.total_required_credits {
@@ -1085,6 +1117,31 @@ mod tests {
             "{text}"
         );
         assert!(!text.contains("GE1"), "{text}");
+    }
+
+    #[test]
+    fn gen_ed_8_2569_needs_a_language_course() {
+        let others = [
+            tagged("193-031", "A", 2.0, "G8"),
+            tagged("895-881", "A", 2.0, "G8"),
+            tagged("820-100", "A", 2.0, "G8"),
+        ];
+        let text = missing_text(&build_audit(&others, cs69()));
+        assert!(
+            text.contains("English or another foreign language"),
+            "{text}"
+        );
+        let with_language = [
+            tagged("193-031", "A", 2.0, "G8"),
+            tagged("895-881", "A", 2.0, "G8"),
+            tagged("820-100", "A", 2.0, "G8"),
+            tagged("890-831", "A", 2.0, "G8"),
+        ];
+        let result = build_audit(&with_language, cs69());
+        let text = missing_text(&result);
+        assert!(!text.contains("foreign language"), "{text}");
+        // Language first, then two others; the third non-language course overflows.
+        assert_eq!(category(&result, "Free Electives").collected_credits, 2.0);
     }
 
     #[test]

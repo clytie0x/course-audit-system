@@ -9,6 +9,8 @@ Everything runs in your browser. Nothing ever leaves your device.
 
 <br />
 
+[![CI](https://github.com/clytie0x/course-audit-system/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/clytie0x/course-audit-system/actions/workflows/ci.yml)
+[![Deploy](https://github.com/clytie0x/course-audit-system/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/clytie0x/course-audit-system/actions/workflows/deploy.yml)
 ![Rust](https://img.shields.io/badge/rust-stable-orange?logo=rust&logoColor=white)
 ![Leptos 0.8](https://img.shields.io/badge/leptos-0.8-purple)
 ![WASM](https://img.shields.io/badge/wasm-WebAssembly-654ff0?logo=webassembly&logoColor=white)
@@ -231,7 +233,7 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 
 | Category | 2564 (รหัส 64–68) | 2569 (รหัส 69+) |
 | --- | --- | --- |
-| **General Education** | 30 cr — 7 strands + 6 elective (accepts both the cohort 64–66 and 67–68 course sets) | 24 cr — GE1–GE7 (18) + GE8 (6), matched by GE tag |
+| **General Education** | 30 cr — 7 strands + 6 elective (accepts both the cohort 64–66 and 67–68 course sets) | 24 cr — GE1–GE7 (18) + GE8 (6, at least 2 of them a language: 848-/890-/891-), matched by GE tag |
 | **Basic / core science** | 12 cr — chemistry, biology, physics | 12 cr — 315-101, 322-101, 345-101, 346-101 |
 | **Required major** | 48 cr + capstone: project 344-492 (3) or co-op 344-495 (6, needs 344-494) | 56 cr incl. project 344-491 and co-op 344-492; 344-494 must be passed |
 | **Major electives** | 33 cr (project plan) or 30 cr (co-op plan); complete 2 clusters | 27 cr; at least 12 cr in one domain |
@@ -303,13 +305,17 @@ codegen-units = 1
 
 ## Quality gates
 
-CI is paused while the project is experimental. Run these three gates locally before every commit:
+Every push and pull request runs `.github/workflows/ci.yml`. The same gates run locally:
 
 ```
-cargo fmt --all -- --check                       format
-cargo clippy --workspace --all-targets -D warnings  lints as errors
-cargo test --workspace --all-targets             63 unit tests
+cargo fmt --all -- --check                                format
+cargo clippy --workspace --all-targets -- -D warnings     lints as errors (native)
+cargo clippy --target wasm32-unknown-unknown -- -D warnings   lints as errors (wasm)
+cargo test --workspace --all-targets                      64 unit tests
+trunk build --release --public-url /course-audit-system/  release build
 ```
+
+CI also syntax-checks the scraper and fails if `data/offerings` contains a 10-digit number, a passcode or a Zoom meeting ID.
 
 Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).
 
@@ -324,14 +330,28 @@ Test coverage spans the parser (format auto-detect, code normalization, Thai and
 - see prerequisite warnings
 - pick sections into a personal timetable, which flags class-time and exam clashes
 
-**Co-op preparation hours.** The co-op course needs 30 preparation hours: at least 24 from faculty or programme activities and at least 6 from university or other activities. The Faculty of Science publishes these in a Looker Studio report at [regis.sci.psu.ac.th/activity30hr](https://regis.sci.psu.ac.th/activity30hr). The app cannot read that report, so the co-op card takes the two totals by hand. `node tools/sis-scraper/coop-hours.mjs <student id>` filters the report to that ID and prints only that student's rows and totals.
+**Co-op preparation hours.** The co-op course needs 30 preparation hours: at least 24 from faculty or programme activities and at least 6 from university or other activities. The Faculty of Science publishes these in Looker Studio reports at [regis.sci.psu.ac.th/activity30hr](https://regis.sci.psu.ac.th/activity30hr), one per cohort.
 
-Refresh the data with the scraper. SIS is a Blazor Server app, so the scraper uses `playwright-core` to drive the installed Google Chrome. It visits only public pages, one request at a time with a delay:
+A static site cannot query those reports: their data API needs a per-session XSRF token and sends no CORS headers. The co-op card works around this in two ways:
+
+- It embeds the official report for the cohort read from your student ID, so you can search your ID inside it.
+- It takes the two totals by hand.
+
+`node tools/sis-scraper/coop-hours.mjs <student id>` filters a report to one ID and prints only that student's rows and totals.
+
+**Automatic refresh.** `.github/workflows/offerings.yml` runs every Monday at 03:00 Thailand time, and can also be started by hand:
+
+- It scrapes the two newest terms SIS lists, so a new term is picked up without any code change.
+- It commits `data/offerings` only when something changed.
+- Deploy then republishes the site.
+
+Refresh the data by hand with the scraper. SIS is a Blazor Server app, so the scraper uses `playwright-core` to drive the installed Google Chrome. It visits only public pages, one request at a time with a delay:
 
 ```bash
 cd tools/sis-scraper
 npm ci
 node scrape.mjs                          # every term SIS lists: 344- plus the curricula's science courses
+node scrape.mjs --latest 2 --ge          # what the weekly job runs
 node scrape.mjs --terms 2/2569 --ge      # also GenEd course prefixes for one term
 node scrape.mjs --terms 2/2569 --keywords 344-,322-101
 ```
@@ -340,7 +360,7 @@ node scrape.mjs --terms 2/2569 --keywords 344-,322-101
 
 ## Deployment
 
-Automatic GitHub Pages deploys are paused while the project is experimental. Build and upload manually:
+`.github/workflows/deploy.yml` builds with Trunk and publishes to GitHub Pages (<https://clytie0x.github.io/course-audit-system/>). It runs on every push to `main`, after each offerings refresh, and on demand. For another host:
 
 ```bash
 trunk build --release --public-url /your-base-path/

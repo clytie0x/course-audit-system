@@ -105,6 +105,12 @@ pub struct GenEdElectives {
     /// GE category tags (e.g. "G8") that also count as GenEd electives.
     #[serde(default)]
     pub tags: Vec<String>,
+    /// At least `language_min_credits` of the tagged electives must be
+    /// language courses, recognised by these code prefixes (2569: 2 credits).
+    #[serde(default)]
+    pub language_prefixes: Vec<String>,
+    #[serde(default)]
+    pub language_min_credits: f32,
 }
 
 /// Top-level General Education curriculum definition.
