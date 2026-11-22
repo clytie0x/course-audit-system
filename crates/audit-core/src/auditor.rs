@@ -161,6 +161,28 @@ fn used_dedupe_keys(courses: &[ParsedCourse], used_indices: &HashSet<usize>) -> 
         .collect()
 }
 
+/// Prerequisite codes of `code` not yet satisfied by `attempts`. A prerequisite
+/// counts once it has been taken with any grade, including in progress; a
+/// withdrawal (W) does not count. Empty when `code` has none or all are met.
+pub fn unmet_prerequisites(
+    code: &str,
+    attempts: &[ParsedCourse],
+    curriculum: &Curriculum,
+) -> Vec<String> {
+    let Some(pre) = curriculum.prerequisites.get(code) else {
+        return Vec::new();
+    };
+    let taken = |c: &String| {
+        attempts
+            .iter()
+            .any(|a| &a.code == c && !a.grade.trim().eq_ignore_ascii_case("W"))
+    };
+    if pre.any_of && pre.codes.iter().any(taken) {
+        return Vec::new();
+    }
+    pre.codes.iter().filter(|c| !taken(c)).cloned().collect()
+}
+
 fn has_tag(parsed: &ParsedCourse, tags: &[String]) -> bool {
     parsed.tag.as_ref().is_some_and(|t| tags.contains(t))
 }
@@ -851,6 +873,35 @@ mod tests {
             .iter()
             .map(|m| format!("[{}] {}\n", m.category, m.description))
             .collect()
+    }
+
+    #[test]
+    fn prerequisites_need_a_prior_attempt() {
+        // 2569: 344-213 Algorithm Analysis requires 344-211 Data Structures.
+        assert_eq!(unmet_prerequisites("344-213", &[], cs69()), ["344-211"]);
+        let failed = [parsed("344-211", "F", 3.0)];
+        assert!(
+            unmet_prerequisites("344-213", &failed, cs69()).is_empty(),
+            "any grade counts"
+        );
+        let withdrawn = [parsed("344-211", "W", 3.0)];
+        assert_eq!(
+            unmet_prerequisites("344-213", &withdrawn, cs69()),
+            ["344-211"]
+        );
+        let in_progress = [parsed("344-211", "IP", 3.0)];
+        assert!(unmet_prerequisites("344-213", &in_progress, cs69()).is_empty());
+        assert!(
+            unmet_prerequisites("344-101", &[], cs69()).is_empty(),
+            "no prerequisite"
+        );
+    }
+
+    #[test]
+    fn prerequisites_differ_by_curriculum() {
+        // 344-361 needs 344-111 in 2564 but 344-213 in 2569.
+        assert_eq!(unmet_prerequisites("344-361", &[], cs64()), ["344-111"]);
+        assert_eq!(unmet_prerequisites("344-361", &[], cs69()), ["344-213"]);
     }
 
     #[test]

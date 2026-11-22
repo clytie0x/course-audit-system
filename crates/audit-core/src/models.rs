@@ -219,6 +219,20 @@ pub struct Curriculum {
     pub min_gpa: f32,
     pub gen_ed: GenEdCurriculum,
     pub major: MajorCurriculum,
+    /// Prerequisites by course code, transcribed from the TQF2 course descriptions.
+    #[serde(default)]
+    pub prerequisites: std::collections::BTreeMap<String, Prerequisite>,
+}
+
+/// "รายวิชาบังคับเรียนก่อน": the listed courses must have been taken and
+/// graded before (any grade), unless the programme consents.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Prerequisite {
+    pub codes: Vec<String>,
+    /// `true` when any one of `codes` is enough ("A or B"); otherwise all.
+    pub any_of: bool,
+    /// Original wording, e.g. "344-111 ... or with the consent of the program".
+    pub text: String,
 }
 
 /// Parsed course details extracted from the transcript text.
