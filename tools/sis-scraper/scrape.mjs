@@ -182,8 +182,16 @@ function normalize(raw, href) {
 }
 
 async function availableTerms(page) {
-  await page.goto(`${BASE}/explore/subject`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button.sis-select-field-box', { timeout: 30000 });
+  const res = await page.goto(`${BASE}/explore/subject`, { waitUntil: 'domcontentloaded' });
+  try {
+    await page.waitForSelector('button.sis-select-field-box', { timeout: 30000 });
+  } catch (e) {
+    // Say what SIS served instead (blocked IP, maintenance page, ...) before failing.
+    const body = await page.evaluate(() => document.body?.innerText ?? '').catch(() => '');
+    console.error(`SIS term picker missing: HTTP ${res?.status()} ${page.url()} title=${JSON.stringify(await page.title())}`);
+    console.error(body.slice(0, 500));
+    throw e;
+  }
   await sleep(1500); // let the Blazor circuit attach handlers
   await page.click('button.sis-select-field-box');
   await page.waitForSelector('[role=option].sis-select-field-option', { timeout: 15000 });
