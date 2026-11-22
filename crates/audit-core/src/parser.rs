@@ -427,14 +427,14 @@ mod tests {
     }
 
     // Header layout of the English SIS grade report (pdf.js joins items by spaces).
-    const EN_REPORT: &str = "Study Result Mister SOMEONE Student Id 6710210999 Prince of Songkla \
+    const EN_REPORT: &str = "Study Result Mister SOMEONE Student Id 6700000001 Prince of Songkla \
         University Hat Yai Campus Faculty of Science Division of Computational Science Computer \
         Science Semester 2/2024 Subject Code Subject Name Section Credit Grade 003-001 VOL LEADER \
         FOR SUS COM DEL 02 3 A 315-100G2A THE ART OF COMPUTING 07 2 B+";
 
     #[test]
     fn student_id_is_not_read_as_a_course_code() {
-        // Regression: "6710210999" used to match as code "671021…", swallowing
+        // Regression: "6700000001" used to match as code "670000…", swallowing
         // the header text up to and including the first real course.
         let (courses, _) = parse_transcript(EN_REPORT);
         let codes: Vec<&str> = courses.iter().map(|c| c.code.as_str()).collect();
@@ -466,7 +466,7 @@ mod tests {
     #[test]
     fn cohort_from_student_id() {
         assert_eq!(detect_cohort(EN_REPORT), Some(2567));
-        assert_eq!(detect_cohort("รหัสนักศึกษา 6910210001"), Some(2569));
+        assert_eq!(detect_cohort("รหัสนักศึกษา 6900000001"), Some(2569));
         assert_eq!(detect_cohort("no id here"), None);
     }
 }
