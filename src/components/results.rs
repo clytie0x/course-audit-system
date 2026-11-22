@@ -137,7 +137,12 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
         0.0
     };
     let gpa = result.gpa;
-    let course_count = result.attempts.len();
+    // Saves from before `attempts` existed only have the category lists.
+    let course_count = if result.attempts.is_empty() {
+        result.categories.iter().map(|c| c.courses.len()).sum()
+    } else {
+        result.attempts.len()
+    };
     // Where the missing credits are: groups when a category has them.
     let gaps: Vec<(String, f32)> = result
         .categories
@@ -163,17 +168,20 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
     let categories = result.categories.clone();
 
     let on_tab_key = move |ev: web_sys::KeyboardEvent| {
-        let step: isize = match ev.key().as_str() {
-            "ArrowRight" => 1,
-            "ArrowLeft" => -1,
-            _ => return,
-        };
-        ev.prevent_default();
         let i = Tab::ALL
             .iter()
             .position(|t| *t == tab.get_untracked())
             .unwrap_or(0) as isize;
-        let next = Tab::ALL[(i + step).rem_euclid(Tab::ALL.len() as isize) as usize];
+        let last = Tab::ALL.len() as isize - 1;
+        let target = match ev.key().as_str() {
+            "ArrowRight" => (i + 1).rem_euclid(last + 1),
+            "ArrowLeft" => (i - 1).rem_euclid(last + 1),
+            "Home" => 0,
+            "End" => last,
+            _ => return,
+        };
+        ev.prevent_default();
+        let next = Tab::ALL[target as usize];
         tab.set(next);
         if let Some(el) = web_sys::window()
             .and_then(|w| w.document())

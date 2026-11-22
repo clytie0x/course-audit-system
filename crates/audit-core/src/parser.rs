@@ -15,9 +15,8 @@ use std::sync::OnceLock;
 
 // Grade-report pattern: `code name section credit grade`
 // Example: 322-101   CALCULUS I   04   3   B+
-// Uses [0-9] (not \d) because the regex crate's \d is Unicode-aware and
-// would happily match Thai numerals, producing multi-byte captures that
-// break downstream byte slicing.
+// Uses [0-9] (not \d) so the pattern never matches Thai numerals, whatever
+// the regex engine's \d means; multi-byte captures would break byte slicing.
 fn grade_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
@@ -127,10 +126,9 @@ fn semester_for(boundaries: &[(usize, String)], course_start: usize) -> Option<S
 }
 
 pub fn normalize_course_code(raw_code: &str) -> String {
-    // The Rust regex crate is Unicode-aware by default, so `\d` can match
-    // Thai numerals (๐-๙) — each 3 bytes. Byte-slicing at `[..7]` therefore
-    // panics mid-character and compiles to `RuntimeError: unreachable` in
-    // WASM. Count chars explicitly and use a char-aware take(7) instead.
+    // A code may hold multi-byte characters (e.g. Thai numerals ๐-๙, 3 bytes
+    // each). Byte-slicing at `[..7]` would panic mid-character and compiles to
+    // `RuntimeError: unreachable` in WASM, so count chars and take(7) instead.
     let char_count = raw_code.chars().count();
     let has_dash_at_3 = raw_code.chars().nth(3) == Some('-');
     let trimmed = if char_count >= 7 && has_dash_at_3 {

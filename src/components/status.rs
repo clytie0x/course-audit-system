@@ -61,9 +61,13 @@ pub fn todo_rows(missing: &[MissingCourse]) -> Vec<Todo> {
     let mut gaps = Vec::new();
     let mut rules = Vec::new();
     for m in missing {
-        match (&m.code, m.credits) {
+        // Results saved before `code`/`credits` existed carry them only in the text.
+        let code = m.code.clone().or_else(|| code_in(&m.description));
+        let credits = m.credits.or_else(|| missing_credits_in(&m.description));
+        match (code, credits) {
+            _ if m.description.starts_with("Overall ") => {}
             (Some(code), credits) => courses.push(Todo::Course {
-                code: code.clone(),
+                code,
                 name: m
                     .description
                     .split_once(" - ")
@@ -71,7 +75,6 @@ pub fn todo_rows(missing: &[MissingCourse]) -> Vec<Todo> {
                 category: m.category.clone(),
                 credits: credits.unwrap_or(0.0),
             }),
-            (None, Some(_)) if m.description.starts_with("Overall ") => {}
             (None, Some(credits)) => gaps.push(Todo::Gap {
                 category: m.category.clone(),
                 credits,
@@ -83,6 +86,25 @@ pub fn todo_rows(missing: &[MissingCourse]) -> Vec<Todo> {
         }
     }
     courses.into_iter().chain(gaps).chain(rules).collect()
+}
+
+/// "344-223 - Name" or "Strand: 344-223 - Name" -> "344-223".
+fn code_in(description: &str) -> Option<String> {
+    let (left, _) = description.split_once(" - ")?;
+    let code = left.rsplit(' ').next()?;
+    let b = code.as_bytes();
+    let ok = b.len() == 7
+        && b[3] == b'-'
+        && b.iter()
+            .enumerate()
+            .all(|(i, c)| i == 3 || c.is_ascii_digit());
+    ok.then(|| code.to_string())
+}
+
+/// "...: missing 3.0 credits" -> 3.0.
+fn missing_credits_in(description: &str) -> Option<f32> {
+    let rest = description.rsplit_once("missing ")?.1;
+    rest.strip_suffix(" credits")?.parse().ok()
 }
 
 /// Credits without a trailing ".0": 9.0 -> "9", 1.5 -> "1.5".
@@ -313,6 +335,41 @@ mod tests {
                 Todo::Rule {
                     category: "Capstone".into(),
                     description: "Choose 1: 344-492 OR 344-495".into(),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn todo_rows_read_old_saves_without_code_or_credits() {
+        let m = |category: &str, description: &str| MissingCourse {
+            category: category.into(),
+            description: description.into(),
+            ..Default::default()
+        };
+        let rows = todo_rows(&[
+            m(
+                "Major Courses",
+                "Overall Major Courses: missing 93.0 credits",
+            ),
+            m(
+                "Core Courses",
+                "344-223 - Fundamentals of Computer Security",
+            ),
+            m("Major Electives", "Major Electives: missing 3.0 credits"),
+        ]);
+        assert_eq!(
+            rows,
+            vec![
+                Todo::Course {
+                    code: "344-223".into(),
+                    name: "Fundamentals of Computer Security".into(),
+                    category: "Core Courses".into(),
+                    credits: 0.0,
+                },
+                Todo::Gap {
+                    category: "Major Electives".into(),
+                    credits: 3.0,
                 },
             ]
         );

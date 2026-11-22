@@ -69,6 +69,7 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                 </div>
                 {categories.into_iter().map(|c| {
                     let name = c.name.clone();
+                    let bar_name = c.name.clone();
                     let complete = c.is_complete();
                     let overflow = c.overflow_credits();
                     let gap = c.required_credits - c.counted_credits();
@@ -106,6 +107,7 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                                 } else {
                                     view! {
                                         <progress class={if complete { "progress ok" } else { "progress" }} max=required value=collected
+                                            aria-label={move || label(&bar_name, is_thai.get())}
                                             aria-valuetext={move || if is_thai.get() { format!("{} จาก {}", fmt_credits(collected), fmt_credits(required)) } else { format!("{} of {}", fmt_credits(collected), fmt_credits(required)) }}></progress>
                                     }.into_any()
                                 }}
@@ -113,6 +115,8 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                         </div>
                         {groups.into_iter().map(|g| {
                             let gname = g.name.clone();
+                            let bar_gname = g.name.clone();
+                            let (gc, gr) = (g.collected_credits, g.required_credits);
                             let done = g.collected_credits >= g.required_credits;
                             view! {
                                 <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3.5 gap-y-1.5 items-center pl-7 sm:pl-[38px] pr-4 sm:pr-[18px] py-2.5 border-t border-zinc-200 bg-zinc-50/70">
@@ -120,7 +124,9 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                                     <div class="text-[13.5px] text-zinc-500 text-right tabular-nums">
                                         <b class="font-semibold text-zinc-900">{fmt_credits(g.collected_credits)}</b>" / "{fmt_credits(g.required_credits)}
                                     </div>
-                                    <progress class={if done { "progress thin ok col-span-2" } else { "progress thin col-span-2" }} max=g.required_credits value=g.collected_credits></progress>
+                                    <progress class={if done { "progress thin ok col-span-2" } else { "progress thin col-span-2" }} max=gr value=gc
+                                        aria-label={move || label(&bar_gname, is_thai.get())}
+                                        aria-valuetext={move || if is_thai.get() { format!("{} จาก {}", fmt_credits(gc), fmt_credits(gr)) } else { format!("{} of {}", fmt_credits(gc), fmt_credits(gr)) }}></progress>
                                 </div>
                             }
                         }).collect::<Vec<_>>()}
