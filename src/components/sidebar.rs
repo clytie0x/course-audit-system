@@ -269,17 +269,17 @@ pub fn Sidebar() -> impl IntoView {
 
             // Selected file
             {move || (!file_name.get().is_empty()).then(|| view! {
-                <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200/60 animate-scale-in">
+                <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-900/50 animate-scale-in">
                     <svg class="w-4 h-4 text-emerald-500 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p class="text-[13px] text-emerald-800 font-medium truncate">{file_name.get()}</p>
+                    <p class="text-[13px] text-emerald-800 dark:text-emerald-300 font-medium truncate">{file_name.get()}</p>
                 </div>
             })}
 
             // Analyze button
             <button
-                class="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 dark:bg-brand-600 dark:hover:bg-brand-500 text-white text-sm font-medium py-2.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] shadow-soft hover:shadow-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                class="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-sm font-medium py-2.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] shadow-soft hover:shadow-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
                 disabled={move || file_name.get().is_empty() || is_loading.get()}
                 on:click=on_start_analysis
             >
@@ -315,15 +315,15 @@ pub fn Sidebar() -> impl IntoView {
                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">{move || if is_thai.get() { "วิธีการใช้งาน" } else { "How it works" }}</h3>
                 <div class="space-y-3">
                     <div class="flex items-start gap-3">
-                        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-brand-600 text-white flex items-center justify-center text-2xs font-bold">"1"</div>
+                        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 flex items-center justify-center text-2xs font-bold">"1"</div>
                         <p class="text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed">{move || if is_thai.get() { "ดาวน์โหลดใบแสดงผลการเรียน PDF จากระบบ SIS" } else { "Download your unofficial transcript PDF from SIS." }}</p>
                     </div>
                     <div class="flex items-start gap-3">
-                        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-brand-600 text-white flex items-center justify-center text-2xs font-bold">"2"</div>
+                        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 flex items-center justify-center text-2xs font-bold">"2"</div>
                         <p class="text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed">{move || if is_thai.get() { "อัปโหลดไฟล์ PDF ผ่านพื้นที่วางไฟล์ด้านบน" } else { "Upload the PDF using the drop zone above." }}</p>
                     </div>
                     <div class="flex items-start gap-3">
-                        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-brand-600 text-white flex items-center justify-center text-2xs font-bold">"3"</div>
+                        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 flex items-center justify-center text-2xs font-bold">"3"</div>
                         <p class="text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed">{move || if is_thai.get() { "คลิก วิเคราะห์ — ทุกอย่างประมวลผลบนเครื่องของคุณเพื่อความเป็นส่วนตัวสูงสุด" } else { "Click Analyze — everything is processed locally for maximum privacy." }}</p>
                     </div>
                 </div>

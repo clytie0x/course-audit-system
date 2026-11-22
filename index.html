@@ -26,11 +26,6 @@
         content="Upload your transcript PDF and instantly audit your academic progress — all processing happens locally in your browser.">
     <meta property="og:type" content="website">
     <title>Course Audit — PSU CS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&family=Prompt:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
     <link data-trunk rel="rust" data-wasm-opt="z" />
     <link data-trunk rel="css" href="style.css" />
     <link data-trunk rel="tailwind-css" href="style.css" />
@@ -57,7 +52,7 @@
         }
 
         body {
-            background-color: #fafafa;
+            background-color: #ffffff;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -93,24 +88,6 @@
 
         .dark ::-webkit-scrollbar-thumb:hover {
             background: #52525b;
-        }
-
-        /* Smooth mesh gradient background */
-        .mesh-bg {
-            background-color: #fafafa;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(220, 60%, 96%, 0.8) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(250, 50%, 96%, 0.6) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, hsla(200, 40%, 96%, 0.5) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        .dark .mesh-bg {
-            background-color: #09090b;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(220, 50%, 14%, 0.7) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(250, 40%, 14%, 0.5) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, hsla(200, 40%, 14%, 0.4) 0px, transparent 50%);
         }
 
         /* Animate progress bars on load */
@@ -197,16 +174,16 @@
         #fatal-error {
             position: fixed; inset: 0; background: rgba(24,24,27,0.85);
             display: none; align-items: center; justify-content: center;
-            padding: 1.5rem; z-index: 9999; font-family: 'Inter','Prompt',sans-serif;
+            padding: 1.5rem; z-index: 9999; font-family: 'Geist','Noto Sans Thai',system-ui,sans-serif;
         }
         #fatal-error[data-open="true"] { display: flex; }
         #fatal-error > div {
             background: white; color: #18181b; max-width: 32rem;
-            border-radius: 1rem; padding: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         #fatal-error h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem; }
         #fatal-error p  { font-size: 0.875rem; color: #52525b; margin: 0 0 0.75rem; line-height: 1.5; }
-        #fatal-error pre { font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 0.5rem; padding: 0.75rem; overflow-x: auto; max-height: 8rem; }
+        #fatal-error pre { font-family: 'Geist Mono',ui-monospace,monospace; font-size: 0.75rem; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 0.5rem; padding: 0.75rem; overflow-x: auto; max-height: 8rem; }
         #fatal-error button { margin-top: 0.75rem; background: #18181b; color: white; border: 0; border-radius: 0.5rem; padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
     </style>
     <script>
@@ -237,6 +214,8 @@
 
     <!-- PDF.js 3.11.174, vendored from pdfjs-dist (same bytes as the cdnjs build) so it works offline -->
     <link data-trunk rel="copy-dir" href="vendor/pdfjs" />
+    <!-- Geist, Geist Mono and Noto Sans Thai (OFL), self-hosted instead of Google Fonts -->
+    <link data-trunk rel="copy-dir" href="vendor/fonts" />
     <!-- Course offerings scraped from SIS by tools/sis-scraper -->
     <link data-trunk rel="copy-dir" href="data/offerings" />
     <script src="pdfjs/pdf.min.js"
@@ -244,7 +223,7 @@
         onerror="(function(){window.__pdfjsCdnFailed=true;})();"></script>
 </head>
 
-<body class="mesh-bg">
+<body>
     <div id="fatal-error" role="alertdialog" aria-live="assertive" aria-labelledby="fatal-error-msg">
         <div>
             <h2 id="fatal-error-msg">Something went wrong.</h2>
@@ -254,7 +233,7 @@
         </div>
     </div>
     <noscript>
-        <div style="text-align:center;padding:4rem;font-family:'Inter','Prompt',sans-serif;color:#18181b;">
+        <div style="text-align:center;padding:4rem;font-family:'Geist','Noto Sans Thai',system-ui,sans-serif;color:#18181b;">
             <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">JavaScript Required</h1>
             <p style="color:#71717a;">This application requires JavaScript and WebAssembly to run.</p>
         </div>
