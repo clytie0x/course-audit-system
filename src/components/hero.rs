@@ -14,7 +14,7 @@ pub fn HeroCard(result: AuditResult) -> impl IntoView {
         <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft p-6 sm:p-8 relative overflow-hidden">
             <div class="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div>
-                    <p class="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-1">{move || if is_thai.get() { "ความคืบหน้าทั้งหมด" } else { "Total Progress" }}</p>
+                    <p class="text-xs font-semibold text-brand-600 dark:text-brand-400 mb-1">{move || if is_thai.get() { "ความคืบหน้าทั้งหมด" } else { "Total Progress" }}</p>
                     <div class="flex items-baseline gap-2">
                         <span class="text-5xl sm:text-6xl font-extrabold tracking-tighter text-zinc-900 dark:text-zinc-100 tabular-nums">
                             {result.total_credits as u32}
@@ -25,7 +25,7 @@ pub fn HeroCard(result: AuditResult) -> impl IntoView {
                 <div class="flex flex-col items-end gap-2 self-start sm:self-auto">
                     {result.gpa.map(|gpa| view! {
                         <div class="flex items-baseline gap-2 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 rounded-lg px-3 py-1.5">
-                            <span class="text-2xs font-semibold uppercase tracking-wider opacity-70">{move || if is_thai.get() { "เกรดเฉลี่ย" } else { "GPA" }}</span>
+                            <span class="text-2xs font-semibold opacity-70">{move || if is_thai.get() { "เกรดเฉลี่ย" } else { "GPA" }}</span>
                             <span class="text-lg font-extrabold tabular-nums">{format!("{:.2}", gpa)}</span>
                         </div>
                     })}

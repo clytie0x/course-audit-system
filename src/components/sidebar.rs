@@ -298,7 +298,7 @@ pub fn Sidebar() -> impl IntoView {
 
             // Curriculum revision (auto-picked from the student ID after analysis)
             <label class="flex flex-col gap-1.5">
-                <span class="text-2xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">{move || if is_thai.get() { "หลักสูตร" } else { "Curriculum" }}</span>
+                <span class="text-2xs font-semibold text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "หลักสูตร" } else { "Curriculum" }}</span>
                 <select
                     class="text-[13px] px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                     prop:value=move || curriculum_id.get()
@@ -312,7 +312,7 @@ pub fn Sidebar() -> impl IntoView {
         // How it works card (only when no file selected)
         {move || preview_url.get().is_none().then(|| view! {
             <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft p-5 animate-fade-in-up">
-                <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">{move || if is_thai.get() { "วิธีการใช้งาน" } else { "How it works" }}</h3>
+                <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-3">{move || if is_thai.get() { "วิธีการใช้งาน" } else { "How it works" }}</h3>
                 <div class="space-y-3">
                     <div class="flex items-start gap-3">
                         <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 flex items-center justify-center text-2xs font-bold">"1"</div>

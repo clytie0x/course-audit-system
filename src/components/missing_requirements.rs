@@ -91,7 +91,7 @@ pub fn MissingRequirements(result: AuditResult) -> impl IntoView {
                             };
                             view! {
                                 <div class="p-5">
-                                    <p class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2.5">{cat_display_name}</p>
+                                    <p class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-2.5">{cat_display_name}</p>
                                     <div class="space-y-1.5">
                                         {display_items.iter().map(|item| {
                                             let desc = item.clone();

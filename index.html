@@ -174,7 +174,7 @@
         #fatal-error {
             position: fixed; inset: 0; background: rgba(24,24,27,0.85);
             display: none; align-items: center; justify-content: center;
-            padding: 1.5rem; z-index: 9999; font-family: 'Geist','Noto Sans Thai',system-ui,sans-serif;
+            padding: 1.5rem; z-index: 9999; font-family: 'Anuphan',system-ui,sans-serif;
         }
         #fatal-error[data-open="true"] { display: flex; }
         #fatal-error > div {
@@ -183,7 +183,7 @@
         }
         #fatal-error h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem; }
         #fatal-error p  { font-size: 0.875rem; color: #52525b; margin: 0 0 0.75rem; line-height: 1.5; }
-        #fatal-error pre { font-family: 'Geist Mono',ui-monospace,monospace; font-size: 0.75rem; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 0.5rem; padding: 0.75rem; overflow-x: auto; max-height: 8rem; }
+        #fatal-error pre { font-family: 'IBM Plex Mono',ui-monospace,monospace; font-size: 0.75rem; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 0.5rem; padding: 0.75rem; overflow-x: auto; max-height: 8rem; }
         #fatal-error button { margin-top: 0.75rem; background: #18181b; color: white; border: 0; border-radius: 0.5rem; padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
     </style>
     <script>
@@ -214,13 +214,12 @@
 
     <!-- PDF.js 3.11.174, vendored from pdfjs-dist (same bytes as the cdnjs build) so it works offline -->
     <link data-trunk rel="copy-dir" href="vendor/pdfjs" />
-    <!-- Geist, Geist Mono and Noto Sans Thai (OFL), self-hosted instead of Google Fonts -->
+    <!-- Anuphan and IBM Plex Mono (OFL), self-hosted instead of Google Fonts -->
     <link data-trunk rel="copy-dir" href="vendor/fonts" />
+    <link rel="preload" href="fonts/anuphan-thai-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/anuphan-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Course offerings scraped from SIS by tools/sis-scraper -->
     <link data-trunk rel="copy-dir" href="data/offerings" />
-    <script src="pdfjs/pdf.min.js"
-        integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
-        onerror="(function(){window.__pdfjsCdnFailed=true;})();"></script>
 </head>
 
 <body>
@@ -233,21 +232,37 @@
         </div>
     </div>
     <noscript>
-        <div style="text-align:center;padding:4rem;font-family:'Geist','Noto Sans Thai',system-ui,sans-serif;color:#18181b;">
+        <div style="text-align:center;padding:4rem;font-family:'Anuphan',system-ui,sans-serif;color:#18181b;">
             <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">JavaScript Required</h1>
             <p style="color:#71717a;">This application requires JavaScript and WebAssembly to run.</p>
         </div>
     </noscript>
     <!-- PDF Text Extraction Helper -->
     <script>
-        if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.js';
+        // pdf.js is loaded on first use so it never blocks the first paint.
+        let pdfJsLoading = null;
+        function loadPdfJs() {
+            if (!pdfJsLoading) {
+                pdfJsLoading = new Promise(function (resolve, reject) {
+                    const s = document.createElement('script');
+                    s.src = 'pdfjs/pdf.min.js';
+                    s.integrity = 'sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ==';
+                    s.onload = function () {
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.js';
+                        resolve();
+                    };
+                    s.onerror = function () {
+                        pdfJsLoading = null;
+                        reject(new Error('PDF.js could not be loaded. Please reload the page.'));
+                    };
+                    document.head.appendChild(s);
+                });
+            }
+            return pdfJsLoading;
         }
 
         window.extractTextFromPDF = async function (arrayBuffer) {
-            if (typeof pdfjsLib === 'undefined' || window.__pdfjsCdnFailed) {
-                throw new Error('PDF.js could not be loaded. Please reload the page.');
-            }
+            await loadPdfJs();
             try {
                 // isEvalSupported: false mitigates CVE-2024-4367 (font eval) in pdf.js < 4.2.67.
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, isEvalSupported: false }).promise;
