@@ -12,6 +12,7 @@ use crate::components::header::Header;
 use crate::components::results::ResultsView;
 use crate::components::sidebar::Sidebar;
 use audit_core::auditor::build_audit;
+use audit_core::data::{curricula, curriculum};
 use audit_core::models::{AuditResult, ParseMode, ParsedCourse};
 
 /// Signals shared by the UI components, provided once by `App` via context.
@@ -41,6 +42,8 @@ pub struct AppState {
     pub set_plan_credit: WriteSignal<f32>,
     pub plan_grade: ReadSignal<String>,
     pub set_plan_grade: WriteSignal<String>,
+    pub curriculum_id: ReadSignal<String>,
+    pub set_curriculum_id: WriteSignal<String>,
     pub save_enabled: ReadSignal<bool>,
     pub set_save_enabled: WriteSignal<bool>,
     pub is_thai: ReadSignal<bool>,
@@ -79,6 +82,8 @@ pub fn App() -> impl IntoView {
     // Persistence — opt-in localStorage of the last audit result (key "audit_v1").
     // Remains off by default to stay privacy-first.
     let (save_enabled, set_save_enabled) = signal(false);
+    // Curriculum revision the audit runs against (see audit_core::data).
+    let (curriculum_id, set_curriculum_id) = signal(curricula()[0].id.clone());
 
     // Try to rehydrate both the toggle and a prior result on mount.
     if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
@@ -110,7 +115,7 @@ pub fn App() -> impl IntoView {
         }
         let mut combined: Vec<ParsedCourse> = parsed;
         combined.extend(planned);
-        let result = build_audit(&combined);
+        let result = build_audit(&combined, curriculum(&curriculum_id.get()));
         if save_enabled.get_untracked() {
             if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok().flatten())
             {
@@ -150,6 +155,8 @@ pub fn App() -> impl IntoView {
         set_plan_credit,
         plan_grade,
         set_plan_grade,
+        curriculum_id,
+        set_curriculum_id,
         save_enabled,
         set_save_enabled,
         is_thai,

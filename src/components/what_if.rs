@@ -38,6 +38,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
             grade,
             parsed_credit: credit,
             semester: Some(String::from("PLAN")),
+            tag: None,
         };
         set_planned_courses.update(|v| v.push(planned));
         set_plan_code.set(String::new());

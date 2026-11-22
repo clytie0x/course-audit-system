@@ -1,8 +1,9 @@
 //! Left sidebar: PDF upload + analysis, how-it-works, save toggle, privacy note.
 
 use crate::pdf::extract_text_from_pdf;
+use audit_core::data::{curricula, curriculum_for_cohort};
 use audit_core::models::ParseMode;
-use audit_core::parser::parse_transcript;
+use audit_core::parser::{detect_cohort, parse_transcript};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use wasm_bindgen::JsCast;
@@ -28,6 +29,8 @@ pub fn Sidebar() -> impl IntoView {
         set_dropped_file,
         parse_mode,
         set_parse_mode,
+        curriculum_id,
+        set_curriculum_id,
         set_parsed_courses,
         set_planned_courses,
         save_enabled,
@@ -171,6 +174,10 @@ pub fn Sidebar() -> impl IntoView {
                         Ok(text_value) => {
                             if let Some(text) = text_value.as_string() {
                                 let (courses, mode) = parse_transcript(&text);
+                                // Pick the curriculum revision from the cohort in the student ID.
+                                if let Some(cohort) = detect_cohort(&text) {
+                                    set_curriculum_id.set(curriculum_for_cohort(cohort).id.clone());
+                                }
                                 set_parse_mode.set(mode);
                                 // Clear any prior planned courses — a fresh PDF should start clean.
                                 set_planned_courses.set(Vec::new());
@@ -277,6 +284,18 @@ pub fn Sidebar() -> impl IntoView {
                     }.into_any()
                 }}
             </button>
+
+            // Curriculum revision (auto-picked from the student ID after analysis)
+            <label class="flex flex-col gap-1.5">
+                <span class="text-2xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">{move || if is_thai.get() { "หลักสูตร" } else { "Curriculum" }}</span>
+                <select
+                    class="text-[13px] px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    prop:value=move || curriculum_id.get()
+                    on:change=move |ev| set_curriculum_id.set(event_target_value(&ev))
+                >
+                    {curricula().iter().map(|c| view! { <option value=c.id.clone()>{c.name.clone()}</option> }).collect::<Vec<_>>()}
+                </select>
+            </label>
         </div>
 
         // How it works card (only when no file selected)
