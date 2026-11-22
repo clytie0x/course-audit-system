@@ -12,55 +12,88 @@
         "id": 1,
         "name": "King's Philosophy and Benefits for Mankind",
         "required_credits": 4.0,
-        "courses": [
+        "selection_rule": "choose_all_sub_groups",
+        "sub_groups": [
           {
-            "code": "003-001",
-            "name": "Volunteer Leader for Sustainable Community Development",
-            "credits": 3.0
-          },
-          {
-            "code": "388-100",
-            "name": "Health for All",
-            "credits": 1.0
+            "name": "Any of",
+            "required_credits": 4.0,
+            "courses": [
+              {
+                "code": "003-001",
+                "name": "Volunteer Leader for Sustainable Community Development",
+                "credits": 3.0
+              },
+              {
+                "code": "388-100",
+                "name": "Health for All",
+                "credits": 1.0
+              },
+              {
+                "code": "001-102",
+                "name": "The King's Philosophy and Sustainable Development",
+                "credits": 2.0
+              },
+              {
+                "code": "315-200",
+                "name": "Benefit of Mankinds",
+                "credits": 1.0
+              }
+            ]
           }
-        ],
-        "selection_rule": "choose_all"
+        ]
       },
       {
         "id": 2,
         "name": "Citizenship and Peaceful Life",
         "required_credits": 5.0,
-        "courses": [
+        "selection_rule": "choose_all_sub_groups",
+        "sub_groups": [
           {
-            "code": "895-001",
-            "name": "Good Citizens",
-            "credits": 2.0
-          },
-          {
-            "code": "895-041",
-            "name": "Ethical Philosophy",
-            "credits": 2.0
-          },
-          {
-            "code": "950-102",
-            "name": "Happy and Peaceful Life",
-            "credits": 3.0
+            "name": "Any of",
+            "required_credits": 5.0,
+            "courses": [
+              {
+                "code": "950-102",
+                "name": "Happy and Peaceful Life",
+                "credits": 3.0
+              },
+              {
+                "code": "895-001",
+                "name": "Good Citizens",
+                "credits": 2.0
+              },
+              {
+                "code": "895-041",
+                "name": "Ethical Philosophy",
+                "credits": 2.0
+              }
+            ]
           }
-        ],
-        "selection_rule": "choose_all"
+        ]
       },
       {
         "id": 3,
         "name": "Entrepreneurship",
         "required_credits": 1.0,
-        "courses": [
+        "selection_rule": "choose_all_sub_groups",
+        "sub_groups": [
           {
-            "code": "460-001",
-            "name": "Idea to Entrepreneurship",
-            "credits": 1.0
+            "name": "Any of",
+            "required_credits": 1.0,
+            "courses": [
+              {
+                "code": "460-001",
+                "name": "Idea to Entrepreneurship",
+                "credits": 1.0
+              },
+              {
+                "code": "001-103",
+                "name": "Idea to Entrepreneurship",
+                "credits": 1.0
+              }
+            ]
           }
-        ],
-        "selection_rule": "choose_all"
+        ]
       },
       {
         "id": 4,
@@ -100,6 +133,11 @@
               {
                 "code": "B03-001",
                 "name": "Get Smart on Cyber Threats",
+                "credits": 2.0
+              },
+              {
+                "code": "345-104",
+                "name": "Digital Technology Literacy (cohorts 2564-2566)",
                 "credits": 2.0
               }
             ]
@@ -248,154 +286,305 @@
         "id": 7,
         "name": "Aesthetics and Sports",
         "required_credits": 2.0,
-        "courses": [
+        "selection_rule": "choose_all_sub_groups",
+        "sub_groups": [
           {
-            "code": "895-861",
-            "name": "The Guitar",
-            "credits": 2.0
-          },
-          {
-            "code": "895-862",
-            "name": "The Ukulele",
-            "credits": 2.0
-          },
-          {
-            "code": "895-863",
-            "name": "The Harmonica",
-            "credits": 2.0
-          },
-          {
-            "code": "895-864",
-            "name": "Western Music",
-            "credits": 2.0
-          },
-          {
-            "code": "895-865",
-            "name": "The Traditional Thai Dulcimer",
-            "credits": 2.0
-          },
-          {
-            "code": "895-866",
-            "name": "Piphat Ensembles",
-            "credits": 2.0
-          },
-          {
-            "code": "895-867",
-            "name": "Creative Music",
-            "credits": 2.0
-          },
-          {
-            "code": "895-868",
-            "name": "ASEAN Music",
-            "credits": 2.0
-          },
-          {
-            "code": "895-833",
-            "name": "Drama and Self-reflection",
-            "credits": 2.0
-          },
-          {
-            "code": "895-834",
-            "name": "Creative Drawing",
-            "credits": 2.0
-          },
-          {
-            "code": "895-843",
-            "name": "Appreciation of the Thai Language",
-            "credits": 2.0
-          },
-          {
-            "code": "315-102",
-            "name": "The Aesthetic in Photography",
-            "credits": 2.0
-          },
-          {
-            "code": "061-001",
-            "name": "Aesthetics of Thai Dance",
-            "credits": 2.0
-          },
-          {
-            "code": "061-002",
-            "name": "Music aesthetics in Life",
-            "credits": 2.0
-          },
-          {
-            "code": "061-003",
-            "name": "Nora for health",
-            "credits": 2.0
-          },
-          {
-            "code": "895-871",
-            "name": "Pétanque",
-            "credits": 2.0
-          },
-          {
-            "code": "895-872",
-            "name": "Takraw",
-            "credits": 2.0
-          },
-          {
-            "code": "895-873",
-            "name": "Futsal",
-            "credits": 2.0
-          },
-          {
-            "code": "895-874",
-            "name": "Social Dance",
-            "credits": 2.0
-          },
-          {
-            "code": "895-875",
-            "name": "Badminton",
-            "credits": 2.0
-          },
-          {
-            "code": "895-876",
-            "name": "Swimming",
-            "credits": 2.0
-          },
-          {
-            "code": "895-877",
-            "name": "Swimming for Lifesaving",
-            "credits": 2.0
-          },
-          {
-            "code": "895-878",
-            "name": "Table Tennis",
-            "credits": 2.0
-          },
-          {
-            "code": "895-879",
-            "name": "Tennis",
-            "credits": 2.0
-          },
-          {
-            "code": "895-880",
-            "name": "Exercise for Health",
-            "credits": 2.0
-          },
-          {
-            "code": "895-881",
-            "name": "Fat to Fit",
-            "credits": 2.0
-          },
-          {
-            "code": "895-882",
-            "name": "Fit and Firm",
-            "credits": 2.0
-          },
-          {
-            "code": "895-883",
-            "name": "Happy Camping",
-            "credits": 2.0
-          },
-          {
-            "code": "895-884",
-            "name": "Basketball",
-            "credits": 2.0
+            "name": "Any of",
+            "required_credits": 2.0,
+            "courses": [
+              {
+                "code": "895-861",
+                "name": "The Guitar",
+                "credits": 2.0
+              },
+              {
+                "code": "895-862",
+                "name": "The Ukulele",
+                "credits": 2.0
+              },
+              {
+                "code": "895-863",
+                "name": "The Harmonica",
+                "credits": 2.0
+              },
+              {
+                "code": "895-864",
+                "name": "Western Music",
+                "credits": 2.0
+              },
+              {
+                "code": "895-865",
+                "name": "The Traditional Thai Dulcimer",
+                "credits": 2.0
+              },
+              {
+                "code": "895-866",
+                "name": "Piphat Ensembles",
+                "credits": 2.0
+              },
+              {
+                "code": "895-867",
+                "name": "Creative Music",
+                "credits": 2.0
+              },
+              {
+                "code": "895-868",
+                "name": "ASEAN Music",
+                "credits": 2.0
+              },
+              {
+                "code": "895-833",
+                "name": "Drama and Self-reflection",
+                "credits": 2.0
+              },
+              {
+                "code": "895-834",
+                "name": "Creative Drawing",
+                "credits": 2.0
+              },
+              {
+                "code": "895-843",
+                "name": "Appreciation of the Thai Language",
+                "credits": 2.0
+              },
+              {
+                "code": "315-102",
+                "name": "The Aesthetic in Photography",
+                "credits": 2.0
+              },
+              {
+                "code": "061-001",
+                "name": "Aesthetics of Thai Dance",
+                "credits": 2.0
+              },
+              {
+                "code": "061-002",
+                "name": "Music aesthetics in Life",
+                "credits": 2.0
+              },
+              {
+                "code": "061-003",
+                "name": "Nora for health",
+                "credits": 2.0
+              },
+              {
+                "code": "895-871",
+                "name": "Pétanque",
+                "credits": 2.0
+              },
+              {
+                "code": "895-872",
+                "name": "Takraw",
+                "credits": 2.0
+              },
+              {
+                "code": "895-873",
+                "name": "Futsal",
+                "credits": 2.0
+              },
+              {
+                "code": "895-874",
+                "name": "Social Dance",
+                "credits": 2.0
+              },
+              {
+                "code": "895-875",
+                "name": "Badminton",
+                "credits": 2.0
+              },
+              {
+                "code": "895-876",
+                "name": "Swimming",
+                "credits": 2.0
+              },
+              {
+                "code": "895-877",
+                "name": "Swimming for Lifesaving",
+                "credits": 2.0
+              },
+              {
+                "code": "895-878",
+                "name": "Table Tennis",
+                "credits": 2.0
+              },
+              {
+                "code": "895-879",
+                "name": "Tennis",
+                "credits": 2.0
+              },
+              {
+                "code": "895-880",
+                "name": "Exercise for Health",
+                "credits": 2.0
+              },
+              {
+                "code": "895-881",
+                "name": "Fat to Fit",
+                "credits": 2.0
+              },
+              {
+                "code": "895-882",
+                "name": "Fit and Firm",
+                "credits": 2.0
+              },
+              {
+                "code": "895-883",
+                "name": "Happy Camping",
+                "credits": 2.0
+              },
+              {
+                "code": "895-884",
+                "name": "Basketball",
+                "credits": 2.0
+              },
+              {
+                "code": "895-020",
+                "name": "Thai Khim",
+                "credits": 1.0
+              },
+              {
+                "code": "895-021",
+                "name": "Singing Playing Dancing",
+                "credits": 1.0
+              },
+              {
+                "code": "895-022",
+                "name": "Rhythm and Song",
+                "credits": 1.0
+              },
+              {
+                "code": "895-023",
+                "name": "Guitar",
+                "credits": 1.0
+              },
+              {
+                "code": "895-024",
+                "name": "Ukulele",
+                "credits": 1.0
+              },
+              {
+                "code": "895-025",
+                "name": "Harmonica",
+                "credits": 1.0
+              },
+              {
+                "code": "895-026",
+                "name": "Drama and Self-reflection",
+                "credits": 1.0
+              },
+              {
+                "code": "895-027",
+                "name": "Appreciation in Thai Language",
+                "credits": 1.0
+              },
+              {
+                "code": "895-028",
+                "name": "Creative Drawing",
+                "credits": 1.0
+              },
+              {
+                "code": "895-030",
+                "name": "Swimming",
+                "credits": 1.0
+              },
+              {
+                "code": "895-031",
+                "name": "Tennis",
+                "credits": 1.0
+              },
+              {
+                "code": "895-032",
+                "name": "Basketball",
+                "credits": 1.0
+              },
+              {
+                "code": "895-033",
+                "name": "Track and Field",
+                "credits": 1.0
+              },
+              {
+                "code": "895-034",
+                "name": "Social Dance",
+                "credits": 1.0
+              },
+              {
+                "code": "895-035",
+                "name": "Petanque",
+                "credits": 1.0
+              },
+              {
+                "code": "895-036",
+                "name": "Camping",
+                "credits": 1.0
+              },
+              {
+                "code": "895-037",
+                "name": "Badminton",
+                "credits": 1.0
+              },
+              {
+                "code": "895-038",
+                "name": "Table Tennis",
+                "credits": 1.0
+              },
+              {
+                "code": "895-039",
+                "name": "Exercise for Health",
+                "credits": 1.0
+              },
+              {
+                "code": "340-162",
+                "name": "The Aesthetic in Photography",
+                "credits": 1.0
+              },
+              {
+                "code": "472-116",
+                "name": "Local Arts and Fabric",
+                "credits": 1.0
+              },
+              {
+                "code": "472-117",
+                "name": "Healthy Life",
+                "credits": 1.0
+              },
+              {
+                "code": "142-135",
+                "name": "Thai Manners",
+                "credits": 1.0
+              },
+              {
+                "code": "142-136",
+                "name": "Sculpture",
+                "credits": 1.0
+              },
+              {
+                "code": "142-137",
+                "name": "Everyone Can Draw",
+                "credits": 1.0
+              },
+              {
+                "code": "142-138",
+                "name": "The Sound of Musics",
+                "credits": 1.0
+              },
+              {
+                "code": "142-139",
+                "name": "Through The World of Art",
+                "credits": 1.0
+              },
+              {
+                "code": "142-234",
+                "name": "Life is Beautiful",
+                "credits": 1.0
+              },
+              {
+                "code": "142-237",
+                "name": "The Designers and Their Black Attires",
+                "credits": 1.0
+              }
+            ]
           }
-        ],
-        "selection_rule": "choose_one"
+        ]
       }
     ],
     "electives": {
