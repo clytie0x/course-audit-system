@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="th" data-font="anuphan">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course Audit mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300..700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai+Looped:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300..700&family=Geist:wght@300..700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --panel-2:#fafafa; --line:#e7e7ea; --line-2:#d9d9de;
+  --text:#18181b; --text-2:#52525b; --text-3:#8a8a93;
+  --accent:#2347c5; --accent-soft:#eef2fe; --accent-text:#1d3aa6;
+  --ok:#15803d; --ok-soft:#eaf7ef; --warn:#b45309; --warn-soft:#fdf4e7; --bad:#b91c1c;
+  --track:#ececef; --shadow:0 1px 2px rgba(16,16,20,.04),0 1px 1px rgba(16,16,20,.03);
+  --radius:12px; --font:"Anuphan","IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+:root[data-theme="dark"]{
+  --bg:#0b0b0d; --panel:#141417; --panel-2:#18181c; --line:#26262b; --line-2:#33333a;
+  --text:#f4f4f5; --text-2:#b4b4bc; --text-3:#7c7c86;
+  --accent:#7d98ff; --accent-soft:#1b2246; --accent-text:#a9bbff;
+  --ok:#4ade80; --ok-soft:#10261a; --warn:#fbbf24; --warn-soft:#2a1f0b; --bad:#f87171;
+  --track:#26262b; --shadow:none;
+}
+:root[data-font="plex"]{--font:"IBM Plex Sans Thai","IBM Plex Sans",system-ui,sans-serif}
+:root[data-font="plex-looped"]{--font:"IBM Plex Sans Thai Looped","IBM Plex Sans",system-ui,sans-serif}
+:root[data-font="noto"]{--font:"Geist","Noto Sans Thai",system-ui,sans-serif}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.mono{font-family:var(--mono);font-size:.86em;letter-spacing:0}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--text-2)}
+.faint{color:var(--text-3)}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15.5px;white-space:nowrap}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--text);color:var(--bg);display:grid;place-items:center}
+.logo svg{width:17px;height:17px}
+.pill{font-size:12.5px;color:var(--text-2);border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--line-2);background:var(--panel-2)}
+.btn:focus-visible,.tab:focus-visible,.icon:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn svg,.icon svg{width:16px;height:16px;flex:none}
+.btn-primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-primary:hover{background:var(--text);opacity:.9}
+.icon{width:36px;height:36px;display:grid;place-items:center;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+.file{display:flex;align-items:center;gap:8px;height:36px;padding:0 6px 0 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:13px;min-width:0}
+.file .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.file .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.file button{white-space:nowrap;height:26px;border:0;border-radius:6px;background:var(--panel-2);padding:0 9px;font-size:12.5px;cursor:pointer;color:var(--text-2)}
+.file button:hover{color:var(--text)}
+
+main{max-width:1200px;margin:0 auto;padding:28px 20px 80px}
+
+/* page head */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px;margin-bottom:22px}
+.head h1{font-size:26px;line-height:1.35;margin:0;font-weight:600}
+.head p{margin:4px 0 0;color:var(--text-2);font-size:14px}
+.head .actions{margin-left:auto;display:flex;gap:8px}
+
+/* status banner */
+.banner{display:flex;gap:12px;align-items:flex-start;border:1px solid color-mix(in srgb,var(--warn) 30%,var(--line));background:var(--warn-soft);border-radius:var(--radius);padding:13px 16px;margin-bottom:18px}
+.banner svg{width:20px;height:20px;color:var(--warn);flex:none;margin-top:2px}
+.banner b{font-weight:600}
+.banner p{margin:0;font-size:14px}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:26px}
+.kpis > :first-child,.kpis > :last-child{grid-column:1/-1}
+@media(min-width:700px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpis > :last-child{grid-column:auto}}
+@media(min-width:1024px){.kpis{grid-template-columns:1.35fr 1fr 1fr 1fr}.kpis > :first-child,.kpis > :last-child{grid-column:auto}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.kpi{padding:16px 18px}
+.kpi .label{font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:6px}
+.kpi .val{font-size:30px;line-height:1.2;font-weight:600;margin:8px 0 10px;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.kpi .val small{font-size:15px;font-weight:500;color:var(--text-3)}
+.kpi .foot{font-size:12.5px;color:var(--text-2)}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;border-radius:999px;padding:1px 9px;white-space:nowrap}
+.tag-ok{background:var(--ok-soft);color:var(--ok)}
+.tag-warn{background:var(--warn-soft);color:var(--warn)}
+.tag-acc{background:var(--accent-soft);color:var(--accent-text)}
+.tag-mut{background:var(--panel-2);color:var(--text-2);border:1px solid var(--line)}
+
+/* progress */
+progress{appearance:none;-webkit-appearance:none;width:100%;height:8px;border:0;border-radius:99px;background:var(--track);overflow:hidden;display:block}
+progress::-webkit-progress-bar{background:var(--track);border-radius:99px}
+progress::-webkit-progress-value{background:var(--accent);border-radius:99px}
+progress::-moz-progress-bar{background:var(--accent);border-radius:99px}
+progress.ok::-webkit-progress-value{background:var(--ok)}
+progress.ok::-moz-progress-bar{background:var(--ok)}
+progress.thin{height:6px}
+.stack{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--track)}
+.stack span{display:block;height:100%}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:22px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{position:relative;border:0;background:none;padding:10px 12px 12px;font-size:14.5px;color:var(--text-2);cursor:pointer;white-space:nowrap;font-weight:500}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;border-radius:2px;background:var(--text)}
+.tab .count{font-size:11.5px;margin-left:6px;padding:0 6px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line);color:var(--text-2)}
+.panel[hidden]{display:none}
+
+/* overview grid */
+.grid-2{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media(min-width:1024px){.grid-2{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}}
+.sec-h{display:flex;align-items:center;gap:10px;padding:16px 18px 6px}
+.sec-h h2{font-size:16px;margin:0;font-weight:600;line-height:1.4}
+.sec-h .sp{flex:1}
+.sec-sub{padding:0 18px 12px;font-size:13px;color:var(--text-2);margin:0}
+
+.req{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:13px 18px;border-top:1px solid var(--line);align-items:center}
+.req .t{font-weight:500;font-size:14.5px;display:flex;align-items:center;gap:8px;min-width:0}
+.req .n{font-size:13.5px;color:var(--text-2);text-align:right}
+.req .n b{color:var(--text);font-weight:600}
+.req .bar{grid-column:1/-1;display:flex;align-items:center;gap:12px}
+.req .bar progress,.req .bar .stack{flex:1}
+.req.sub{padding-left:38px;background:var(--panel-2)}
+.req.sub .t{font-weight:400;font-size:14px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 18px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--text-2)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:0}
+
+.todo{display:flex;gap:12px;padding:13px 18px;border-top:1px solid var(--line);align-items:flex-start}
+.todo .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--warn-soft);color:var(--warn)}
+.todo .ic svg{width:16px;height:16px}
+.todo .t{font-weight:500;font-size:14.5px;line-height:1.5}
+.todo .d{font-size:13px;color:var(--text-2);margin-top:2px}
+.todo .r{margin-left:auto;font-size:13px;color:var(--text-2);white-space:nowrap}
+.link{color:var(--accent-text);text-decoration:none;font-weight:500;font-size:13px}
+.link:hover{text-decoration:underline}
+
+.gpa-chart{display:flex;align-items:flex-end;gap:10px;height:150px;padding:8px 18px 0}
+.gpa-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0}
+.gpa-col .b{width:100%;max-width:34px;border-radius:6px 6px 3px 3px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);position:relative}
+.gpa-col.cur .b{background:var(--accent);border-color:var(--accent)}
+.gpa-col .v{font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-2)}
+.gpa-x{display:flex;gap:10px;padding:6px 18px 16px}
+.gpa-x span{flex:1;text-align:center;font-size:11.5px;color:var(--text-3);white-space:nowrap}
+
+/* tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;font-size:12.5px;color:var(--text-3);padding:9px 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--panel-2);white-space:nowrap}
+td{padding:10px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+.grade{display:inline-grid;place-items:center;min-width:30px;height:24px;border-radius:6px;font-weight:600;font-size:12.5px;background:var(--panel-2);border:1px solid var(--line)}
+.grade.a{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.grade.ip{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+
+details.cat{border-top:1px solid var(--line)}
+details.cat:first-of-type{border-top:0}
+details.cat summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:12px;align-items:center;padding:15px 18px}
+details.cat summary::-webkit-details-marker{display:none}
+details.cat summary .chev{transition:transform .15s;color:var(--text-3)}
+details.cat[open] summary .chev{transform:rotate(90deg)}
+details.cat summary .t{font-weight:600;font-size:15px}
+details.cat summary .sub{font-size:13px;color:var(--text-2);font-weight:400}
+
+/* semesters */
+.terms{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:700px){.terms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1100px){.terms{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.term-h{display:flex;align-items:baseline;gap:8px;padding:14px 16px 10px}
+.term-h b{font-size:15px;font-weight:600}
+.term-h .sp{flex:1}
+.term-row{display:grid;grid-template-columns:66px minmax(0,1fr) 22px 34px;gap:8px;padding:7px 16px;border-top:1px solid var(--line);font-size:13.5px;align-items:center}
+.term-row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* what-if */
+.form{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:4px 18px 16px}
+@media(min-width:760px){.form{grid-template-columns:150px minmax(0,1fr) 90px 90px auto}}
+.field{height:40px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:0 12px;width:100%;font-size:14px}
+.field:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.proj{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.proj div{background:var(--panel);padding:14px 18px}
+.proj .l{font-size:12.5px;color:var(--text-2)}
+.proj .v{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* offerings */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:4px 18px 14px;align-items:center}
+.toolbar .field{width:auto}
+.toolbar .grow{flex:1;min-width:180px}
+.check{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2);cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--text)}
+
+/* empty state */
+.empty{max-width:640px;margin:40px auto 0;text-align:center}
+.empty h1{font-size:30px;line-height:1.35;margin:0 0 8px;font-weight:600}
+.empty > p{color:var(--text-2);margin:0 0 26px;font-size:15.5px}
+.drop{display:block;border:1.5px dashed var(--line-2);border-radius:16px;background:var(--panel);padding:40px 24px;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover{border-color:var(--accent);background:var(--accent-soft)}
+.drop .ic{width:52px;height:52px;margin:0 auto 14px;border-radius:14px;display:grid;place-items:center;background:var(--panel-2);border:1px solid var(--line)}
+.drop .ic svg{width:24px;height:24px;color:var(--text-2)}
+.drop b{display:block;font-size:16px;font-weight:600}
+.drop span{font-size:13.5px;color:var(--text-2)}
+.empty-row{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:34px;text-align:left}
+.step{padding:14px 16px}
+.step .k{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.step b{display:block;font-weight:600;font-size:14.5px;margin:2px 0}
+.step p{margin:0;font-size:13px;color:var(--text-2)}
+.privacy{display:inline-flex;gap:8px;align-items:center;margin-top:22px;font-size:13px;color:var(--text-2)}
+.privacy svg{width:16px;height:16px;color:var(--ok)}
+
+/* mockup controls */
+.mock{position:fixed;right:16px;bottom:16px;z-index:50;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);padding:10px 12px;font-size:12.5px;display:grid;gap:8px;width:250px}
+.mock b{font-weight:600;font-size:12px;color:var(--text-3)}
+.mock .seg{display:flex;flex-wrap:wrap;gap:4px}
+.mock .seg button{border:1px solid var(--line);background:var(--panel-2);border-radius:7px;padding:3px 8px;cursor:pointer;font-size:12px}
+.mock .seg button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.mock.min{width:auto}
+.mock.min > :not(.mock-x){display:none}
+
+/* responsive header */
+@media(max-width:860px){.hide-md{display:none}}
+@media(max-width:600px){
+  .top-in{padding:0 14px;gap:8px}
+  main{padding:20px 14px 90px}
+  .hide-sm{display:none}
+  .file .name{display:none}
+  .head h1{font-size:22px}
+  .kpi{padding:14px}
+  .kpi .val.word{font-size:17px!important}
+  .mock.min > :not(.mock-x){display:none}
+  .head .actions{margin-left:0;width:100%}
+  .head .actions .btn{flex:1;justify-content:center}
+  .kpi .val{font-size:26px}
+  th,td{padding:9px 14px}
+  .req,.todo,.sec-h{padding-left:14px;padding-right:14px}
+  .req.sub{padding-left:28px}
+  .mock{left:14px;right:14px;width:auto}
+  .col-hide-sm{display:none}
+}
+@media print{.top,.mock,.tabs,.head .actions{display:none}.panel[hidden]{display:block}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></div>
+      <span>Course Audit</span>
+    </div>
+    <span class="pill hide-md">วิทยาการคอมพิวเตอร์ · ม.อ.</span>
+    <div class="sp"></div>
+    <div class="file js-has-result">
+      <span class="dot"></span><span class="name">SIS-Grade_Report_TH.pdf</span>
+      <button type="button" data-goto="empty">เปลี่ยนไฟล์</button>
+    </div>
+    <button class="icon hide-sm" type="button" aria-label="สลับภาษา"><span style="font-size:12.5px;font-weight:600">EN</span></button>
+    <button class="icon" type="button" aria-label="สลับธีมมืดและสว่าง" id="themeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ EMPTY STATE ============ -->
+<section id="view-empty" hidden>
+  <div class="empty">
+    <span class="tag tag-acc" style="margin-bottom:14px">หลักสูตร 2564 และ 2569</span>
+    <h1>ตรวจว่าเรียนครบตามหลักสูตรหรือยัง</h1>
+    <p>อัปโหลดใบแสดงผลการเรียนจาก SIS แล้วดูว่าแต่ละหมวดเหลืออีกกี่หน่วยกิต วิชาไหนยังไม่ได้เรียน และเทอมหน้าเปิดอะไรบ้าง</p>
+    <label class="drop" for="pdf">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+      <b>วางไฟล์ PDF ที่นี่ หรือคลิกเพื่อเลือก</b>
+      <span>ใบแสดงผลการเรียนหรือผลการลงทะเบียน ภาษาไทยหรืออังกฤษ</span>
+      <input id="pdf" type="file" accept="application/pdf" hidden>
+    </label>
+    <div class="empty-row">
+      <select class="field" style="width:auto" aria-label="หลักสูตร"><option>ตรวจหลักสูตรอัตโนมัติจากรหัสนักศึกษา</option><option>หลักสูตร 2564 (รหัส 64–68)</option><option>หลักสูตร 2569 (รหัส 69 ขึ้นไป)</option></select>
+      <button class="btn btn-primary" type="button" data-goto="result">วิเคราะห์ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+    </div>
+    <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>ประมวลผลในเบราว์เซอร์ของคุณทั้งหมด ไฟล์ไม่ถูกส่งออกจากเครื่อง</div>
+    <div class="steps">
+      <div class="card step"><span class="k">01</span><b>ดาวน์โหลดจาก SIS</b><p>เมนูผลการเรียน แล้วกดพิมพ์เป็น PDF</p></div>
+      <div class="card step"><span class="k">02</span><b>อัปโหลดที่นี่</b><p>ระบบอ่านรหัสวิชา หน่วยกิต และเกรด</p></div>
+      <div class="card step"><span class="k">03</span><b>ดูสิ่งที่ยังขาด</b><p>พร้อมจำลองแผนเทอมถัดไป</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULT ============ -->
+<section id="view-result">
+  <div class="head">
+    <div>
+      <h1>สรุปผลการตรวจหลักสูตร</h1>
+      <p>วิทยาศาสตรบัณฑิต สาขาวิทยาการคอมพิวเตอร์ · หลักสูตร 2564 · รุ่นรหัส 67</p>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12m0 0-4-4m4 4 4-4M4 20h16"/></svg>ส่งออก JSON</button>
+      <button class="btn" type="button" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>พิมพ์รายงาน</button>
+    </div>
+  </div>
+
+  <div class="banner" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
+    <p><b>ยังไม่ครบตามหลักสูตร เหลืออีก 9 หน่วยกิตในหมวดวิชาเฉพาะ</b><br><span class="muted">หน่วยกิตรวม 138 เกินเกณฑ์ 132 แล้ว แต่ 15 หน่วยกิตที่เกินในหมวดเลือกเสรีนำมานับแทนหมวดอื่นไม่ได้</span></p>
+  </div>
+
+  <div class="kpis">
+    <div class="card kpi">
+      <div class="label">หน่วยกิตที่นับตามหลักสูตร</div>
+      <div class="val">123<small>/ 132</small><span class="sp"></span><span class="tag tag-acc">93%</span></div>
+      <progress value="123" max="132" aria-label="หน่วยกิตที่นับตามหลักสูตร" aria-valuetext="123 จาก 132 หน่วยกิต"></progress>
+      <div class="foot" style="margin-top:8px">เรียนแล้วทั้งหมด <b class="num">138</b> · เกินในเลือกเสรี <span class="num">15</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="label">เกรดเฉลี่ยสะสม</div>
+      <div class="val">3.81</div>
+      <div class="foot"><span class="tag tag-ok">เกียรตินิยมอันดับ 1</span> <span class="faint">ขั้นต่ำ 2.00</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="label">ยังต้องเรียนอีก</div>
+      <div class="val">9<small>หน่วยกิต</small></div>
+      <div class="foot">สหกิจศึกษา 6 และวิชาเลือกเฉพาะ 3</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">สหกิจศึกษา</div>
+      <div class="val word" style="font-size:22px;margin:12px 0 12px">ยังไม่ลงทะเบียน</div>
+      <div class="foot">344-495 · 6 หน่วยกิต</div>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="ส่วนของผลการตรวจ">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-overview" id="t-overview">ภาพรวม</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-courses" id="t-courses">รายวิชา<span class="count num">55</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-terms" id="t-terms">รายเทอม</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-plan" id="t-plan">จำลองแผน</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-offer" id="t-offer">วิชาที่เปิดสอน</button>
+  </div>
+
+  <!-- overview -->
+  <div class="panel" id="p-overview" role="tabpanel" aria-labelledby="t-overview">
+    <div class="grid-2">
+      <div class="card">
+        <div class="sec-h"><h2>ความคืบหน้าตามหมวด</h2><span class="sp"></span><span class="faint" style="font-size:12.5px">หน่วยกิต</span></div>
+        <div class="req">
+          <div class="t">หมวดศึกษาทั่วไป <span class="tag tag-ok">ครบ</span></div>
+          <div class="n num"><b>30</b> / 30</div>
+          <div class="bar"><progress class="ok" value="30" max="30" aria-valuetext="30 จาก 30"></progress></div>
+        </div>
+        <div class="req">
+          <div class="t">หมวดวิชาเฉพาะ <span class="tag tag-warn">ขาด 9</span></div>
+          <div class="n num"><b>87</b> / 96</div>
+          <div class="bar"><progress value="87" max="96" aria-valuetext="87 จาก 96"></progress></div>
+        </div>
+        <div class="req sub"><div class="t">วิทยาศาสตร์พื้นฐาน</div><div class="n num"><b>12</b> / 12</div><div class="bar"><progress class="ok thin" value="12" max="12"></progress></div></div>
+        <div class="req sub"><div class="t">วิชาแกน</div><div class="n num"><b>48</b> / 48</div><div class="bar"><progress class="ok thin" value="48" max="48"></progress></div></div>
+        <div class="req sub"><div class="t">โครงงานและสหกิจ</div><div class="n num"><b>3</b> / 9</div><div class="bar"><progress class="thin" value="3" max="9"></progress></div></div>
+        <div class="req sub"><div class="t">วิชาเลือกเฉพาะ</div><div class="n num"><b>24</b> / 27</div><div class="bar"><progress class="thin" value="24" max="27"></progress></div></div>
+        <div class="req">
+          <div class="t">หมวดเลือกเสรี <span class="tag tag-ok">ครบ</span></div>
+          <div class="n num"><b>21</b> / 6</div>
+          <div class="bar"><div class="stack" role="img" aria-label="นับได้ 6 หน่วยกิต เกิน 15 หน่วยกิต"><span style="width:28.6%;background:var(--ok)"></span><span style="width:71.4%;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ok) 35%,transparent) 0 4px,transparent 4px 8px)"></span></div><span class="tag tag-mut num">เกิน +15</span></div>
+        </div>
+        <div class="legend"><span><i style="background:var(--ok)"></i>ครบแล้ว</span><span><i style="background:var(--accent)"></i>กำลังสะสม</span><span><i style="background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ok) 45%,transparent) 0 3px,transparent 3px 6px)"></i>เกินเกณฑ์ ไม่นับเพิ่ม</span></div>
+      </div>
+
+      <div style="display:grid;gap:16px;align-content:start">
+        <div class="card">
+          <div class="sec-h"><h2>สิ่งที่ต้องทำต่อ</h2><span class="sp"></span><span class="tag tag-warn num">2 รายการ</span></div>
+          <div class="todo">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+            <div><div class="t">สหกิจศึกษา <span class="mono faint">344-495</span></div><div class="d">วิชาบังคับในโครงงานและสหกิจ · เปิดสอน 2/2569</div></div>
+            <div class="r num">6 นก.</div>
+          </div>
+          <div class="todo">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+            <div><div class="t">วิชาเลือกเฉพาะอีก 1 วิชา</div><div class="d">เลือกจาก 9 กลุ่ม เช่น <span class="mono">344-331</span> วิทยาการข้อมูล <span class="mono">344-324</span> ระบบคลาวด์</div><a class="link" href="#" data-tab="t-offer">ดูวิชาที่เปิดเทอมหน้า →</a></div>
+            <div class="r num">3 นก.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-h"><h2>เกรดเฉลี่ยรายเทอม</h2><span class="sp"></span><span class="faint num" style="font-size:12.5px">สูงสุด 4.00</span></div>
+          <div class="gpa-chart" role="img" aria-label="เกรดเฉลี่ยรายเทอม 3.62 3.75 3.90 3.71 3.94 3.88">
+            <div class="gpa-col"><span class="v">3.62</span><div class="b" style="height:76%"></div></div>
+            <div class="gpa-col"><span class="v">3.75</span><div class="b" style="height:82%"></div></div>
+            <div class="gpa-col"><span class="v">3.90</span><div class="b" style="height:88%"></div></div>
+            <div class="gpa-col"><span class="v">3.71</span><div class="b" style="height:80%"></div></div>
+            <div class="gpa-col"><span class="v">3.94</span><div class="b" style="height:90%"></div></div>
+            <div class="gpa-col cur"><span class="v">3.88</span><div class="b" style="height:86%"></div></div>
+          </div>
+          <div class="gpa-x"><span>1/67</span><span>2/67</span><span>3/67</span><span>1/68</span><span>2/68</span><span>1/69</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- courses -->
+  <div class="panel card" id="p-courses" role="tabpanel" aria-labelledby="t-courses" hidden>
+    <details class="cat" open>
+      <summary><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><div><div class="t">หมวดวิชาเฉพาะ</div><div class="sub">วิชาแกน · 48 จาก 48 หน่วยกิต</div></div><span class="tag tag-warn">ขาด 9</span></summary>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>รหัส</th><th>ชื่อวิชา</th><th class="col-hide-sm">เทอม</th><th class="r">นก.</th><th class="r">เกรด</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">322-101</td><td>แคลคูลัส 1</td><td class="col-hide-sm faint num">1/67</td><td class="r num">3</td><td class="r"><span class="grade a">A</span></td></tr>
+          <tr><td class="mono">344-111</td><td>ชุดวิชาแนวคิดการเขียนโปรแกรมและอัลกอริทึม</td><td class="col-hide-sm faint num">1/67</td><td class="r num">6</td><td class="r"><span class="grade a">A</span></td></tr>
+          <tr><td class="mono">344-211</td><td>การเขียนโปรแกรมเชิงวัตถุเบื้องต้น</td><td class="col-hide-sm faint num">1/68</td><td class="r num">2</td><td class="r"><span class="grade">B+</span></td></tr>
+          <tr><td class="mono">344-233</td><td>ชุดวิชาการวิเคราะห์และออกแบบระบบสารสนเทศและหลักการฐานข้อมูล</td><td class="col-hide-sm faint num">1/68</td><td class="r num">6</td><td class="r"><span class="grade a">A</span></td></tr>
+          <tr><td class="mono">344-341</td><td>วิศวกรรมซอฟต์แวร์</td><td class="col-hide-sm faint num">2/68</td><td class="r num">3</td><td class="r"><span class="grade a">A</span></td></tr>
+          <tr><td class="mono">344-361</td><td>หลักการปัญญาประดิษฐ์</td><td class="col-hide-sm faint num">1/69</td><td class="r num">3</td><td class="r"><span class="grade ip">IP</span></td></tr>
+        </tbody>
+      </table></div>
+    </details>
+    <details class="cat">
+      <summary><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><div><div class="t">หมวดศึกษาทั่วไป</div><div class="sub">30 จาก 30 หน่วยกิต</div></div><span class="tag tag-ok">ครบ</span></summary>
+      <div class="tbl-wrap"><table><tbody>
+        <tr><td class="mono">001-102</td><td>ปรัชญาของเศรษฐกิจพอเพียงกับเป้าหมายการพัฒนาที่ยั่งยืน</td><td class="r num">2</td><td class="r"><span class="grade a">A</span></td></tr>
+        <tr><td class="mono">895-001</td><td>พลเมืองดี</td><td class="r num">2</td><td class="r"><span class="grade a">A</span></td></tr>
+      </tbody></table></div>
+    </details>
+    <details class="cat">
+      <summary><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><div><div class="t">หมวดเลือกเสรี</div><div class="sub">21 หน่วยกิต นับได้ 6</div></div><span class="tag tag-mut">เกิน +15</span></summary>
+      <div class="tbl-wrap"><table><tbody>
+        <tr><td class="mono">142-150</td><td>การเขียนโปรแกรมเชิงวัตถุ</td><td class="r num">3</td><td class="r"><span class="grade a">A</span></td></tr>
+      </tbody></table></div>
+    </details>
+  </div>
+
+  <!-- terms -->
+  <div class="panel" id="p-terms" role="tabpanel" aria-labelledby="t-terms" hidden>
+    <div class="terms">
+      <div class="card"><div class="term-h"><b>ภาค 1/2567</b><span class="sp"></span><span class="faint num" style="font-size:13px">19 นก.</span><span class="tag tag-acc num">3.62</span></div>
+        <div class="term-row"><span class="mono">322-101</span><span class="nm">แคลคูลัส 1</span><span class="num faint">3</span><span class="grade a">A</span></div>
+        <div class="term-row"><span class="mono">344-111</span><span class="nm">แนวคิดการเขียนโปรแกรมและอัลกอริทึม</span><span class="num faint">6</span><span class="grade a">A</span></div>
+        <div class="term-row"><span class="mono">332-101</span><span class="nm">ฟิสิกส์พื้นฐาน</span><span class="num faint">3</span><span class="grade">B</span></div>
+      </div>
+      <div class="card"><div class="term-h"><b>ภาค 2/2567</b><span class="sp"></span><span class="faint num" style="font-size:13px">20 นก.</span><span class="tag tag-acc num">3.75</span></div>
+        <div class="term-row"><span class="mono">322-102</span><span class="nm">แคลคูลัส 2</span><span class="num faint">3</span><span class="grade">B+</span></div>
+        <div class="term-row"><span class="mono">344-201</span><span class="nm">การคำนวณสำหรับวิทยาการคอมพิวเตอร์</span><span class="num faint">6</span><span class="grade a">A</span></div>
+      </div>
+      <div class="card"><div class="term-h"><b>ภาค 1/2569</b><span class="sp"></span><span class="tag tag-warn">กำลังเรียน</span></div>
+        <div class="term-row"><span class="mono">344-361</span><span class="nm">หลักการปัญญาประดิษฐ์</span><span class="num faint">3</span><span class="grade ip">IP</span></div>
+        <div class="term-row"><span class="mono">344-492</span><span class="nm">โครงงานวิทยาการคอมพิวเตอร์</span><span class="num faint">3</span><span class="grade ip">IP</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- what-if -->
+  <div class="panel card" id="p-plan" role="tabpanel" aria-labelledby="t-plan" hidden>
+    <div class="sec-h"><h2>จำลองแผนการเรียน</h2></div>
+    <p class="sec-sub">ใส่วิชาที่คิดจะลง แล้วดูว่าครบหลักสูตรหรือยัง และเกรดเฉลี่ยจะเป็นเท่าไร ข้อมูลไม่ถูกบันทึก</p>
+    <form class="form" id="wif">
+      <input class="field mono" placeholder="344-495" aria-label="รหัสวิชา" id="wcode" value="344-495">
+      <input class="field" placeholder="ชื่อวิชา (ไม่บังคับ)" aria-label="ชื่อวิชา" id="wname" value="สหกิจศึกษา">
+      <input class="field num" type="number" min="0" max="12" value="6" aria-label="หน่วยกิต" id="wcr">
+      <select class="field" aria-label="เกรดที่คาด" id="wgr"><option>A</option><option>B+</option><option>B</option><option>C+</option><option>C</option><option>S</option></select>
+      <button class="btn btn-primary" type="submit" style="height:40px;justify-content:center">เพิ่มวิชา</button>
+    </form>
+    <div class="tbl-wrap"><table><thead><tr><th>รหัส</th><th>ชื่อวิชา</th><th class="r">นก.</th><th class="r">เกรด</th><th class="r"></th></tr></thead><tbody id="wlist">
+      <tr><td colspan="5" class="faint" style="text-align:center;padding:22px">ยังไม่มีวิชาในแผน</td></tr>
+    </tbody></table></div>
+    <div class="proj">
+      <div><div class="l">หน่วยกิตที่นับได้</div><div class="v" id="pcr">123 / 132</div></div>
+      <div><div class="l">เกรดเฉลี่ยคาดการณ์</div><div class="v" id="pgpa">3.81</div></div>
+      <div><div class="l">สถานะ</div><div class="v" id="pst" style="font-size:16px;padding-top:4px"><span class="tag tag-warn">ยังไม่ครบ</span></div></div>
+    </div>
+  </div>
+
+  <!-- offerings -->
+  <div class="panel card" id="p-offer" role="tabpanel" aria-labelledby="t-offer" hidden>
+    <div class="sec-h"><h2>วิชาที่เปิดสอน</h2><span class="sp"></span><span class="faint" style="font-size:12.5px">SIS · หาดใหญ่ · อัปเดต 22 พ.ย. 2569</span></div>
+    <div class="toolbar">
+      <select class="field" aria-label="ภาคการศึกษา"><option>2/2569</option><option>1/2569</option><option>3/2568</option></select>
+      <input class="field grow" placeholder="ค้นหารหัสหรือชื่อวิชา" aria-label="ค้นหา" id="q">
+      <label class="check"><input type="checkbox" checked>เฉพาะวิชาที่ยังขาด</label>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>รหัส</th><th>ชื่อวิชา</th><th class="col-hide-sm">หน่วยกิต</th><th class="r">ตอน</th></tr></thead><tbody id="olist">
+      <tr><td class="mono">344-495</td><td>สหกิจศึกษา <span class="tag tag-warn">บังคับ</span></td><td class="col-hide-sm num">6(0-36-0)</td><td class="r num">1</td></tr>
+      <tr><td class="mono">344-324</td><td>ระบบคลาวด์คอมพิวติ้ง</td><td class="col-hide-sm num">3((2)-2-5)</td><td class="r num">2</td></tr>
+      <tr><td class="mono">344-331</td><td>วิทยาการข้อมูล</td><td class="col-hide-sm num">3((2)-2-5)</td><td class="r num">1</td></tr>
+      <tr><td class="mono">344-343</td><td>การออกแบบประสบการณ์ผู้ใช้เบื้องต้น</td><td class="col-hide-sm num">3((2)-2-5)</td><td class="r num">1</td></tr>
+      <tr><td class="mono">344-401</td><td>วิทยาการรหัสลับและความมั่นคง</td><td class="col-hide-sm num">3((3)-0-6)</td><td class="r num">1</td></tr>
+    </tbody></table></div>
+  </div>
+</section>
+</main>
+
+<div class="mock" id="mock" aria-label="ตัวควบคุมสำหรับดู mockup">
+  <button class="mock-x" type="button" style="justify-self:end;border:0;background:none;cursor:pointer;font-size:12px;color:var(--text-2);padding:0" onclick="this.parentElement.classList.toggle('min');this.textContent=this.parentElement.classList.contains('min')?'ตัวเลือก mockup ▴':'ซ่อน ▾'">ซ่อน ▾</button>
+  <b>ฟอนต์</b>
+  <div class="seg" data-group="font">
+    <button data-v="anuphan" aria-pressed="true">Anuphan</button>
+    <button data-v="plex">IBM Plex Thai</button>
+    <button data-v="plex-looped">Plex Looped</button>
+    <button data-v="noto">Geist + Noto (เดิม)</button>
+  </div>
+  <b>หน้าจอ</b>
+  <div class="seg" data-group="view">
+    <button data-v="result" aria-pressed="true">มีผลแล้ว</button>
+    <button data-v="empty">ก่อนอัปโหลด</button>
+  </div>
+</div>
+
+<script>
+const root=document.documentElement;
+document.getElementById('themeBtn').onclick=()=>{root.dataset.theme=root.dataset.theme==='dark'?'':'dark'};
+function setView(v){
+  document.getElementById('view-empty').hidden=v!=='empty';
+  document.getElementById('view-result').hidden=v!=='result';
+  document.querySelectorAll('.js-has-result').forEach(e=>e.style.visibility=v==='result'?'visible':'hidden');
+  document.querySelectorAll('[data-group="view"] button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
+  scrollTo(0,0);
+}
+document.querySelectorAll('.mock .seg').forEach(seg=>seg.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(seg.dataset.group==='font'){root.dataset.font=b.dataset.v;seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));}
+  else setView(b.dataset.v);
+}));
+document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>setView(b.dataset.goto));
+const tabs=[...document.querySelectorAll('.tab')];
+function selectTab(t){tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on;});}
+tabs.forEach((t,i)=>{t.onclick=()=>selectTab(t);t.onkeydown=e=>{const d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(d){const n=tabs[(i+d+tabs.length)%tabs.length];selectTab(n);n.focus();}}});
+document.querySelectorAll('[data-tab]').forEach(a=>a.onclick=e=>{e.preventDefault();selectTab(document.getElementById(a.dataset.tab));});
+
+const pts={A:4,'B+':3.5,B:3,'C+':2.5,C:2}; const plan=[]; const base={cr:123,need:132,gpaPts:3.81*130,gpaCr:130};
+function render(){
+  const body=document.getElementById('wlist');
+  body.innerHTML=plan.length?plan.map((p,i)=>`<tr><td class="mono">${p.code}</td><td>${p.name||'<span class="faint">ไม่ระบุ</span>'}</td><td class="r num">${p.cr}</td><td class="r"><span class="grade">${p.gr}</span></td><td class="r"><button class="btn" style="height:28px;padding:0 9px" data-i="${i}">ลบ</button></td></tr>`).join(''):'<tr><td colspan="5" class="faint" style="text-align:center;padding:22px">ยังไม่มีวิชาในแผน</td></tr>';
+  body.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{plan.splice(+b.dataset.i,1);render();});
+  const cr=Math.min(base.need,base.cr+plan.reduce((s,p)=>s+p.cr,0));
+  let P=base.gpaPts,C=base.gpaCr; plan.forEach(p=>{if(pts[p.gr]!=null){P+=pts[p.gr]*p.cr;C+=p.cr;}});
+  document.getElementById('pcr').textContent=`${cr} / ${base.need}`;
+  document.getElementById('pgpa').textContent=(P/C).toFixed(2);
+  document.getElementById('pst').innerHTML=cr>=base.need?'<span class="tag tag-ok">ครบหลักสูตร</span>':`<span class="tag tag-warn">ขาดอีก ${base.need-cr}</span>`;
+}
+document.getElementById('wif').onsubmit=e=>{e.preventDefault();const code=document.getElementById('wcode').value.trim();if(!code)return;plan.push({code,name:document.getElementById('wname').value.trim(),cr:+document.getElementById('wcr').value||0,gr:document.getElementById('wgr').value});render();};
+document.getElementById('q').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#olist tr').forEach(r=>r.hidden=!r.textContent.toLowerCase().includes(q));};
+</script>
+</body>
+</html>
