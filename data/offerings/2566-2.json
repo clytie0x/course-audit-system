@@ -1,0 +1,1144 @@
+{
+ "term": "2/2566",
+ "campus": "หาดใหญ่",
+ "source": "https://sis.psu.ac.th/explore/subject",
+ "scraped_at": "2026-11-22",
+ "courses": [
+  {
+   "id": "2566200193020249",
+   "code": "322-101",
+   "name_th": "แคลคูลัส 1",
+   "name_en": "CALCULUS I",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 150,
+     "students": "วท(รหัส 60 ขึ้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 150,
+     "students": "วท(รหัส 60 ขึ้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193030249",
+   "code": "322-102",
+   "name_th": "แคลคูลัส 2",
+   "name_en": "CALCULUS II",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 120,
+     "students": "CS1 สถิติ1 ICT กายภาพ(รหัส60ขึ้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 120,
+     "students": "คณิต1 CS1 สถิติ1 ICT กายภาพ(รหัส60ขึ้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "03",
+     "seats": 180,
+     "students": "ฟิสิกส์1 พอลิเมอร์ กายภาพ ICT(รหัส60ขึ้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200238170361",
+   "code": "332-101",
+   "name_th": "ฟิสิกส์พื้นฐาน",
+   "name_en": "FUNDAMENTAL PHYSICS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 120,
+     "students": "MfE,คณะวิทย์ที่ตกค้างจากภาคการศึกษาที่ 1/2565 เท่านั้น",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200062940361",
+   "code": "332-101",
+   "name_th": "ฟิสิกส์พื้นฐาน 1",
+   "name_en": "FUNDAMENTAL PHYSICS I",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "เพื่อการคำนวณ",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200244740361",
+   "code": "333-101",
+   "name_th": "ปฏิบัติการฟิสิกส์พื้นฐาน",
+   "name_en": "FUNDAMENTAL PHYSICS LABORATORY",
+   "credits": 1,
+   "credit_pattern": "1(0-3-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 72,
+     "students": "MfE",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253760249",
+   "code": "344-111",
+   "name_th": "ชุดวิชาการโปรแกรมและขั้นตอนวิธี",
+   "name_en": "MODULE: PROGRAMMING CONCEPTS AND ALGORITHMS",
+   "credits": 6,
+   "credit_pattern": "6((5)-2-11)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 110,
+     "students": "CS1",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200270530249",
+   "code": "344-181",
+   "name_th": "ทักษะการสื่อสารทางเทคเทคโนโลยี",
+   "name_en": "COMMUNICATION SKILL IN TECHNOLOGY",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 92,
+     "students": "CS1",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193670249",
+   "code": "344-211",
+   "name_th": "โครงสร้างข้อมูล",
+   "name_en": "DATA STRUCTURES",
+   "credits": 3,
+   "credit_pattern": "3(2-2-5)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัส 63 ลงมา)(เรียนช่วงวันที่ 18 ธ.ค. 2566 ถึง 26 ม.ค. 2567)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253950249",
+   "code": "344-211",
+   "name_th": "ชุดวิชาการพัฒนาซอฟต์แวร์และฐานข้อมูล",
+   "name_en": "MODULE: SOFTWARE AND DATABASE DEVELOPMENT",
+   "credits": 9,
+   "credit_pattern": "9((6)-6-15)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 85,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200248910249",
+   "code": "344-212",
+   "name_th": "การพัฒนาโปรแกรมประยุกต์บนเว็บ",
+   "name_en": "WEB APPLICATION PROGRAMMING",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 50,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253960249",
+   "code": "344-232",
+   "name_th": "การจัดการความรู้และระบบสนับสนุนการตัดสินใจ",
+   "name_en": "KNOWLEDGE MANAGEMENT AND DECISION SUPPORT SYSTEM",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193640249",
+   "code": "344-241",
+   "name_th": "การเขียนโปรแกรมคอมพิวเตอร์และการแก้ปัญหา",
+   "name_en": "COMPUTER PROGRAMMING AND PROBLEM SOLVING",
+   "credits": 2,
+   "credit_pattern": "2(1-2-3)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "สำหรับนักศึกษารหัสตั้งแต่ 63 ลงมา สำหรับนักศึกษารหัสตั้งแต่ 63 ลงมา (เรียนช่วงวันที่ 20 พ.ย. 2566 ถึง 15 ธ.ค. 2566)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280260249",
+   "code": "344-242",
+   "name_th": "หลักการพัฒนาซอฟต์แวร์ธุรกิจ",
+   "name_en": "PRINCIPLES OF BUSINESS SOFTWARE DEVELOPMENT",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 55,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193580249",
+   "code": "344-251",
+   "name_th": "การออกแบบซอฟต์แวร์เชิงปฏิสัมพันธ์",
+   "name_en": "SOFTWARE INTERACTIVE DESIGN",
+   "credits": 2,
+   "credit_pattern": "2(1-2-3)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัสตั้งแต่ 63 ลงมา)CS(รหัสตั้งแต่ 63 ลงมา)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253800249",
+   "code": "344-261",
+   "name_th": "ปัญญาประดิษฐ์สำหรับทุกคน",
+   "name_en": "ARTIFICIAL INTELLIGENCE FOR EVERYONE",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 60,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280370249",
+   "code": "344-271",
+   "name_th": "การสร้างโมเดลและแอนิเมชัน 3D",
+   "name_en": "3D MODELING AND ANIMATION",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280160249",
+   "code": "344-281",
+   "name_th": "การพูดทางวิทยาการคอมพิวเตอร์ในที่สาธารณะ",
+   "name_en": "PUBLIC SPEAKING IN COMPUTER SCIENCE",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193660249",
+   "code": "344-311",
+   "name_th": "การวิเคราะห์และออกแบบขั้นตอนวิธี",
+   "name_en": "ALGORITHM ANALYSIS AND DESIGN",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัสตั้งแต่ 63 ลงมา)CS(รหัสตั้งแต่ 63 ลงมา)(เรียนช่วงวันที่ 29 ม.ค. 2567 ถึง 23 ก.พ. 2567)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280220249",
+   "code": "344-321",
+   "name_th": "เทคโนโลยีไร้สาย",
+   "name_en": "WIRELESS TECHNOLOGY",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 70,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280230249",
+   "code": "344-322",
+   "name_th": "ระบบฝังตัว",
+   "name_en": "EMBEDDED SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS2",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280250249",
+   "code": "344-324",
+   "name_th": "ระบบประมวลผลแบบกลุ่มเมฆ",
+   "name_en": "CLOUD COMPUTING SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253820249",
+   "code": "344-331",
+   "name_th": "วิทยาการข้อมูล",
+   "name_en": "DATA SCIENCE",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200074810249",
+   "code": "344-331",
+   "name_th": "การวิเคราะห์และออกแบบระบบสารสนเทศ",
+   "name_en": "INFORMATION SYSTEMS ANALYSIS AND DESIGN",
+   "credits": 3,
+   "credit_pattern": "3(2-2-5)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัสตั้งแต่ 63 ลงมา)CS(รหัสตั้งแต่ 63 ลงมา)(เรียนช่วงวันที่ 20 พ.ย. 2566 - 12 ม.ค. 2567)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200248930249",
+   "code": "344-334",
+   "name_th": "ระบบธุรกิจอัจฉริยะ",
+   "name_en": "BUSINESS INTELLIGENT SYSTEM",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253990249",
+   "code": "344-342",
+   "name_th": "เทคนิคการทดสอบซอฟต์แวร์",
+   "name_en": "SOFTWARE TESTING TECHNIQUES",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 33,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200254000249",
+   "code": "344-352",
+   "name_th": "ระบบเครือข่ายคอมพิวเตอร์",
+   "name_en": "COMPUTER NETWORKS SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 36,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200074840249",
+   "code": "344-361",
+   "name_th": "หลักการระบบฐานข้อมูล",
+   "name_en": "PRINCIPLES OF DATABASE SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3(2-2-5)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัสตั้งแต่ 63 ลงมา)CS(รหัสตั้งแต่ 63 ลงมา)(เรียนช่วงวันที่ 22 ม.ค. 2567 - 8 มี.ค. 2567)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280390249",
+   "code": "344-372",
+   "name_th": "การพัฒนาเกมขั้นสูง",
+   "name_en": "ADVANCED GAME DEVELOPMENT",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 50,
+     "students": "CS3",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280180249",
+   "code": "344-381",
+   "name_th": "การคิดและการสร้างสรรค์สำหรับออกแบบนวัตกรรม",
+   "name_en": "THINKING AND CREATIVITY FOR INNOVATION DESIGN",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "CS3",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200280190249",
+   "code": "344-382",
+   "name_th": "จรรยาบรรณสำหรับเทคโนโลยีดิจิทัล",
+   "name_en": "ETHICS FOR DIGITAL TECHNOLOGY",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "CS3",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193610249",
+   "code": "344-391",
+   "name_th": "โครงงานทางวิทยาการคอมพิวเตอร์ 1",
+   "name_en": "PROJECTS IN COMPUTER SCIENCE I",
+   "credits": 1,
+   "credit_pattern": "1(0-3-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "CS(รหัส62 ลงมา)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193620249",
+   "code": "344-392",
+   "name_th": "สัมมนาทางวิทยาการคอมพิวเตอร์",
+   "name_en": "SEMINAR IN COMPUTER SCIENCE",
+   "credits": 1,
+   "credit_pattern": "1(0-2-1)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "CS(รหัส62 ลงมา)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253880249",
+   "code": "344-401",
+   "name_th": "วิทยาการเข้ารหัสลับและความปลอดภัย",
+   "name_en": "CRYPTOGRAPHY AND SECURITY",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200254020249",
+   "code": "344-441",
+   "name_th": "การจัดการโครงการและคุณภาพซอฟต์แวร์",
+   "name_en": "SOFTWARE PROJECT AND QUALITY MANAGEMENT",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 30,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253910249",
+   "code": "344-461",
+   "name_th": "โครงข่ายประสาทและการเรียนรู้เชิงลึก",
+   "name_en": "NEURAL NETWORKS AND DEEP LEARNING",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200253930249",
+   "code": "344-463",
+   "name_th": "อินเทอร์เน็ตของหุ่นยนต์",
+   "name_en": "THE INTERNET OF ROBOTIC THINGS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200075100249",
+   "code": "344-491",
+   "name_th": "โครงงานทางวิทยาการคอมพิวเตอร์ 2",
+   "name_en": "PROJECT IN COMPUTER SCIENCE II",
+   "credits": 2,
+   "credit_pattern": "2(0-6-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "CS(รหัส 62 ลงมา)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200148650249",
+   "code": "344-492",
+   "name_th": "โครงงานทางวิทยาการคอมพิวเตอร์",
+   "name_en": "PROJECTS IN COMPUTER SCIENCE",
+   "credits": 3,
+   "credit_pattern": "3(0-9-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 60,
+     "students": "CS(รหัส 62 ลงมา)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200193600249",
+   "code": "344-493",
+   "name_th": "การประมวลและทดสอบความรอบรู้ สำหรับนักวิทยาการคอมพิวเตอร์",
+   "name_en": "COMPREHENSIVE REVIEW AND TEST FOR COMPUTER SCIENTISTS",
+   "credits": 1,
+   "credit_pattern": "1(0-2-1)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "4CS",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200194000249",
+   "code": "344-495",
+   "name_th": "สหกิจศึกษา",
+   "name_en": "COOPERATIVE EDUCATION",
+   "credits": 6,
+   "credit_pattern": "6(0-18-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 60,
+     "students": "4CS",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200267710249",
+   "code": "344-512",
+   "name_th": "ชุดวิชาการออกแบบวิเคราะห์ขั้นตอนวิธีและการประยุกต์",
+   "name_en": "MODULE: DESIGN AND ANALYSIS OF ALGORITHMS AND APPLICATIONS",
+   "credits": 6,
+   "credit_pattern": "6((4)-4-10)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 10,
+     "students": "GCOM1",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200268100249",
+   "code": "344-551",
+   "name_th": "ชุดวิชาระบบฐานข้อมูลและเทคโนโลยี",
+   "name_en": "MODULE: DATABASE SYSTEMS AND TECHNOLOGY",
+   "credits": 6,
+   "credit_pattern": "6((4)-4-10)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "GCOM",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200271130249",
+   "code": "344-601",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 18,
+   "credit_pattern": "18(0-54-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "03",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "04",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200111030249",
+   "code": "344-601",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 18,
+   "credit_pattern": "18(0-54-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2560 ใช้กับนักศึกษารหัส 60-63)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "03",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2560 ใช้กับนักศึกษารหัส 60-63)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200108980249",
+   "code": "344-602",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 36,
+   "credit_pattern": "36(0-108-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.โท",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 999,
+     "students": "ป.โท",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200162020249",
+   "code": "344-901",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 36,
+   "credit_pattern": "36(0-108-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.เอก",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "03",
+     "seats": 999,
+     "students": "ป.เอก",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "04",
+     "seats": 999,
+     "students": "ป.เอก",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200162090249",
+   "code": "344-991",
+   "name_th": "สัมมนาวิทยานิพนธ์ 5",
+   "name_en": "THESIS SEMINAR V",
+   "credits": 1,
+   "credit_pattern": "1(0-2-1)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.เอก ปี3",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2566200270540249",
+   "code": "345-101",
+   "name_th": "เริ่มต้นกับไพทอน",
+   "name_en": "GETTING STARTED WITH PYTHON",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "ทั่วไป",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  }
+ ]
+}

@@ -244,14 +244,15 @@ pub fn OfferingsPanel() -> impl IntoView {
                                                                 </button>
                                                             </div>
                                                             <div class="font-mono">
+                                                                {times.is_empty().then(|| view! { <span class="text-zinc-400">{move || t("ยังไม่มีตารางเรียน", "No schedule yet")}</span> })}
                                                                 {times.into_iter().map(|(day, txt)| view! {
                                                                     <span class="mr-3">{move || if is_thai.get() { DAYS_TH[day as usize % 8] } else { DAYS_EN[day as usize % 8] }}" "{txt.clone()}</span>
                                                                 }).collect::<Vec<_>>()}
                                                             </div>
                                                             <div class="text-zinc-500">{teachers}</div>
                                                             <div class="text-zinc-500">
-                                                                {s.midterm.clone().map(|m| format!("กลางภาค {m}"))}
-                                                                {s.final_exam.clone().map(|m| format!(" · ปลายภาค {m}"))}
+                                                                {s.midterm.clone().filter(|m| m != "-").map(|m| format!("กลางภาค {m}"))}
+                                                                {s.final_exam.clone().filter(|m| m != "-").map(|m| format!(" · ปลายภาค {m}"))}
                                                             </div>
                                                         </div>
                                                     }
