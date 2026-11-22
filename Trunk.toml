@@ -1,4 +1,9 @@
-# Trunk build config. CI overrides `--public-url` via the deploy workflow.
+# Trunk build config. Pass `--public-url /course-audit-system/` for GitHub Pages builds.
+
+# The styles use Tailwind v3 (tailwind.config.js + @tailwind directives);
+# Trunk 0.22 downloads v4 by default, which silently drops most classes.
+[tools]
+tailwindcss = "3.4.17"
 
 [build]
 target = "index.html"
