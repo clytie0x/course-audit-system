@@ -295,6 +295,7 @@ dependencies = [
  "js-sys",
  "leptos",
  "leptos_meta",
+ "serde",
  "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-futures",

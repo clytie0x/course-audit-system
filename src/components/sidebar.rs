@@ -31,6 +31,7 @@ pub fn Sidebar() -> impl IntoView {
         set_parse_mode,
         curriculum_id,
         set_curriculum_id,
+        parsed_courses,
         set_parsed_courses,
         set_planned_courses,
         save_enabled,
@@ -46,7 +47,13 @@ pub fn Sidebar() -> impl IntoView {
             if !new_val {
                 let _ = storage.remove_item("audit_v1");
                 let _ = storage.remove_item("audit_mode_v1");
+                let _ = storage.remove_item("audit_parsed_v1");
+                let _ = storage.remove_item("audit_curriculum_v1");
             } else if let Some(result) = audit_result.get_untracked() {
+                if let Ok(json) = serde_json::to_string(&parsed_courses.get_untracked()) {
+                    let _ = storage.set_item("audit_parsed_v1", &json);
+                }
+                let _ = storage.set_item("audit_curriculum_v1", &curriculum_id.get_untracked());
                 if let Ok(json) = serde_json::to_string(&result) {
                     let _ = storage.set_item("audit_v1", &json);
                 }

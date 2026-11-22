@@ -1,0 +1,1459 @@
+{
+ "term": "2/2568",
+ "campus": "หาดใหญ่",
+ "source": "https://sis.psu.ac.th/explore/subject",
+ "scraped_at": "2026-11-22",
+ "courses": [
+  {
+   "id": "2568200193020249",
+   "code": "322-101",
+   "name_th": "แคลคูลัส 1",
+   "name_en": "CALCULUS I",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 150,
+     "students": "วท(รหัส 60 ขึ้นไป)",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "L4",
+       "teachers": "อมรรัตน์ รัตนะ"
+      },
+      {
+       "day": 3,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "L3",
+       "teachers": "อมรรัตน์ รัตนะ"
+      }
+     ],
+     "midterm": "29 ม.ค. 2569 09:00–12:00",
+     "final": "23 มี.ค. 2569 09:00–12:00"
+    },
+    {
+     "section": "02",
+     "seats": 150,
+     "students": "วท(รหัส 60 ขึ้นไป)",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "L4",
+       "teachers": "มนทกานติ เพชรอภิรักษ์"
+      },
+      {
+       "day": 5,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "L3",
+       "teachers": "มนทกานติ เพชรอภิรักษ์"
+      }
+     ],
+     "midterm": "29 ม.ค. 2569 09:00–12:00",
+     "final": "23 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200000910257",
+   "code": "322-101",
+   "name_th": "CALCULUS I",
+   "name_en": "CALCULUS I",
+   "credits": 3,
+   "credit_pattern": "3(3-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "-",
+   "fee": "1,500.00 บาท",
+   "sections": [
+    {
+     "section": "01",
+     "seats": 250,
+     "students": "นักเรียน ม.ปลาย",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 250,
+     "students": "นักเรียน ม.ปลาย",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200193030249",
+   "code": "322-102",
+   "name_th": "แคลคูลัส 2",
+   "name_en": "CALCULUS II",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 150,
+     "students": "CS1 สถิติ1 ICT กายภาพ(รหัส60ขึ้นไป)",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "L2",
+       "teachers": "พริม พลันสังเกตุ"
+      },
+      {
+       "day": 2,
+       "start": "08:00",
+       "end": "09:50",
+       "room": "NML1",
+       "teachers": "พริม พลันสังเกตุ"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 13:30–16:30",
+     "final": "26 มี.ค. 2569 09:00–12:00"
+    },
+    {
+     "section": "02",
+     "seats": 150,
+     "students": "CS1 สถิติ1 ICT กายภาพ(รหัส60ขึ้นไป)",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "08:00",
+       "end": "09:50",
+       "room": "L1",
+       "teachers": "ชุติพร จิโรจน์กุล"
+      },
+      {
+       "day": 4,
+       "start": "10:00",
+       "end": "11:50",
+       "room": "L1",
+       "teachers": "ชุติพร จิโรจน์กุล"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 13:30–16:30",
+     "final": "26 มี.ค. 2569 09:00–12:00"
+    },
+    {
+     "section": "03",
+     "seats": 121,
+     "students": "คณิต1 CS1 สถิติ1 ICT กายภาพ(รหัส60ขึ้นไป)",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "CS201",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      },
+      {
+       "day": 2,
+       "start": "08:00",
+       "end": "09:50",
+       "room": "L2",
+       "teachers": "ยูซุฟ เจะบ่าว"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 13:30–16:30",
+     "final": "26 มี.ค. 2569 09:00–12:00"
+    },
+    {
+     "section": "04",
+     "seats": 180,
+     "students": "ฟิสิกส์1 พอลิเมอร์ กายภาพ ICT(รหัส60ขึ้นไป)",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "08:00",
+       "end": "09:50",
+       "room": "L4",
+       "teachers": "พริม พลันสังเกตุ"
+      },
+      {
+       "day": 4,
+       "start": "08:00",
+       "end": "09:50",
+       "room": "L2",
+       "teachers": "พริม พลันสังเกตุ"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 13:30–16:30",
+     "final": "26 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200058490361",
+   "code": "325-101",
+   "name_th": "ปฏิบัติการเคมีทั่วไป 1",
+   "name_en": "GENERAL CHEMISTRY LABORATORY I",
+   "credits": 1,
+   "credit_pattern": "1(0-3-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 70,
+     "students": "สถิติ1",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0903(LAB)",
+       "teachers": "อุไรวรรณ ศิริมหาชัย, อัจฉรา ลอแม"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 70,
+     "students": "CS1",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0903(LAB)",
+       "teachers": "อุไรวรรณ ศิริมหาชัย, มรกต แก้วเพชร, ธีรเดช เสนาสุ"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "03",
+     "seats": 70,
+     "students": "ICT 1",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0903(LAB)",
+       "teachers": "อุไรวรรณ ศิริมหาชัย, ขวัญฤทัย ธาตุเพ็ชร, สุพรรณี ดวงทอง"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "04",
+     "seats": 70,
+     "students": "MATH 1",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0903(LAB)",
+       "teachers": "อุไรวรรณ ศิริมหาชัย, อาภรณ์ นุ่มน่วม, สัณฐิศักดิ์ ขุมเงิน"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200238170361",
+   "code": "332-101",
+   "name_th": "ฟิสิกส์พื้นฐาน",
+   "name_en": "FUNDAMENTAL PHYSICS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 120,
+     "students": "1MfE,คณะวิทย์",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "08:00",
+       "end": "09:20",
+       "room": "L3",
+       "teachers": "คมฤทธิ์ วัฒนวาที, กริษณุ ทิวากรศศิธร"
+      },
+      {
+       "day": 4,
+       "start": "08:00",
+       "end": "09:20",
+       "room": "L3",
+       "teachers": "คมฤทธิ์ วัฒนวาที, กริษณุ ทิวากรศศิธร"
+      }
+     ],
+     "midterm": "28 ม.ค. 2569 13:30–16:30",
+     "final": "02 เม.ย. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200244740361",
+   "code": "333-101",
+   "name_th": "ปฏิบัติการฟิสิกส์พื้นฐาน",
+   "name_en": "FUNDAMENTAL PHYSICS LABORATORY",
+   "credits": 1,
+   "credit_pattern": "1(0-3-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์กายภาพ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 72,
+     "students": "MfE",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0705(LAB)",
+       "teachers": "คมฤทธิ์ วัฒนวาที"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253760249",
+   "code": "344-111",
+   "name_th": "ชุดวิชาการโปรแกรมและขั้นตอนวิธี",
+   "name_en": "MODULE: PROGRAMMING CONCEPTS AND ALGORITHMS",
+   "credits": 6,
+   "credit_pattern": "6((5)-2-11)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 110,
+     "students": "CS1",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "CS201, BSc0603(LAB)",
+       "teachers": "จรรยา สายนุ้ย, เชาวนี ศรีวิศาล"
+      },
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "CS201, BSc0603(LAB)",
+       "teachers": "จรรยา สายนุ้ย, เชาวนี ศรีวิศาล"
+      },
+      {
+       "day": 5,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "CS201, BSc0603(LAB)",
+       "teachers": "จรรยา สายนุ้ย, เชาวนี ศรีวิศาล"
+      }
+     ],
+     "midterm": "29 ม.ค. 2569 09:00–12:00",
+     "final": "24 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200270530249",
+   "code": "344-181",
+   "name_th": "ทักษะการสื่อสารทางเทคเทคโนโลยี",
+   "name_en": "COMMUNICATION SKILL IN TECHNOLOGY",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 95,
+     "students": "CS1",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "CS201",
+       "teachers": "จรรยา สายนุ้ย"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200290710249",
+   "code": "344-211",
+   "name_th": "การโปรแกรมเชิงวัตถุเบื้องต้น",
+   "name_en": "INTRODUCTION TO OBJECT-ORIENTED PROGRAMMING",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 95,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0605(LAB)",
+       "teachers": "นิธิ ทะนนท์"
+      }
+     ],
+     "midterm": "01 ก.พ. 2569 09:00–11:00",
+     "final": "27 มี.ค. 2569 13:30–15:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200248910249",
+   "code": "344-212",
+   "name_th": "การพัฒนาโปรแกรมประยุกต์บนเว็บ",
+   "name_en": "WEB APPLICATION PROGRAMMING",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 71,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "สมศรี จารุผดุง"
+      }
+     ],
+     "midterm": "01 ก.พ. 2569 13:30–16:30",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200275120249",
+   "code": "344-223",
+   "name_th": "พื้นฐานทางความปลอดภัยคอมพิวเตอร์",
+   "name_en": "FUNDAMENTALS OF COMPUTER SECURITY",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 86,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0604(LAB)",
+       "teachers": "สมภพ ลิ้มสุนทรากูล"
+      }
+     ],
+     "midterm": "-",
+     "final": "23 มี.ค. 2569 09:00–11:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253960249",
+   "code": "344-232",
+   "name_th": "การจัดการความรู้และระบบสนับสนุนการตัดสินใจ",
+   "name_en": "KNOWLEDGE MANAGEMENT AND DECISION SUPPORT SYSTEM",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 45,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "พรรณนิภา แซ่อึ้ง"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 09:00–12:00",
+     "final": "29 มี.ค. 2569 13:30–16:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200290730249",
+   "code": "344-233",
+   "name_th": "ชุดวิชาการวิเคราะห์และออกแบบระบบ สารสนเทศและหลักการระบบฐานข้อมูล",
+   "name_en": "MODULE: INFORMATION SYSTEMS ANALYSIS AND DESIGN AND PRINCIPLES OF DATABASE SYSTEMS",
+   "credits": 6,
+   "credit_pattern": "6((4)-4-10)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 50,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0605(LAB)",
+       "teachers": "วรารัตน์ จักรหวัด, สุนิดา รัตโนทยานนท์"
+      },
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "CS201",
+       "teachers": "วรารัตน์ จักรหวัด, สุนิดา รัตโนทยานนท์"
+      }
+     ],
+     "midterm": "29 ม.ค. 2569 13:30–16:30",
+     "final": "29 มี.ค. 2569 09:00–12:00"
+    },
+    {
+     "section": "02",
+     "seats": 50,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "15:00",
+       "end": "17:50",
+       "room": "CS203",
+       "teachers": "วรารัตน์ จักรหวัด, สุนิดา รัตโนทยานนท์, สมศรี จารุผดุง"
+      },
+      {
+       "day": 1,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "วรารัตน์ จักรหวัด, สุนิดา รัตโนทยานนท์, สมศรี จารุผดุง"
+      }
+     ],
+     "midterm": "29 ม.ค. 2569 13:30–16:30",
+     "final": "29 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280260249",
+   "code": "344-242",
+   "name_th": "หลักการพัฒนาซอฟต์แวร์ธุรกิจ",
+   "name_en": "PRINCIPLES OF BUSINESS SOFTWARE DEVELOPMENT",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 55,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0605(LAB)",
+       "teachers": "สุนิดา รัตโนทยานนท์"
+      }
+     ],
+     "midterm": "25 ม.ค. 2569 09:00–12:00",
+     "final": "24 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200290720249",
+   "code": "344-243",
+   "name_th": "การออกแบบซอฟแวร์เชิงปฏิสัมพันธ์",
+   "name_en": "SOFTWARE INTERACTIVE DESIGN",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 54,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "11:00",
+       "end": "11:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "พรรณนิภา แซ่อึ้ง"
+      }
+     ],
+     "midterm": "26 ม.ค. 2569 09:00–10:00",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 45,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "11:00",
+       "end": "11:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "พรรณนิภา แซ่อึ้ง"
+      }
+     ],
+     "midterm": "26 ม.ค. 2569 09:00–10:00",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253800249",
+   "code": "344-261",
+   "name_th": "ปัญญาประดิษฐ์สำหรับทุกคน",
+   "name_en": "ARTIFICIAL INTELLIGENCE FOR EVERYONE",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 64,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "จารุณี ดวงสุวรรณ, วรรณิภา ปัญญาศุภกุล"
+      }
+     ],
+     "midterm": "28 ม.ค. 2569 09:00–12:00",
+     "final": "31 มี.ค. 2569 13:30–16:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280160249",
+   "code": "344-281",
+   "name_th": "การพูดทางวิทยาการคอมพิวเตอร์ในที่สาธารณะ",
+   "name_en": "PUBLIC SPEAKING IN COMPUTER SCIENCE",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 90,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0605(LAB)",
+       "teachers": "เชาวนี ศรีวิศาล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280220249",
+   "code": "344-321",
+   "name_th": "เทคโนโลยีไร้สาย",
+   "name_en": "WIRELESS TECHNOLOGY",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 70,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "ชินพงศ์ อังสุโชติเมธี"
+      }
+     ],
+     "midterm": "-",
+     "final": "25 มี.ค. 2569 13:30–16:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280230249",
+   "code": "344-322",
+   "name_th": "ระบบฝังตัว",
+   "name_en": "EMBEDDED SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 50,
+     "students": "CS2",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0605(LAB)",
+       "teachers": "ภัทร อัยรักษ์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280250249",
+   "code": "344-324",
+   "name_th": "ระบบประมวลผลแบบกลุ่มเมฆ",
+   "name_en": "CLOUD COMPUTING SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "สมภพ ลิ้มสุนทรากูล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253820249",
+   "code": "344-331",
+   "name_th": "วิทยาการข้อมูล",
+   "name_en": "DATA SCIENCE",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 44,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0605(LAB)",
+       "teachers": "จรรยา สายนุ้ย"
+      }
+     ],
+     "midterm": "-",
+     "final": "29 มี.ค. 2569 13:30–16:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200248930249",
+   "code": "344-334",
+   "name_th": "ระบบธุรกิจอัจฉริยะ",
+   "name_en": "BUSINESS INTELLIGENT SYSTEM",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 50,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "ศิริรัตน์ วณิชโยบล"
+      }
+     ],
+     "midterm": "28 ม.ค. 2569 09:00–12:00",
+     "final": "01 เม.ย. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253990249",
+   "code": "344-342",
+   "name_th": "เทคนิคการทดสอบซอฟต์แวร์",
+   "name_en": "SOFTWARE TESTING TECHNIQUES",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 33,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "CS205(LAB)",
+       "teachers": "สุภาภรณ์ กานต์สมเกียรติ"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 13:30–16:30",
+     "final": "22 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200254000249",
+   "code": "344-352",
+   "name_th": "ระบบเครือข่ายคอมพิวเตอร์",
+   "name_en": "COMPUTER NETWORKS SYSTEMS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 48,
+     "students": "CS3,4 (ไม่รับนักศึกษาสาขาอื่น)",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "นิธิ ทะนนท์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253870249",
+   "code": "344-374",
+   "name_th": "การประมวลผลภาพเชิงดิจิทัลชั้นสูง",
+   "name_en": "ADVANCED DIGITAL IMAGE PROCESSING",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "สาธิต อินทจักร์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280180249",
+   "code": "344-381",
+   "name_th": "การคิดและการสร้างสรรค์สำหรับออกแบบนวัตกรรม",
+   "name_en": "THINKING AND CREATIVITY FOR INNOVATION DESIGN",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 86,
+     "students": "CS3",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0604(LAB)",
+       "teachers": "ภัทร อัยรักษ์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280190249",
+   "code": "344-382",
+   "name_th": "จรรยาบรรณสำหรับเทคโนโลยีดิจิทัล",
+   "name_en": "ETHICS FOR DIGITAL TECHNOLOGY",
+   "credits": 1,
+   "credit_pattern": "1((1)-0-2)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 86,
+     "students": "CS3",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "15:00",
+       "end": "15:50",
+       "room": "BSc0604(LAB)",
+       "teachers": "ภัทร อัยรักษ์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253880249",
+   "code": "344-401",
+   "name_th": "วิทยาการเข้ารหัสลับและความปลอดภัย",
+   "name_en": "CRYPTOGRAPHY AND SECURITY",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 41,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 4,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "เพ็ญณี หวังเมธีกุล"
+      }
+     ],
+     "midterm": "-",
+     "final": "28 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280320249",
+   "code": "344-433",
+   "name_th": "การบริหารและบำรุงรักษาฐานข้อมูล",
+   "name_en": "DATABASE ADMINISTRATION AND MAINTENANCE",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 3,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "วรารัตน์ จักรหวัด"
+      }
+     ],
+     "midterm": "27 ม.ค. 2569 09:00–12:00",
+     "final": "24 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253910249",
+   "code": "344-461",
+   "name_th": "โครงข่ายประสาทและการเรียนรู้เชิงลึก",
+   "name_en": "NEURAL NETWORKS AND DEEP LEARNING",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "BSc0606(LAB)",
+       "teachers": "จารุณี ดวงสุวรรณ, วรรณิภา ปัญญาศุภกุล"
+      }
+     ],
+     "midterm": "-",
+     "final": "26 มี.ค. 2569 09:00–12:00"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200253930249",
+   "code": "344-463",
+   "name_th": "อินเทอร์เน็ตของหุ่นยนต์",
+   "name_en": "THE INTERNET OF ROBOTIC THINGS",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 40,
+     "students": "CS3,4",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "09:00",
+       "end": "10:50",
+       "room": "CS205(LAB)",
+       "teachers": "สมภพ ลิ้มสุนทรากูล"
+      }
+     ],
+     "midterm": "-",
+     "final": "23 มี.ค. 2569 13:30–16:30"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200148650249",
+   "code": "344-492",
+   "name_th": "โครงงานทางวิทยาการคอมพิวเตอร์",
+   "name_en": "PROJECTS IN COMPUTER SCIENCE",
+   "credits": 3,
+   "credit_pattern": "3(0-9-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 60,
+     "students": "CS4",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "15:00",
+       "end": "17:50",
+       "room": "CS105(LAB)",
+       "teachers": "นิธิ ทะนนท์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200280200249",
+   "code": "344-495",
+   "name_th": "สหกิจศึกษา",
+   "name_en": "COOPERATIVE EDUCATION",
+   "credits": 6,
+   "credit_pattern": "6(0-40-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 60,
+     "students": "CS4",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "CS205(LAB)",
+       "teachers": "จรรยา สายนุ้ย, สมภพ ลิ้มสุนทรากูล, เชาวนี ศรีวิศาล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200292420249",
+   "code": "344-496",
+   "name_th": "หัวข้อพิเศษทางวิทยาการคอมพิวเตอร์ 1 (การทดสอบการเจาะระบบเบื้องต้น)",
+   "name_en": "SPECIAL TOPICS IN COMPUTER SCIENCE I (INTRODUCTION TO PENETRATION TESTING)",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 50,
+     "students": "CS/ICT2,3,4",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "ONLINE",
+       "teachers": "ชินพงศ์ อังสุโชติเมธี"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200267710249",
+   "code": "344-512",
+   "name_th": "ชุดวิชาการออกแบบวิเคราะห์ขั้นตอนวิธีและการประยุกต์",
+   "name_en": "MODULE: DESIGN AND ANALYSIS OF ALGORITHMS AND APPLICATIONS",
+   "credits": 6,
+   "credit_pattern": "6((4)-4-10)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 10,
+     "students": "GCOM1",
+     "meetings": [
+      {
+       "day": 1,
+       "start": "08:30",
+       "end": "11:50",
+       "room": "CS204",
+       "teachers": "ศิริรัตน์ วณิชโยบล, เพ็ญณี หวังเมธีกุล"
+      },
+      {
+       "day": 3,
+       "start": "08:30",
+       "end": "11:50",
+       "room": "CS204",
+       "teachers": "ศิริรัตน์ วณิชโยบล, เพ็ญณี หวังเมธีกุล"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200268010249",
+   "code": "344-525",
+   "name_th": "ชุดวิชาการมองเห็นของคอมพิวเตอร์ด้วยการเรียนรู้ ของเครื่องเชิงสถิติ",
+   "name_en": "MODULE: COMPUTER VISION WITH STATISTICAL MACHINE LEARNING",
+   "credits": 6,
+   "credit_pattern": "6((4)-4-10)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 10,
+     "students": "GCOM1",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "CS204",
+       "teachers": "สาธิต อินทจักร์"
+      },
+      {
+       "day": 3,
+       "start": "13:00",
+       "end": "15:50",
+       "room": "CS204",
+       "teachers": "สาธิต อินทจักร์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200261260249",
+   "code": "344-561",
+   "name_th": "ระเบียบวิธีวิจัย",
+   "name_en": "RESEARCH METHODOLOGY",
+   "credits": 3,
+   "credit_pattern": "3((3)-0-6)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 10,
+     "students": "GCOM1",
+     "meetings": [
+      {
+       "day": 5,
+       "start": "09:00",
+       "end": "11:50",
+       "room": "CS204",
+       "teachers": "สาธิต อินทจักร์"
+      }
+     ],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200271130249",
+   "code": "344-601",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 18,
+   "credit_pattern": "18(0-54-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "04",
+     "seats": 999,
+     "students": "ป.โท(หลักสูตรปรับปรุง2564 ใช้กับนักศึกษารหัส 64 เป็นต้นไป)",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200108980249",
+   "code": "344-602",
+   "name_th": "วิทยานิพนธ์",
+   "name_en": "THESIS",
+   "credits": 36,
+   "credit_pattern": "36(0-108-0)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 999,
+     "students": "ป.โท",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "02",
+     "seats": 999,
+     "students": "ป.โท",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    },
+    {
+     "section": "04",
+     "seats": 999,
+     "students": "ป.โท",
+     "meetings": [],
+     "midterm": "-",
+     "final": "-"
+    }
+   ],
+   "incomplete": false
+  },
+  {
+   "id": "2568200270540249",
+   "code": "345-101",
+   "name_th": "เริ่มต้นกับไพทอน",
+   "name_en": "GETTING STARTED WITH PYTHON",
+   "credits": 2,
+   "credit_pattern": "2((2)-0-4)",
+   "faculty": "คณะวิทยาศาสตร์",
+   "department": "สาขาวิชาวิทยาศาสตร์การคำนวณ",
+   "fee": null,
+   "sections": [
+    {
+     "section": "01",
+     "seats": 80,
+     "students": "ทั่วไป",
+     "meetings": [
+      {
+       "day": 2,
+       "start": "13:00",
+       "end": "14:50",
+       "room": "BSc0602(LAB)",
+       "teachers": "เชาวนี ศรีวิศาล, จารุณี ดวงสุวรรณ"
+      }
+     ],
+     "midterm": "30 ม.ค. 2569 09:00–11:00",
+     "final": "25 มี.ค. 2569 13:30–15:30"
+    }
+   ],
+   "incomplete": false
+  }
+ ]
+}
