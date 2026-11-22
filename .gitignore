@@ -31,3 +31,14 @@ Thumbs.db
 .DS_Store
 .AppleDouble
 .LSOverride
+# Private data: never commit transcripts, registration reports or exports.
+# (vendor/ holds the only allowed third-party binaries.)
+*.pdf
+course-audit*.json
+.env.*
+!.env.example
+
+# Local tool state
+.playwright/
+playwright-report/
+test-results/

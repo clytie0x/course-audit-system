@@ -111,7 +111,11 @@ async function readDetail(page, href) {
       return {
         section: (t.find((l) => /^Section\s+/i.test(l)) || '').replace(/^Section\s+/i, ''),
         seats: Number((t.find((l) => /ที่นั่ง/.test(l)) || '').match(/\d+/)?.[0] ?? NaN) || null,
-        students: get(/^ผู้เรียน:\s*/),
+        // Some sections list student IDs or Zoom IDs/passcodes; never keep them.
+        students:
+          get(/^ผู้เรียน:\s*/)
+            ?.replace(/\b\d{10}\b/g, '[ซ่อน]')
+            .replace(/(Passcode|รหัสผ่าน)\s*[:：]?\s*\S+/gi, '$1 [ซ่อน]') ?? null,
         rows: rows.map(([times, rooms, teachers]) => ({ times: times || '', rooms: rooms || '', teachers: teachers || '' })),
         midterm: get(/^สอบกลางภาค:\s*/),
         final: get(/^สอบปลายภาค:\s*/),
