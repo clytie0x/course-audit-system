@@ -1,0 +1,59 @@
+name: Refresh SIS offerings
+
+# Weekly: scrape the two newest terms SIS lists (new terms are picked up
+# automatically) and commit data/offerings when anything changed. Deploy runs
+# afterwards via its workflow_run trigger.
+on:
+  schedule:
+    - cron: '0 20 * * 0' # Sunday 20:00 UTC = Monday 03:00 in Thailand
+  workflow_dispatch:
+    inputs:
+      latest:
+        description: Number of newest terms to refresh
+        default: '2'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: offerings
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/sis-scraper/package-lock.json
+
+      - name: Install scraper
+        working-directory: tools/sis-scraper
+        run: npm ci
+
+      - name: Scrape (uses the runner's preinstalled Google Chrome)
+        working-directory: tools/sis-scraper
+        run: node scrape.mjs --latest "${{ github.event.inputs.latest || '2' }}" --ge
+
+      - name: Guard against personal numbers
+        run: |
+          if grep -niE '\b[0-9]{10}\b|Passcode *[:：]? *[0-9]|Zoom *ID *[:：]? *[0-9]' data/offerings/*.json; then
+            echo "::error::10-digit numbers, passcodes or Zoom IDs found in data/offerings"; exit 1
+          fi
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/offerings
+          if git diff --cached --quiet; then
+            echo "No offering changes."
+          else
+            git commit -m "Refresh SIS offerings ($(date -u +%F))"
+            git push
+          fi
