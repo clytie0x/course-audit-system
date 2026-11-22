@@ -78,13 +78,13 @@ pub fn SaveToggle() -> impl IntoView {
         <label class="inline-flex items-start gap-2.5 cursor-pointer text-left">
             <input
                 type="checkbox"
-                class="mt-1 w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 accent-zinc-900 dark:accent-zinc-100 focus-visible:ring-2 focus-visible:ring-accent-500"
+                class="mt-1 w-4 h-4 rounded border-zinc-300 accent-zinc-900 focus-visible:ring-2 focus-visible:ring-accent-500"
                 prop:checked=move || save_enabled.get()
                 on:change=move |_| apply_save_choice(state, !save_enabled.get_untracked())
             />
             <span>
-                <span class="block text-sm font-medium text-zinc-800 dark:text-zinc-200">{move || if is_thai.get() { "บันทึกผลไว้ในเบราว์เซอร์นี้" } else { "Save results in this browser" }}</span>
-                <span class="block text-xs text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "เก็บใน localStorage ของเครื่องนี้เท่านั้น" } else { "Kept in this device's localStorage only" }}</span>
+                <span class="block text-sm font-medium text-zinc-800">{move || if is_thai.get() { "บันทึกผลไว้ในเบราว์เซอร์นี้" } else { "Save results in this browser" }}</span>
+                <span class="block text-xs text-zinc-500">{move || if is_thai.get() { "เก็บใน localStorage ของเครื่องนี้เท่านั้น" } else { "Kept in this device's localStorage only" }}</span>
             </span>
         </label>
     }
@@ -291,13 +291,13 @@ pub fn EmptyState() -> impl IntoView {
 
     view! {
         <section class="max-w-[640px] mx-auto pt-6 sm:pt-10 text-center">
-            <span class="inline-block text-xs font-medium rounded-full px-2.5 py-0.5 bg-accent-50 text-accent-700 dark:bg-accent-900 dark:text-accent-300 mb-4">
+            <span class="inline-block text-xs font-medium rounded-full px-2.5 py-0.5 bg-accent-50 text-accent-700 mb-4">
                 {move || if is_thai.get() { format!("หลักสูตร {years_th}") } else { format!("Curricula {years_en}") }}
             </span>
-            <h1 class="text-[26px] sm:text-[30px] leading-snug font-semibold text-zinc-900 dark:text-zinc-50 text-balance">
+            <h1 class="text-[26px] sm:text-[30px] leading-snug font-semibold text-zinc-900 text-balance">
                 {move || if is_thai.get() { "ตรวจว่าเรียนครบตามหลักสูตรหรือยัง" } else { "Check whether you've met your curriculum" }}
             </h1>
-            <p class="mt-2 mb-7 text-[15px] text-zinc-600 dark:text-zinc-400 text-balance">
+            <p class="mt-2 mb-7 text-[15px] text-zinc-600 text-balance">
                 {move || if is_thai.get() {
                     "อัปโหลดใบแสดงผลการเรียนจาก SIS แล้วดูว่าแต่ละหมวดเหลืออีกกี่หน่วยกิต วิชาไหนยังไม่ได้เรียน และเทอมหน้าเปิดอะไรบ้าง"
                 } else {
@@ -307,21 +307,21 @@ pub fn EmptyState() -> impl IntoView {
 
             {move || if is_loading.get() {
                 view! {
-                    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-14 flex flex-col items-center gap-4" role="status" aria-live="polite">
+                    <div class="rounded-2xl border border-zinc-200 bg-white py-14 flex flex-col items-center gap-4" role="status" aria-live="polite">
                         <div class="relative">
-                            <div class="w-11 h-11 rounded-full border-2 border-zinc-200 dark:border-zinc-700"></div>
-                            <div class="absolute inset-0 w-11 h-11 rounded-full border-2 border-accent-600 dark:border-accent-400 border-t-transparent animate-spin"></div>
+                            <div class="w-11 h-11 rounded-full border-2 border-zinc-200"></div>
+                            <div class="absolute inset-0 w-11 h-11 rounded-full border-2 border-accent-600 border-t-transparent animate-spin"></div>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{move || if is_thai.get() { "กำลังวิเคราะห์ใบแสดงผลการเรียน" } else { "Analysing your transcript" }}</p>
-                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{move || if is_thai.get() { "อ่านรายวิชาและตรวจกับหลักสูตร" } else { "Reading courses and checking them against the curriculum" }}</p>
+                            <p class="text-sm font-medium text-zinc-800">{move || if is_thai.get() { "กำลังวิเคราะห์ใบแสดงผลการเรียน" } else { "Analysing your transcript" }}</p>
+                            <p class="text-xs text-zinc-500 mt-0.5">{move || if is_thai.get() { "อ่านรายวิชาและตรวจกับหลักสูตร" } else { "Reading courses and checking them against the curriculum" }}</p>
                         </div>
                     </div>
                 }.into_any()
             } else {
                 view! {
                     <div
-                        class="group relative rounded-2xl border-[1.5px] border-dashed border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-6 py-10 transition-colors hover:border-accent-500 hover:bg-accent-50/60 dark:hover:bg-accent-900/40 focus-within:border-accent-500 focus-within:ring-2 focus-within:ring-accent-500/30 cursor-pointer"
+                        class="group relative rounded-2xl border-[1.5px] border-dashed border-zinc-300 bg-white px-6 py-10 transition-colors hover:border-accent-500 hover:bg-accent-50/60 focus-within:border-accent-500 focus-within:ring-2 focus-within:ring-accent-500/30 cursor-pointer"
                         on:dragover=on_drag_over
                         on:drop=on_drop
                     >
@@ -334,18 +334,18 @@ pub fn EmptyState() -> impl IntoView {
                             on:change=on_file_change
                         />
                         <div class="pointer-events-none flex flex-col items-center">
-                            <div class="w-[52px] h-[52px] mb-3.5 rounded-[14px] grid place-items-center bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400">
+                            <div class="w-[52px] h-[52px] mb-3.5 rounded-[14px] grid place-items-center bg-zinc-50 border border-zinc-200 text-zinc-500">
                                 <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
                             </div>
                             {move || if file_name.get().is_empty() {
                                 view! {
-                                    <p class="text-base font-semibold text-zinc-900 dark:text-zinc-100">{move || if is_thai.get() { "วางไฟล์ PDF ที่นี่ หรือคลิกเพื่อเลือก" } else { "Drop a PDF here or click to choose" }}</p>
-                                    <p class="text-[13.5px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "ใบแสดงผลการเรียนหรือผลการลงทะเบียน ภาษาไทยหรืออังกฤษ" } else { "Grade report or registration result, Thai or English" }}</p>
+                                    <p class="text-base font-semibold text-zinc-900">{move || if is_thai.get() { "วางไฟล์ PDF ที่นี่ หรือคลิกเพื่อเลือก" } else { "Drop a PDF here or click to choose" }}</p>
+                                    <p class="text-[13.5px] text-zinc-500">{move || if is_thai.get() { "ใบแสดงผลการเรียนหรือผลการลงทะเบียน ภาษาไทยหรืออังกฤษ" } else { "Grade report or registration result, Thai or English" }}</p>
                                 }.into_any()
                             } else {
                                 view! {
-                                    <p class="text-base font-semibold text-zinc-900 dark:text-zinc-100 break-all">{file_name.get()}</p>
-                                    <p class="text-[13.5px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "คลิกเพื่อเลือกไฟล์อื่น" } else { "Click to choose another file" }}</p>
+                                    <p class="text-base font-semibold text-zinc-900 break-all">{file_name.get()}</p>
+                                    <p class="text-[13.5px] text-zinc-500">{move || if is_thai.get() { "คลิกเพื่อเลือกไฟล์อื่น" } else { "Click to choose another file" }}</p>
                                 }.into_any()
                             }}
                         </div>
@@ -354,15 +354,15 @@ pub fn EmptyState() -> impl IntoView {
             }}
 
             {move || error_msg.get().map(|err| view! {
-                <div class="mt-4 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-left" role="alert">
-                    <p class="text-sm font-semibold text-red-800 dark:text-red-300">{move || if is_thai.get() { "วิเคราะห์ไม่สำเร็จ" } else { "Couldn't analyse the file" }}</p>
-                    <p class="text-[13px] text-red-700 dark:text-red-300/90 mt-0.5">{err}</p>
+                <div class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left" role="alert">
+                    <p class="text-sm font-semibold text-red-800">{move || if is_thai.get() { "วิเคราะห์ไม่สำเร็จ" } else { "Couldn't analyse the file" }}</p>
+                    <p class="text-[13px] text-red-700 mt-0.5">{err}</p>
                 </div>
             })}
 
             <div class="mt-5 flex flex-wrap justify-center gap-2.5">
                 <select
-                    class="h-10 max-w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                    class="h-10 max-w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                     aria-label={move || if is_thai.get() { "หลักสูตร" } else { "Curriculum" }}
                     prop:value=move || if auto_curriculum.get() { "auto".to_string() } else { curriculum_id.get() }
                     on:change=move |ev| {
@@ -379,7 +379,7 @@ pub fn EmptyState() -> impl IntoView {
                     {curricula().iter().map(|c| view! { <option value=c.id.clone()>{c.name.clone()}</option> }).collect::<Vec<_>>()}
                 </select>
                 <button
-                    class="h-10 inline-flex items-center gap-2 rounded-lg bg-zinc-900 dark:bg-zinc-50 px-4 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    class="h-10 inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2"
                     disabled={move || file_name.get().is_empty() || is_loading.get()}
                     on:click=on_start_analysis
                 >
@@ -388,26 +388,26 @@ pub fn EmptyState() -> impl IntoView {
                 </button>
             </div>
 
-            <p class="mt-5 inline-flex items-center gap-2 text-[13px] text-zinc-500 dark:text-zinc-400">
-                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+            <p class="mt-5 inline-flex items-center gap-2 text-[13px] text-zinc-500">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
                 {move || if is_thai.get() { "ประมวลผลในเบราว์เซอร์ของคุณทั้งหมด ไฟล์ไม่ถูกส่งออกจากเครื่อง" } else { "Everything runs in your browser. The file never leaves your device." }}
             </p>
 
             <ol class="mt-8 grid gap-3 sm:grid-cols-3 text-left">
-                <li class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3.5">
+                <li class="rounded-xl border border-zinc-200 bg-white px-4 py-3.5">
                     <span class="text-xs text-zinc-400 tabular-nums">"01"</span>
-                    <p class="font-semibold text-[14.5px] text-zinc-900 dark:text-zinc-100">{move || if is_thai.get() { "ดาวน์โหลดจาก SIS" } else { "Download from SIS" }}</p>
-                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "เมนูผลการเรียน แล้วพิมพ์เป็น PDF" } else { "Open your grades and print them to PDF" }}</p>
+                    <p class="font-semibold text-[14.5px] text-zinc-900">{move || if is_thai.get() { "ดาวน์โหลดจาก SIS" } else { "Download from SIS" }}</p>
+                    <p class="text-[13px] text-zinc-500">{move || if is_thai.get() { "เมนูผลการเรียน แล้วพิมพ์เป็น PDF" } else { "Open your grades and print them to PDF" }}</p>
                 </li>
-                <li class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3.5">
+                <li class="rounded-xl border border-zinc-200 bg-white px-4 py-3.5">
                     <span class="text-xs text-zinc-400 tabular-nums">"02"</span>
-                    <p class="font-semibold text-[14.5px] text-zinc-900 dark:text-zinc-100">{move || if is_thai.get() { "อัปโหลดที่นี่" } else { "Upload it here" }}</p>
-                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "ระบบอ่านรหัสวิชา หน่วยกิต และเกรด" } else { "Codes, credits and grades are read for you" }}</p>
+                    <p class="font-semibold text-[14.5px] text-zinc-900">{move || if is_thai.get() { "อัปโหลดที่นี่" } else { "Upload it here" }}</p>
+                    <p class="text-[13px] text-zinc-500">{move || if is_thai.get() { "ระบบอ่านรหัสวิชา หน่วยกิต และเกรด" } else { "Codes, credits and grades are read for you" }}</p>
                 </li>
-                <li class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3.5">
+                <li class="rounded-xl border border-zinc-200 bg-white px-4 py-3.5">
                     <span class="text-xs text-zinc-400 tabular-nums">"03"</span>
-                    <p class="font-semibold text-[14.5px] text-zinc-900 dark:text-zinc-100">{move || if is_thai.get() { "ดูสิ่งที่ยังขาด" } else { "See what's left" }}</p>
-                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "พร้อมจำลองแผนเทอมถัดไป" } else { "And plan the next term" }}</p>
+                    <p class="font-semibold text-[14.5px] text-zinc-900">{move || if is_thai.get() { "ดูสิ่งที่ยังขาด" } else { "See what's left" }}</p>
+                    <p class="text-[13px] text-zinc-500">{move || if is_thai.get() { "พร้อมจำลองแผนเทอมถัดไป" } else { "And plan the next term" }}</p>
                 </li>
             </ol>
 

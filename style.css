@@ -96,35 +96,16 @@
         background: theme("colors.emerald.700");
     }
 
-    .dark .progress,
-    .dark .progress::-webkit-progress-bar {
-        background: theme("colors.zinc.800");
-    }
 
-    .dark .progress::-webkit-progress-value {
-        background: theme("colors.accent.400");
-    }
 
-    .dark .progress::-moz-progress-bar {
-        background: theme("colors.accent.400");
-    }
 
-    .dark .progress.ok::-webkit-progress-value {
-        background: theme("colors.emerald.400");
-    }
 
-    .dark .progress.ok::-moz-progress-bar {
-        background: theme("colors.emerald.400");
-    }
 
     /* Credits over a requirement: hatched, counted part stays solid. */
     .hatch {
         background: repeating-linear-gradient(135deg, rgb(4 120 87 / 0.35) 0 4px, transparent 4px 8px);
     }
 
-    .dark .hatch {
-        background: repeating-linear-gradient(135deg, rgb(52 211 153 / 0.35) 0 4px, transparent 4px 8px);
-    }
 }
 
 @layer utilities {

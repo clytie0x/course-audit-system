@@ -203,14 +203,14 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
             // ── Page head ─────────────────────────────
             <div class="flex flex-wrap items-end gap-4 mb-5">
                 <div class="min-w-0">
-                    <h1 class="text-[22px] sm:text-[26px] leading-snug font-semibold text-zinc-900 dark:text-zinc-50">
+                    <h1 class="text-[22px] sm:text-[26px] leading-snug font-semibold text-zinc-900">
                         {move || if is_thai.get() { "สรุปผลการตรวจหลักสูตร" } else { "Curriculum audit summary" }}
                     </h1>
-                    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-600">
                         <span>{move || if is_thai.get() { "วิทยาการคอมพิวเตอร์" } else { "Computer Science" }}</span>
                         <span aria-hidden="true">"·"</span>
                         <select
-                            class="bg-transparent rounded-md border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 pr-1 py-0.5 text-sm text-zinc-700 dark:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                            class="bg-transparent rounded-md border border-transparent hover:border-zinc-200 pr-1 py-0.5 text-sm text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                             aria-label={move || if is_thai.get() { "หลักสูตรที่ใช้ตรวจ" } else { "Curriculum used for the audit" }}
                             prop:value=move || curriculum_id.get()
                             on:change=move |ev| set_curriculum_id.set(event_target_value(&ev))
@@ -237,11 +237,11 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
 
             // ── Registration-mode banner ─────────────
             {move || (parse_mode.get() == ParseMode::Registration).then(|| view! {
-                <div class="rounded-xl border border-amber-200/70 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/40 px-4 py-3 mb-4 flex items-start gap-3" role="status">
-                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285zM12 15.75h.007v.008H12v-.008z"/></svg>
-                    <div class="text-sm text-amber-900 dark:text-amber-200">
+                <div class="rounded-xl border border-amber-200/70 bg-amber-50 px-4 py-3 mb-4 flex items-start gap-3" role="status">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285zM12 15.75h.007v.008H12v-.008z"/></svg>
+                    <div class="text-sm text-amber-900">
                         <p class="font-semibold">{move || if is_thai.get() { "กำลังดูไฟล์ผลการลงทะเบียน" } else { "Viewing a registration file" }}</p>
-                        <p class="text-amber-800/90 dark:text-amber-300/90">{move || if is_thai.get() { "วิชาที่กำลังเรียนยังไม่นับหน่วยกิตจนกว่าจะได้เกรด" } else { "In-progress courses don't count toward credits until they're graded." }}</p>
+                        <p class="text-amber-800/90">{move || if is_thai.get() { "วิชาที่กำลังเรียนยังไม่นับหน่วยกิตจนกว่าจะได้เกรด" } else { "In-progress courses don't count toward credits until they're graded." }}</p>
                     </div>
                 </div>
             })}
@@ -250,11 +250,11 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
             {move || {
                 let (ok, head, note) = status_line(&result_for_status, is_thai.get());
                 let box_class = if ok {
-                    "border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40"
+                    "border-emerald-200 bg-emerald-50"
                 } else {
-                    "border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40"
+                    "border-amber-200 bg-amber-50"
                 };
-                let icon_class = if ok { "text-emerald-700 dark:text-emerald-400" } else { "text-amber-700 dark:text-amber-400" };
+                let icon_class = if ok { "text-emerald-700" } else { "text-amber-700" };
                 view! {
                     <div class=format!("rounded-xl border px-4 py-3 mb-5 flex items-start gap-3 {box_class}") role="status">
                         <svg class=format!("w-5 h-5 shrink-0 mt-0.5 {icon_class}") aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -265,8 +265,8 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                             }}
                         </svg>
                         <div class="text-sm">
-                            <p class="font-semibold text-zinc-900 dark:text-zinc-100">{head}</p>
-                            {note.map(|n| view! { <p class="text-zinc-600 dark:text-zinc-400">{n}</p> })}
+                            <p class="font-semibold text-zinc-900">{head}</p>
+                            {note.map(|n| view! { <p class="text-zinc-600">{n}</p> })}
                         </div>
                     </div>
                 }
@@ -275,9 +275,9 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
             // ── KPI row ──────────────────────────────
             <div class="grid grid-cols-2 min-[700px]:grid-cols-3 lg:grid-cols-[1.35fr_1fr_1fr_1fr] gap-3 mb-7">
                 <div class=format!("{CARD} px-4 py-4 sm:px-[18px] col-span-2 min-[700px]:col-span-3 lg:col-span-1")>
-                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "หน่วยกิตที่นับตามหลักสูตร" } else { "Credits counted toward the curriculum" }}</p>
+                    <p class="text-[13px] text-zinc-600">{move || if is_thai.get() { "หน่วยกิตที่นับตามหลักสูตร" } else { "Credits counted toward the curriculum" }}</p>
                     <div class="flex items-baseline gap-1.5 mt-2 mb-2.5">
-                        <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{fmt_credits(counted)}</span>
+                        <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900">{fmt_credits(counted)}</span>
                         <span class="text-[15px] font-medium text-zinc-400 tabular-nums">"/ "{fmt_credits(required)}</span>
                         <span class="flex-1"></span>
                         <span class=format!("{TAG} {TAG_ACCENT} tabular-nums")>{format!("{pct:.0}%")}</span>
@@ -293,7 +293,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                             format!("{} of {} credits", fmt_credits(counted), fmt_credits(required))
                         }}
                     ></progress>
-                    <p class="mt-2 text-[12.5px] text-zinc-600 dark:text-zinc-400">
+                    <p class="mt-2 text-[12.5px] text-zinc-600">
                         {move || {
                             let base = if is_thai.get() {
                                 format!("เรียนแล้วทั้งหมด {}", fmt_credits(earned))
@@ -314,11 +314,11 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                 </div>
 
                 <div class=format!("{CARD} px-4 py-4 sm:px-[18px]")>
-                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "เกรดเฉลี่ยสะสม" } else { "Cumulative GPA" }}</p>
-                    <p class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums mt-2 mb-2.5 text-zinc-900 dark:text-zinc-50">
+                    <p class="text-[13px] text-zinc-600">{move || if is_thai.get() { "เกรดเฉลี่ยสะสม" } else { "Cumulative GPA" }}</p>
+                    <p class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums mt-2 mb-2.5 text-zinc-900">
                         {gpa.map_or("—".to_string(), |g| format!("{g:.2}"))}
                     </p>
-                    <p class="text-[12.5px] text-zinc-500 dark:text-zinc-400 tabular-nums">
+                    <p class="text-[12.5px] text-zinc-500 tabular-nums">
                         {move || {
                             let min = curriculum(&curriculum_id.get()).min_gpa;
                             if is_thai.get() { format!("ขั้นต่ำ {min:.2}") } else { format!("Minimum {min:.2}") }
@@ -327,12 +327,12 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                 </div>
 
                 <div class=format!("{CARD} px-4 py-4 sm:px-[18px]")>
-                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "ยังต้องเรียนอีก" } else { "Still to take" }}</p>
+                    <p class="text-[13px] text-zinc-600">{move || if is_thai.get() { "ยังต้องเรียนอีก" } else { "Still to take" }}</p>
                     <p class="flex items-baseline gap-1.5 mt-2 mb-2.5">
-                        <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{fmt_credits(short)}</span>
+                        <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900">{fmt_credits(short)}</span>
                         <span class="text-[15px] font-medium text-zinc-400">{move || if is_thai.get() { "หน่วยกิต" } else { "credits" }}</span>
                     </p>
-                    <p class="text-[12.5px] text-zinc-600 dark:text-zinc-400">
+                    <p class="text-[12.5px] text-zinc-600">
                         {move || {
                             let th = is_thai.get();
                             if gaps.is_empty() {
@@ -348,13 +348,13 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                 </div>
 
                 <div class=format!("{CARD} px-4 py-4 sm:px-[18px] col-span-2 min-[700px]:col-span-1")>
-                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "ชั่วโมงเตรียมสหกิจ" } else { "Co-op prep hours" }}</p>
+                    <p class="text-[13px] text-zinc-600">{move || if is_thai.get() { "ชั่วโมงเตรียมสหกิจ" } else { "Co-op prep hours" }}</p>
                     {move || {
                         let hours = faculty.get() + university.get();
                         if hours > 0.0 {
                             view! {
                                 <p class="flex items-baseline gap-1.5 mt-2 mb-2.5">
-                                    <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{fmt_credits(hours)}</span>
+                                    <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900">{fmt_credits(hours)}</span>
                                     <span class="text-[15px] font-medium text-zinc-400 tabular-nums">"/ "{fmt_credits(TOTAL_REQUIRED)}</span>
                                     <span class="flex-1"></span>
                                     {(hours >= TOTAL_REQUIRED).then(|| view! { <span class=format!("{TAG} {TAG_OK}")>{move || if is_thai.get() { "ครบ" } else { "Done" }}</span> })}
@@ -362,13 +362,13 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                             }.into_any()
                         } else {
                             view! {
-                                <p class="text-[17px] sm:text-[20px] font-semibold mt-2.5 mb-2.5 text-zinc-900 dark:text-zinc-50">
+                                <p class="text-[17px] sm:text-[20px] font-semibold mt-2.5 mb-2.5 text-zinc-900">
                                     {move || if is_thai.get() { "ยังไม่ได้กรอก" } else { "Not entered yet" }}
                                 </p>
                             }.into_any()
                         }
                     }}
-                    <p class="text-[12.5px] text-zinc-600 dark:text-zinc-400">
+                    <p class="text-[12.5px] text-zinc-600">
                         {move || if is_thai.get() { "กรอกได้ในแท็บภาพรวม" } else { "Enter them on the Overview tab" }}
                     </p>
                 </div>
@@ -376,7 +376,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
 
             // ── Tabs ─────────────────────────────────
             <div
-                class="flex gap-1 border-b border-zinc-200 dark:border-zinc-800 mb-5 overflow-x-auto scrollbar-none print:hidden"
+                class="flex gap-1 border-b border-zinc-200 mb-5 overflow-x-auto scrollbar-none print:hidden"
                 role="tablist"
                 aria-label={move || if is_thai.get() { "ส่วนของผลการตรวจ" } else { "Audit sections" }}
                 on:keydown=on_tab_key
@@ -392,16 +392,16 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                         class=move || format!(
                             "relative shrink-0 px-3 pt-2.5 pb-3 text-[14.5px] font-medium whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-t-md {}",
                             if tab.get() == t {
-                                "text-zinc-900 dark:text-zinc-50 after:absolute after:left-2.5 after:right-2.5 after:-bottom-px after:h-0.5 after:rounded after:bg-zinc-900 dark:after:bg-zinc-50"
+                                "text-zinc-900 after:absolute after:left-2.5 after:right-2.5 after:-bottom-px after:h-0.5 after:rounded after:bg-zinc-900"
                             } else {
-                                "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                "text-zinc-500 hover:text-zinc-900"
                             }
                         )
                         on:click=move |_| tab.set(t)
                     >
                         {move || t.title(is_thai.get())}
                         {(t == Tab::Courses).then(|| view! {
-                            <span class="ml-1.5 text-[11.5px] px-1.5 rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 tabular-nums">{course_count}</span>
+                            <span class="ml-1.5 text-[11.5px] px-1.5 rounded-full border border-zinc-200 bg-zinc-50 text-zinc-500 tabular-nums">{course_count}</span>
                         })}
                     </button>
                 }).collect::<Vec<_>>()}
@@ -409,7 +409,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
 
             {panel(Tab::Overview, view! { <Overview result=result.clone()/> }.into_any())}
             {panel(Tab::Courses, view! {
-                <div class=format!("{CARD} overflow-hidden divide-y divide-zinc-200 dark:divide-zinc-800")>
+                <div class=format!("{CARD} overflow-hidden divide-y divide-zinc-200")>
                     {categories.iter().map(|category| {
                         let category = category.clone();
                         view! { <CategoryCard category={category} /> }
@@ -420,7 +420,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
             {panel(Tab::Plan, view! { <WhatIfSimulator/> }.into_any())}
             {panel(Tab::Offerings, view! { <OfferingsPanel/> }.into_any())}
 
-            <div class="mt-10 pt-5 border-t border-zinc-200 dark:border-zinc-800 print:hidden">
+            <div class="mt-10 pt-5 border-t border-zinc-200 print:hidden">
                 <SaveToggle/>
             </div>
         </div>

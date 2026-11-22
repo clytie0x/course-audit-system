@@ -6,21 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Privacy-first WebAssembly app for auditing PSU Computer Science transcripts against curriculum requirements. 100% client-side processing.">
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="color-scheme" content="light">
 
-    <!-- Apply dark-mode class before paint to prevent flash -->
-    <script>
-        (function () {
-            try {
-                var stored = localStorage.getItem('theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (stored === 'dark' || (stored === null && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                }
-            } catch (e) { /* localStorage may be unavailable */ }
-        })();
-    </script>
     <meta property="og:title" content="Course Audit — PSU CS">
     <meta property="og:description"
         content="Upload your transcript PDF and instantly audit your academic progress — all processing happens locally in your browser.">
@@ -58,10 +46,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        .dark body {
-            background-color: #09090b;
-            color: #e4e4e7;
-        }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -82,13 +66,7 @@
             background: #a1a1aa;
         }
 
-        .dark ::-webkit-scrollbar-thumb {
-            background: #3f3f46;
-        }
 
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #52525b;
-        }
 
         /* Animate progress bars on load */
         @keyframes progressGrow {

@@ -76,8 +76,8 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                     let counted_share = if collected > 0.0 { (required / collected * 100.0).min(100.0) } else { 0.0 };
                     let groups = c.groups.clone();
                     view! {
-                        <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3.5 gap-y-1.5 items-center px-4 sm:px-[18px] py-3 border-t border-zinc-200 dark:border-zinc-800">
-                            <div class="flex items-center gap-2 min-w-0 font-medium text-[14.5px] text-zinc-900 dark:text-zinc-100">
+                        <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3.5 gap-y-1.5 items-center px-4 sm:px-[18px] py-3 border-t border-zinc-200">
+                            <div class="flex items-center gap-2 min-w-0 font-medium text-[14.5px] text-zinc-900">
                                 <span class="truncate">{move || label(&name, is_thai.get())}</span>
                                 {if overflow > 0.0 {
                                     view! { <span class=tag(TAG_MUTED)>{move || if is_thai.get() { format!("เกิน +{}", fmt_credits(overflow)) } else { format!("+{} over", fmt_credits(overflow)) }}</span> }.into_any()
@@ -87,19 +87,19 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                                     view! { <span class=tag(TAG_WARN)>{move || if is_thai.get() { format!("ขาด {}", fmt_credits(gap)) } else { format!("{} short", fmt_credits(gap)) }}</span> }.into_any()
                                 }}
                             </div>
-                            <div class="text-[13.5px] text-zinc-500 dark:text-zinc-400 text-right tabular-nums">
-                                <b class="font-semibold text-zinc-900 dark:text-zinc-100">{fmt_credits(collected)}</b>" / "{fmt_credits(required)}
+                            <div class="text-[13.5px] text-zinc-500 text-right tabular-nums">
+                                <b class="font-semibold text-zinc-900">{fmt_credits(collected)}</b>" / "{fmt_credits(required)}
                             </div>
                             <div class="col-span-2">
                                 {if overflow > 0.0 {
                                     view! {
-                                        <div class="flex h-2 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800" role="img"
+                                        <div class="flex h-2 rounded-full overflow-hidden bg-zinc-200" role="img"
                                             aria-label={move || if is_thai.get() {
                                                 format!("นับได้ {} หน่วยกิต เกิน {} หน่วยกิต", fmt_credits(required), fmt_credits(overflow))
                                             } else {
                                                 format!("{} credits counted, {} over", fmt_credits(required), fmt_credits(overflow))
                                             }}>
-                                            <span class="block h-full bg-emerald-700 dark:bg-emerald-400" style=format!("width:{counted_share:.1}%")></span>
+                                            <span class="block h-full bg-emerald-700" style=format!("width:{counted_share:.1}%")></span>
                                             <span class="block h-full flex-1 hatch"></span>
                                         </div>
                                     }.into_any()
@@ -115,10 +115,10 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                             let gname = g.name.clone();
                             let done = g.collected_credits >= g.required_credits;
                             view! {
-                                <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3.5 gap-y-1.5 items-center pl-7 sm:pl-[38px] pr-4 sm:pr-[18px] py-2.5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/60">
-                                    <div class="text-sm text-zinc-800 dark:text-zinc-200 truncate">{move || label(&gname, is_thai.get())}</div>
-                                    <div class="text-[13.5px] text-zinc-500 dark:text-zinc-400 text-right tabular-nums">
-                                        <b class="font-semibold text-zinc-900 dark:text-zinc-100">{fmt_credits(g.collected_credits)}</b>" / "{fmt_credits(g.required_credits)}
+                                <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3.5 gap-y-1.5 items-center pl-7 sm:pl-[38px] pr-4 sm:pr-[18px] py-2.5 border-t border-zinc-200 bg-zinc-50/70">
+                                    <div class="text-sm text-zinc-800 truncate">{move || label(&gname, is_thai.get())}</div>
+                                    <div class="text-[13.5px] text-zinc-500 text-right tabular-nums">
+                                        <b class="font-semibold text-zinc-900">{fmt_credits(g.collected_credits)}</b>" / "{fmt_credits(g.required_credits)}
                                     </div>
                                     <progress class={if done { "progress thin ok col-span-2" } else { "progress thin col-span-2" }} max=g.required_credits value=g.collected_credits></progress>
                                 </div>
@@ -126,9 +126,9 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                         }).collect::<Vec<_>>()}
                     }
                 }).collect::<Vec<_>>()}
-                <div class="flex flex-wrap gap-x-3.5 gap-y-1 px-4 sm:px-[18px] pt-2.5 pb-4 border-t border-zinc-200 dark:border-zinc-800 text-[12.5px] text-zinc-600 dark:text-zinc-400">
-                    <span class="inline-flex items-center gap-1.5"><i class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-700 dark:bg-emerald-400"></i>{move || if is_thai.get() { "ครบแล้ว" } else { "Complete" }}</span>
-                    <span class="inline-flex items-center gap-1.5"><i class="inline-block w-2.5 h-2.5 rounded-sm bg-accent-600 dark:bg-accent-400"></i>{move || if is_thai.get() { "กำลังสะสม" } else { "In progress" }}</span>
+                <div class="flex flex-wrap gap-x-3.5 gap-y-1 px-4 sm:px-[18px] pt-2.5 pb-4 border-t border-zinc-200 text-[12.5px] text-zinc-600">
+                    <span class="inline-flex items-center gap-1.5"><i class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-700"></i>{move || if is_thai.get() { "ครบแล้ว" } else { "Complete" }}</span>
+                    <span class="inline-flex items-center gap-1.5"><i class="inline-block w-2.5 h-2.5 rounded-sm bg-accent-600"></i>{move || if is_thai.get() { "กำลังสะสม" } else { "In progress" }}</span>
                     <span class="inline-flex items-center gap-1.5"><i class="inline-block w-2.5 h-2.5 rounded-sm hatch"></i>{move || if is_thai.get() { "เกินเกณฑ์ ไม่นับเพิ่ม" } else { "Over the requirement, not counted" }}</span>
                 </div>
             </section>
@@ -141,14 +141,14 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                         <span class="flex-1"></span>
                         {(todo_count > 0).then(|| view! {
                             <span class=format!("{TAG} {TAG_WARN} tabular-nums")>{move || if is_thai.get() { format!("{todo_count} รายการ") } else { format!("{todo_count} items") }}</span>
-                            <button type="button" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" on:click=copy_missing>
+                            <button type="button" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500" on:click=copy_missing>
                                 {move || if is_thai.get() { "คัดลอก" } else { "Copy" }}
                             </button>
                         })}
                     </div>
                     {if todos.is_empty() {
                         view! {
-                            <p class="px-4 sm:px-[18px] pt-2 pb-4 text-sm text-zinc-600 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800">
+                            <p class="px-4 sm:px-[18px] pt-2 pb-4 text-sm text-zinc-600 border-t border-zinc-200">
                                 {move || if is_thai.get() { "ไม่มีรายการค้าง" } else { "Nothing left" }}
                             </p>
                         }.into_any()
@@ -162,14 +162,14 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                             let is_gap = matches!(t, Todo::Gap { .. });
                             let code_for_offer = code.clone();
                             view! {
-                                <div class="flex gap-3 px-4 sm:px-[18px] py-3 border-t border-zinc-200 dark:border-zinc-800 items-start">
-                                    <div class="w-[30px] h-[30px] rounded-lg grid place-items-center shrink-0 bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400">
+                                <div class="flex gap-3 px-4 sm:px-[18px] py-3 border-t border-zinc-200 items-start">
+                                    <div class="w-[30px] h-[30px] rounded-lg grid place-items-center shrink-0 bg-amber-50 text-amber-700">
                                         <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                             {if code.is_some() { view! { <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/> }.into_any() } else { view! { <path d="M4 6h16M4 12h16M4 18h10"/> }.into_any() }}
                                         </svg>
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <p class="font-medium text-[14.5px] leading-normal text-zinc-900 dark:text-zinc-100">
+                                        <p class="font-medium text-[14.5px] leading-normal text-zinc-900">
                                             {move || if is_gap {
                                                 if is_thai.get() { format!("{} อีก", label(&title, true)) } else { format!("More {}", label(&title, false).to_lowercase()) }
                                             } else {
@@ -177,19 +177,19 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                                             }}
                                             {code.clone().map(|c| view! { " "<span class="font-mono text-[0.86em] text-zinc-400">{c}</span> })}
                                         </p>
-                                        {sub.map(|s| view! { <p class="text-[13px] text-zinc-500 dark:text-zinc-400">{move || label(&s, is_thai.get())}</p> })}
+                                        {sub.map(|s| view! { <p class="text-[13px] text-zinc-500">{move || label(&s, is_thai.get())}</p> })}
                                         {move || {
                                             let code = code_for_offer.clone()?;
                                             let (term, codes) = offered.get().flatten()?;
                                             codes.contains(&code).then(|| view! {
-                                                <button type="button" class="text-[13px] font-medium text-accent-700 dark:text-accent-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded" on:click=move |_| tab.set(Tab::Offerings)>
+                                                <button type="button" class="text-[13px] font-medium text-accent-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded" on:click=move |_| tab.set(Tab::Offerings)>
                                                     {if is_thai.get() { format!("เปิดสอน {term} →") } else { format!("Offered {term} →") }}
                                                 </button>
                                             })
                                         }}
                                     </div>
                                     {credits.filter(|c| *c > 0.0).map(|c| view! {
-                                        <span class="ml-auto text-[13px] text-zinc-500 dark:text-zinc-400 whitespace-nowrap tabular-nums">
+                                        <span class="ml-auto text-[13px] text-zinc-500 whitespace-nowrap tabular-nums">
                                             {move || if is_thai.get() { format!("{} นก.", fmt_credits(c)) } else { format!("{} cr", fmt_credits(c)) }}
                                         </span>
                                     })}
@@ -213,9 +213,9 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                             <div class="flex items-end gap-2.5 h-[150px] px-4 sm:px-[18px] pt-2" role="img" aria-label=summary>
                                 {gpa_bars.iter().enumerate().map(|(i, (_, g))| view! {
                                     <div class="flex-1 min-w-0 h-full flex flex-col items-center justify-end gap-1.5">
-                                        <span class="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">{format!("{g:.2}")}</span>
+                                        <span class="text-xs text-zinc-500 tabular-nums">{format!("{g:.2}")}</span>
                                         <div
-                                            class=if i == last { "w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-600 dark:bg-accent-400" } else { "w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-100 dark:bg-accent-900 border border-accent-300 dark:border-accent-700" }
+                                            class=if i == last { "w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-600" } else { "w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-100 border border-accent-300" }
                                             style=format!("height:{:.0}%", g / 4.0 * 100.0)
                                         ></div>
                                     </div>

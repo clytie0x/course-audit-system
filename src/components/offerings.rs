@@ -113,7 +113,7 @@ pub fn OfferingsPanel() -> impl IntoView {
             <div class="px-4 sm:px-[18px] pb-4 pt-2 space-y-4">
                 <div class="flex flex-wrap gap-2.5 items-center">
                     <select
-                        class="h-10 rounded-[9px] border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-sm tabular-nums text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                        class="h-10 rounded-[9px] border border-zinc-200 bg-white px-3 text-sm tabular-nums text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                         aria-label=move || t("ภาคการศึกษา", "Term")
                         prop:value=move || selected_term().unwrap_or_default()
                         on:change=move |ev| set_term.set(Some(event_target_value(&ev)))
@@ -128,14 +128,14 @@ pub fn OfferingsPanel() -> impl IntoView {
                         type="search"
                         placeholder=move || t("ค้นหารหัสหรือชื่อวิชา", "Search code or name")
                         aria-label=move || t("ค้นหารายวิชาที่เปิดสอน", "Search offerings")
-                        class="h-10 flex-1 min-w-[180px] rounded-[9px] border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                        class="h-10 flex-1 min-w-[180px] rounded-[9px] border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                         prop:value=move || query.get()
                         on:input=move |ev| set_query.set(event_target_value(&ev))
                     />
                     // Only meaningful with a transcript.
                     {move || (!parsed_courses.get().is_empty()).then(|| view! {
-                        <label class="inline-flex items-center gap-2 text-[13.5px] text-zinc-600 dark:text-zinc-300 cursor-pointer">
-                            <input type="checkbox" class="w-4 h-4 rounded accent-zinc-900 dark:accent-zinc-100"
+                        <label class="inline-flex items-center gap-2 text-[13.5px] text-zinc-600 cursor-pointer">
+                            <input type="checkbox" class="w-4 h-4 rounded accent-zinc-900"
                                 prop:checked=move || only_outstanding.get()
                                 on:change=move |ev| set_only_outstanding.set(event_target_checked(&ev))
                             />
@@ -162,16 +162,16 @@ pub fn OfferingsPanel() -> impl IntoView {
                         })).collect();
                         slots.sort();
                         view! {
-                            <div class="rounded-xl border border-accent-200 dark:border-accent-800 bg-accent-50/60 dark:bg-accent-900/40 p-4 space-y-2.5">
+                            <div class="rounded-xl border border-accent-200 bg-accent-50/60 p-4 space-y-2.5">
                                 <div class="flex items-center justify-between">
-                                    <p class="text-xs font-semibold text-accent-700 dark:text-accent-300">{move || t("ตารางเรียนของฉัน", "My timetable")}</p>
+                                    <p class="text-xs font-semibold text-accent-700">{move || t("ตารางเรียนของฉัน", "My timetable")}</p>
                                     <button class="text-2xs font-semibold text-zinc-500 hover:text-red-600" on:click=move |_| set_picks.set(Vec::new())>
                                         {move || t("ล้าง", "Clear")}
                                     </button>
                                 </div>
                                 <ul class="space-y-1">
                                     {slots.into_iter().map(|(day, time, what)| view! {
-                                        <li class="text-[13px] font-mono text-zinc-700 dark:text-zinc-300">
+                                        <li class="text-[13px] font-mono text-zinc-700">
                                             <span class="inline-block w-10 text-zinc-500">{move || if is_thai.get() { DAYS_TH[day as usize % 8] } else { DAYS_EN[day as usize % 8] }}</span>
                                             <span class="inline-block w-28">{time}</span>
                                             {what}
@@ -181,7 +181,7 @@ pub fn OfferingsPanel() -> impl IntoView {
                                 {(!clashes.is_empty()).then(|| view! {
                                     <ul class="space-y-1" role="alert">
                                         {clashes.into_iter().map(|c| view! {
-                                            <li class="text-xs font-medium text-red-700 dark:text-red-300">{format!("⚠ {c}")}</li>
+                                            <li class="text-xs font-medium text-red-700">{format!("⚠ {c}")}</li>
                                         }).collect::<Vec<_>>()}
                                     </ul>
                                 })}
@@ -200,16 +200,16 @@ pub fn OfferingsPanel() -> impl IntoView {
                         let rows = results();
                         let empty = rows.is_empty();
                         view! {
-                            <div class="divide-y divide-zinc-200 dark:divide-zinc-800 rounded-[9px] border border-zinc-200 dark:border-zinc-800">
+                            <div class="divide-y divide-zinc-200 rounded-[9px] border border-zinc-200">
                                 {rows.into_iter().map(|c| {
                                     let unmet = unmet_prerequisites(&c.code, &done, cur);
                                     let code = c.code.clone();
                                     let name = c.name_th.clone().or(c.name_en.clone()).unwrap_or_default();
                                     view! {
                                         <details class="group">
-                                            <summary class="list-none px-3.5 py-2.5 flex items-center gap-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500 [&::-webkit-details-marker]:hidden">
-                                                <span class="font-mono text-[0.86em] text-zinc-500 dark:text-zinc-400 w-16 shrink-0">{c.code.clone()}</span>
-                                                <span class="text-sm text-zinc-800 dark:text-zinc-200 truncate flex-1">{name.clone()}</span>
+                                            <summary class="list-none px-3.5 py-2.5 flex items-center gap-3 cursor-pointer hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500 [&::-webkit-details-marker]:hidden">
+                                                <span class="font-mono text-[0.86em] text-zinc-500 w-16 shrink-0">{c.code.clone()}</span>
+                                                <span class="text-sm text-zinc-800 truncate flex-1">{name.clone()}</span>
                                                 {(!unmet.is_empty()).then(|| {
                                                     let list = unmet.join(", ");
                                                     view! { <span class=format!("{TAG} {TAG_WARN} shrink-0") role="note">{move || if is_thai.get() { format!("ต้องเรียน {} ก่อน", list) } else { format!("Requires {}", list) }}</span> }
@@ -227,13 +227,13 @@ pub fn OfferingsPanel() -> impl IntoView {
                                                         move || picks.get().iter().any(|x| x.code == p.code && x.section.section == p.section.section)
                                                     };
                                                     view! {
-                                                        <div class="rounded-lg bg-zinc-50/60 dark:bg-zinc-800/40 px-3 py-2 text-xs text-zinc-600 dark:text-zinc-300 space-y-1">
+                                                        <div class="rounded-lg bg-zinc-50/60 px-3 py-2 text-xs text-zinc-600 space-y-1">
                                                             <div class="flex flex-wrap items-center gap-2">
-                                                                <span class="font-semibold text-zinc-800 dark:text-zinc-100">{format!("Section {}", s.section)}</span>
+                                                                <span class="font-semibold text-zinc-800">{format!("Section {}", s.section)}</span>
                                                                 <span>{s.seats.map(|n| format!("{n} ที่นั่ง"))}</span>
                                                                 <span class="text-zinc-500 truncate">{s.students.clone()}</span>
                                                                 <button
-                                                                    class="ml-auto text-xs font-medium px-2 py-0.5 rounded-md border border-accent-300 dark:border-accent-700 text-accent-700 dark:text-accent-300 hover:bg-accent-50 dark:hover:bg-accent-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                                                                    class="ml-auto text-xs font-medium px-2 py-0.5 rounded-md border border-accent-300 text-accent-700 hover:bg-accent-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                                                                     on:click={
                                                                         let pick = pick.clone();
                                                                         move |_| set_picks.update(|v| {

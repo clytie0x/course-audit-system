@@ -96,10 +96,10 @@ pub fn CoopHours() -> impl IntoView {
                     required: f32| {
         view! {
             <label class="flex items-center gap-3">
-                <span class="text-[13px] text-zinc-700 dark:text-zinc-300 flex-1">{move || t(label_th, label_en)}</span>
+                <span class="text-[13px] text-zinc-700 flex-1">{move || t(label_th, label_en)}</span>
                 <input
                     type="number" min="0" step="1"
-                    class="w-20 text-[13px] font-mono text-center px-2 py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                    class="w-20 text-[13px] font-mono text-center px-2 py-1.5 rounded-lg bg-white border border-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                     prop:value=move || value.get().to_string()
                     on:input=move |ev| set.set(event_target_value(&ev).parse::<f32>().unwrap_or(0.0).max(0.0))
                 />
@@ -112,14 +112,14 @@ pub fn CoopHours() -> impl IntoView {
 
     view! {
         <section class=format!("{CARD} overflow-hidden print:hidden")>
-            <div class="px-4 sm:px-[18px] pt-4 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="px-4 sm:px-[18px] pt-4 pb-3 border-b border-zinc-200">
                 <h2 class=SECTION_TITLE>{move || t("ชั่วโมงเตรียมความพร้อมสหกิจ 30 ชั่วโมง", "Co-op preparation hours (30)")}</h2>
-                <p class="text-[13px] text-zinc-500 dark:text-zinc-400">{move || t("เงื่อนไขก่อนลงวิชาสหกิจศึกษา", "Required before the co-op course")}</p>
+                <p class="text-[13px] text-zinc-500">{move || t("เงื่อนไขก่อนลงวิชาสหกิจศึกษา", "Required before the co-op course")}</p>
             </div>
             <div class="px-4 sm:px-[18px] py-4 space-y-3">
                 {row("กิจกรรมของคณะ สาขา หรือหลักสูตร", "Faculty / programme activities", faculty, set_faculty, FACULTY_REQUIRED)}
                 {row("กิจกรรมของมหาวิทยาลัยหรืออื่น ๆ", "University / other activities", university, set_university, UNIVERSITY_REQUIRED)}
-                <p class=move || format!("text-xs font-semibold {}", if faculty.get() >= FACULTY_REQUIRED && university.get() >= UNIVERSITY_REQUIRED { "text-emerald-600" } else { "text-amber-700 dark:text-amber-300" })>
+                <p class=move || format!("text-xs font-semibold {}", if faculty.get() >= FACULTY_REQUIRED && university.get() >= UNIVERSITY_REQUIRED { "text-emerald-600" } else { "text-amber-700" })>
                     {move || {
                         let missing_f = (FACULTY_REQUIRED - faculty.get()).max(0.0);
                         let missing_u = (UNIVERSITY_REQUIRED - university.get()).max(0.0);
@@ -136,7 +136,7 @@ pub fn CoopHours() -> impl IntoView {
                 {move || cohort.get().and_then(report_for).map(|url| view! {
                     <div class="space-y-2">
                         <button
-                            class="text-xs font-medium px-3 py-1.5 rounded-lg border border-accent-300 dark:border-accent-700 text-accent-700 dark:text-accent-300 hover:bg-accent-50 dark:hover:bg-accent-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                            class="text-xs font-medium px-3 py-1.5 rounded-lg border border-accent-300 text-accent-700 hover:bg-accent-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                             on:click=move |_| set_show_report.update(|v| *v = !*v)
                         >
                             {move || {
@@ -150,20 +150,20 @@ pub fn CoopHours() -> impl IntoView {
                             }}
                         </button>
                         {move || show_report.get().then(|| view! {
-                            <p class="text-2xs text-zinc-500 dark:text-zinc-400">{move || t("พิมพ์รหัสนักศึกษาในช่อง \"รหัสนักศึกษา\" ของรายงาน แล้วกรอกผลรวมสองช่องด้านบน", "Type your student ID into the report's search box, then enter the two totals above")}</p>
+                            <p class="text-2xs text-zinc-500">{move || t("พิมพ์รหัสนักศึกษาในช่อง \"รหัสนักศึกษา\" ของรายงาน แล้วกรอกผลรวมสองช่องด้านบน", "Type your student ID into the report's search box, then enter the two totals above")}</p>
                             <iframe
                                 src=url
                                 title="Co-op preparation hours report"
-                                class="w-full h-[560px] rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white"
+                                class="w-full h-[560px] rounded-lg border border-zinc-200 bg-white"
                                 referrerpolicy="no-referrer"
                                 sandbox="allow-scripts allow-same-origin allow-popups"
                             ></iframe>
                         })}
                     </div>
                 })}
-                <p class="text-2xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                <p class="text-2xs text-zinc-500 leading-relaxed">
                     {move || t("ดูชั่วโมงของตัวเองได้ที่ ", "Look up your hours at ")}
-                    <a class="text-accent-700 dark:text-accent-300 underline" href=REPORT_URL target="_blank" rel="noopener noreferrer">"regis.sci.psu.ac.th/activity30hr"</a>
+                    <a class="text-accent-700 underline" href=REPORT_URL target="_blank" rel="noopener noreferrer">"regis.sci.psu.ac.th/activity30hr"</a>
                     {move || t(" (เลือกแท็บรหัสรุ่น แล้วค้นด้วยรหัสนักศึกษา) หรือรัน tools/sis-scraper/coop-hours.mjs", " (pick your cohort tab, search your student ID) or run tools/sis-scraper/coop-hours.mjs")}
                 </p>
             </div>

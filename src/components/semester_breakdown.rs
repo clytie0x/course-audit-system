@@ -15,7 +15,7 @@ pub fn SemesterBreakdown(result: AuditResult) -> impl IntoView {
 
     if terms.is_empty() {
         return view! {
-            <p class=format!("{CARD} px-4 py-5 text-sm text-zinc-500 dark:text-zinc-400")>
+            <p class=format!("{CARD} px-4 py-5 text-sm text-zinc-500")>
                 {move || if is_thai.get() { "ใบแสดงผลการเรียนนี้ไม่มีข้อมูลภาคการศึกษา" } else { "This transcript has no semester labels" }}
             </p>
         }
@@ -32,7 +32,7 @@ pub fn SemesterBreakdown(result: AuditResult) -> impl IntoView {
                 view! {
                     <section class=format!("{CARD} overflow-hidden")>
                         <div class="flex items-baseline gap-2 px-4 pt-3.5 pb-2.5">
-                            <h3 class="font-semibold text-[15px] text-zinc-900 dark:text-zinc-100">
+                            <h3 class="font-semibold text-[15px] text-zinc-900">
                                 {move || if is_thai.get() { format!("ภาค {sem_label}") } else { format!("Semester {sem_label}") }}
                             </h3>
                             <span class="flex-1"></span>
@@ -46,9 +46,9 @@ pub fn SemesterBreakdown(result: AuditResult) -> impl IntoView {
                             }}
                         </div>
                         {courses.into_iter().map(|c| view! {
-                            <div class="grid grid-cols-[66px_minmax(0,1fr)_22px_34px] gap-2 items-center px-4 py-1.5 border-t border-zinc-200 dark:border-zinc-800 text-[13.5px]">
-                                <span class="font-mono text-[0.86em] text-zinc-500 dark:text-zinc-400">{c.code.clone()}</span>
-                                <span class="truncate text-zinc-800 dark:text-zinc-200" title=c.name.clone()>{c.name.clone()}</span>
+                            <div class="grid grid-cols-[66px_minmax(0,1fr)_22px_34px] gap-2 items-center px-4 py-1.5 border-t border-zinc-200 text-[13.5px]">
+                                <span class="font-mono text-[0.86em] text-zinc-500">{c.code.clone()}</span>
+                                <span class="truncate text-zinc-800" title=c.name.clone()>{c.name.clone()}</span>
                                 <span class="text-zinc-400 tabular-nums text-right">{fmt_credits(c.credit)}</span>
                                 <span class=grade_class(&c.grade)>{c.grade.clone()}</span>
                             </div>

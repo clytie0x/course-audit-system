@@ -70,8 +70,8 @@ JSON download · Print / Save-PDF (print stylesheet) · Copy missing requirement
 <tr>
 <td valign="top">
 
-### Dark mode
-System-preference aware, toggleable, flash-free on first paint (pre-hydration script).
+### Works on any screen
+One layout from phones to wide desktops: status, KPIs and tabs instead of one long page.
 
 </td>
 <td valign="top">
@@ -186,14 +186,14 @@ course-audit-system/
 ├── manifest.webmanifest     PWA manifest (standalone, theme colors)
 ├── sw.js                    Service worker (app-shell cache, network-first)
 ├── style.css                Tailwind directives + print stylesheet
-├── tailwind.config.js       darkMode: 'class' + zinc and accent palettes + animations
+├── tailwind.config.js       zinc and accent palettes + animations
 │
 ├── src/                     Web crate (Leptos UI, wasm only)
 │   ├── main.rs              Tiny entry — panic hook + mount App
 │   ├── app.rs               App shell · shared AppState signals · re-audit effect
 │   ├── pdf.rs               PDF.js interop (extractTextFromPDF)
 │   └── components/
-│       ├── header.rs        Top bar · file chip ("Change file") · language + dark-mode toggles
+│       ├── header.rs        Top bar · file chip ("Change file") · language toggle
 │       ├── empty_state.rs   Upload + analysis · curriculum choice · how-it-works · save toggle
 │       ├── results.rs       Status banner · KPI row · tabs · export JSON / print
 │       ├── overview.rs      Progress by category and group · what to do next · GPA by semester
@@ -273,7 +273,7 @@ Each revision is one JSON file under `crates/audit-core/src/data/` (`cs2564.json
 </tr>
 <tr>
 <td><b>Styling</b></td>
-<td>Tailwind CSS v3 (class-based dark mode), zinc monochrome in the style of shadcn/ui</td>
+<td>Tailwind CSS v3, zinc monochrome in the style of shadcn/ui with one blue accent</td>
 </tr>
 <tr>
 <td><b>Fonts</b></td>

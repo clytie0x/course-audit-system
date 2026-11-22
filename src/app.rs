@@ -219,7 +219,7 @@ pub fn App() -> impl IntoView {
     view! {
         <Title text="Course Audit — PSU CS"/>
 
-        <div class="min-h-screen font-sans bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-accent-100 dark:selection:bg-accent-900">
+        <div class="min-h-screen font-sans bg-zinc-50 text-zinc-900 selection:bg-accent-100">
             <Header/>
             <main class="max-w-[1200px] w-full mx-auto px-3.5 sm:px-5 pt-5 sm:pt-7 pb-20" aria-live="polite" aria-atomic="false">
                 {move || if has_result.get() {
