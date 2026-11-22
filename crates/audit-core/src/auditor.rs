@@ -629,8 +629,12 @@ pub fn audit_major(
         for cluster in &domain.clusters {
             let mut courses_found_in_cluster = 0;
             for course in &cluster.courses {
+                // A course shared by two clusters (e.g. 344-335) earns credit once;
+                // a retake must not claim the second cluster's slot.
+                let already_credited = used_indices.iter().any(|&i| courses[i].code == course.code);
                 if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
-                    !used_indices.contains(idx)
+                    !already_credited
+                        && !used_indices.contains(idx)
                         && parsed.code == course.code
                         && matches_curriculum_slot(parsed)
                 }) {
@@ -647,7 +651,12 @@ pub fn audit_major(
                     courses_found_in_cluster += 1;
                 }
             }
-            if courses_found_in_cluster >= cluster.min_courses {
+            let has_required = cluster.required.iter().all(|code| {
+                courses
+                    .iter()
+                    .any(|c| &c.code == code && matches_curriculum_slot(c))
+            });
+            if courses_found_in_cluster >= cluster.min_courses && has_required {
                 completed_clusters_count += 1;
             }
         }
@@ -679,7 +688,8 @@ pub fn audit_major(
 
     // Greedy match "others" electives so repeated special topics accumulate
     // credits; other repeated codes (retakes) count once.
-    let mut seen_others: HashSet<String> = HashSet::new();
+    // Seeded with every course already placed, so retakes never count again.
+    let mut seen_others = used_dedupe_keys(courses, &used_indices);
     for course in &curriculum.electives.others {
         for (idx, parsed) in courses.iter().enumerate() {
             if !used_indices.contains(&idx)
@@ -902,6 +912,52 @@ mod tests {
         // 344-361 needs 344-111 in 2564 but 344-213 in 2569.
         assert_eq!(unmet_prerequisites("344-361", &[], cs64()), ["344-111"]);
         assert_eq!(unmet_prerequisites("344-361", &[], cs69()), ["344-213"]);
+    }
+
+    fn clusters_completed(result: &AuditResult) -> bool {
+        !missing_text(result).contains("Required: 2 Clusters")
+    }
+
+    #[test]
+    fn cluster_4_1_needs_its_required_courses() {
+        let big_data = ["344-331", "344-332", "344-431"];
+        let with = |ai: [&str; 3]| -> Vec<ParsedCourse> {
+            big_data
+                .iter()
+                .chain(ai.iter())
+                .map(|c| parsed(c, "A", 3.0))
+                .collect()
+        };
+        // 2564 cluster 4.1: 344-261 and 344-362 plus one of 461/462/463.
+        assert!(!clusters_completed(&build_audit(
+            &with(["344-461", "344-462", "344-463"]),
+            cs64()
+        )));
+        assert!(clusters_completed(&build_audit(
+            &with(["344-261", "344-362", "344-463"]),
+            cs64()
+        )));
+    }
+
+    #[test]
+    fn retaken_shared_cluster_course_earns_credit_once() {
+        // 344-335 sits in clusters 3.2 and 3.4 of the 2564 curriculum.
+        let result = build_audit(
+            &[parsed("344-335", "D", 3.0), parsed("344-335", "B", 3.0)],
+            cs64(),
+        );
+        assert_eq!(category(&result, "Major Courses").collected_credits, 3.0);
+        assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
+    }
+
+    #[test]
+    fn retaken_core_course_is_not_also_an_elective() {
+        let result = build_audit(
+            &[parsed("344-201", "D", 6.0), parsed("344-201", "B", 6.0)],
+            cs64(),
+        );
+        assert_eq!(category(&result, "Major Courses").collected_credits, 6.0);
+        assert_eq!(result.total_credits, 6.0);
     }
 
     #[test]

@@ -1350,6 +1350,10 @@
                   "name": "Internet of Robotic Things",
                   "credits": 3.0
                 }
+              ],
+              "required": [
+                "344-261",
+                "344-362"
               ]
             },
             {

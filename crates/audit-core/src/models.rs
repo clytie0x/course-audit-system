@@ -132,6 +132,10 @@ pub struct MajorCluster {
     pub min_courses: u32,
     pub description: Option<String>,
     pub courses: Vec<MajorCourse>,
+    /// Courses that must be among those taken for the cluster to count
+    /// (e.g. 2564 cluster 4.1: 344-261 and 344-362, plus one more).
+    #[serde(default)]
+    pub required: Vec<String>,
 }
 
 /// Domain grouping clusters of major electives.
