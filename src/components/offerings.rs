@@ -13,6 +13,7 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 
 use crate::app::AppState;
+use crate::components::ui::{CARD, SECTION_TITLE, TAG, TAG_WARN};
 
 /// Results shown at once; refine the search to see more.
 const MAX_RESULTS: usize = 40;
@@ -101,18 +102,18 @@ pub fn OfferingsPanel() -> impl IntoView {
     let t = move |th: &'static str, en: &'static str| if is_thai.get() { th } else { en };
 
     view! {
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft overflow-hidden print:hidden">
-            <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center gap-2.5">
-                <svg class="w-4 h-4 text-brand-500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
-                <h3 class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{move || t("รายวิชาที่เปิดสอน", "Course offerings")}</h3>
-                <span class="text-2xs text-zinc-500 dark:text-zinc-400">
+        <section class=format!("{CARD} overflow-hidden print:hidden")>
+            <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-4 sm:px-[18px] pt-4 pb-1.5">
+                <h2 class=SECTION_TITLE>{move || t("วิชาที่เปิดสอน", "Course offerings")}</h2>
+                <span class="flex-1"></span>
+                <span class="text-[12.5px] text-zinc-400">
                     {move || offerings.get().flatten().map(|d| format!("SIS · {} · {}", d.campus, d.scraped_at))}
                 </span>
             </div>
-            <div class="p-5 space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-2.5 items-center">
+            <div class="px-4 sm:px-[18px] pb-4 pt-2 space-y-4">
+                <div class="flex flex-wrap gap-2.5 items-center">
                     <select
-                        class="text-[13px] font-mono px-2 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                        class="h-10 rounded-[9px] border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-sm tabular-nums text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                         aria-label=move || t("ภาคการศึกษา", "Term")
                         prop:value=move || selected_term().unwrap_or_default()
                         on:change=move |ev| set_term.set(Some(event_target_value(&ev)))
@@ -127,17 +128,20 @@ pub fn OfferingsPanel() -> impl IntoView {
                         type="search"
                         placeholder=move || t("ค้นหารหัสหรือชื่อวิชา", "Search code or name")
                         aria-label=move || t("ค้นหารายวิชาที่เปิดสอน", "Search offerings")
-                        class="text-[13px] px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                        class="h-10 flex-1 min-w-[180px] rounded-[9px] border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                         prop:value=move || query.get()
                         on:input=move |ev| set_query.set(event_target_value(&ev))
                     />
-                    <label class="inline-flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded"
-                            prop:checked=move || only_outstanding.get()
-                            on:change=move |ev| set_only_outstanding.set(event_target_checked(&ev))
-                        />
-                        {move || t("เฉพาะวิชาบังคับที่ยังไม่ได้เรียน", "Required courses not yet taken")}
-                    </label>
+                    // Only meaningful with a transcript.
+                    {move || (!parsed_courses.get().is_empty()).then(|| view! {
+                        <label class="inline-flex items-center gap-2 text-[13.5px] text-zinc-600 dark:text-zinc-300 cursor-pointer">
+                            <input type="checkbox" class="w-4 h-4 rounded accent-zinc-900 dark:accent-zinc-100"
+                                prop:checked=move || only_outstanding.get()
+                                on:change=move |ev| set_only_outstanding.set(event_target_checked(&ev))
+                            />
+                            {move || t("เฉพาะวิชาบังคับที่ยังไม่ได้เรียน", "Required courses not yet taken")}
+                        </label>
+                    })}
                 </div>
 
                 // Personal timetable
@@ -158,9 +162,9 @@ pub fn OfferingsPanel() -> impl IntoView {
                         })).collect();
                         slots.sort();
                         view! {
-                            <div class="rounded-xl border border-brand-200/70 dark:border-brand-900/50 bg-brand-50/40 dark:bg-brand-950/20 p-4 space-y-2.5">
+                            <div class="rounded-xl border border-accent-200 dark:border-accent-800 bg-accent-50/60 dark:bg-accent-900/40 p-4 space-y-2.5">
                                 <div class="flex items-center justify-between">
-                                    <p class="text-xs font-semibold text-brand-700 dark:text-brand-300">{move || t("ตารางเรียนของฉัน", "My timetable")}</p>
+                                    <p class="text-xs font-semibold text-accent-700 dark:text-accent-300">{move || t("ตารางเรียนของฉัน", "My timetable")}</p>
                                     <button class="text-2xs font-semibold text-zinc-500 hover:text-red-600" on:click=move |_| set_picks.set(Vec::new())>
                                         {move || t("ล้าง", "Clear")}
                                     </button>
@@ -196,22 +200,22 @@ pub fn OfferingsPanel() -> impl IntoView {
                         let rows = results();
                         let empty = rows.is_empty();
                         view! {
-                            <div class="divide-y divide-zinc-100 dark:divide-zinc-800 rounded-lg border border-zinc-200/80 dark:border-zinc-800">
+                            <div class="divide-y divide-zinc-200 dark:divide-zinc-800 rounded-[9px] border border-zinc-200 dark:border-zinc-800">
                                 {rows.into_iter().map(|c| {
                                     let unmet = unmet_prerequisites(&c.code, &done, cur);
                                     let code = c.code.clone();
                                     let name = c.name_th.clone().or(c.name_en.clone()).unwrap_or_default();
                                     view! {
                                         <details class="group">
-                                            <summary class="list-none px-4 py-2.5 flex items-center gap-3 cursor-pointer hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50">
-                                                <span class="font-mono text-2xs font-semibold text-zinc-500 w-16 shrink-0">{c.code.clone()}</span>
-                                                <span class="text-[13px] text-zinc-800 dark:text-zinc-200 truncate flex-1">{name.clone()}</span>
+                                            <summary class="list-none px-3.5 py-2.5 flex items-center gap-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500 [&::-webkit-details-marker]:hidden">
+                                                <span class="font-mono text-[0.86em] text-zinc-500 dark:text-zinc-400 w-16 shrink-0">{c.code.clone()}</span>
+                                                <span class="text-sm text-zinc-800 dark:text-zinc-200 truncate flex-1">{name.clone()}</span>
                                                 {(!unmet.is_empty()).then(|| {
                                                     let list = unmet.join(", ");
-                                                    view! { <span class="text-2xs font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300" role="note">{move || if is_thai.get() { format!("ต้องเรียน {} ก่อน", list) } else { format!("Requires {}", list) }}</span> }
+                                                    view! { <span class=format!("{TAG} {TAG_WARN} shrink-0") role="note">{move || if is_thai.get() { format!("ต้องเรียน {} ก่อน", list) } else { format!("Requires {}", list) }}</span> }
                                                 })}
-                                                <span class="text-2xs text-zinc-400 font-mono shrink-0">{c.credit_pattern.clone().unwrap_or_default()}</span>
-                                                <span class="text-2xs text-zinc-400 shrink-0">{format!("{} sec", c.sections.len())}</span>
+                                                <span class="hidden sm:inline text-xs text-zinc-400 tabular-nums shrink-0">{c.credit_pattern.clone().unwrap_or_default()}</span>
+                                                <span class="text-xs text-zinc-400 shrink-0 tabular-nums">{let n = c.sections.len(); move || if is_thai.get() { format!("{n} ตอน") } else { format!("{n} sec") }}</span>
                                             </summary>
                                             <div class="px-4 pb-3 space-y-2">
                                                 {c.sections.into_iter().map(|s| {
@@ -229,7 +233,7 @@ pub fn OfferingsPanel() -> impl IntoView {
                                                                 <span>{s.seats.map(|n| format!("{n} ที่นั่ง"))}</span>
                                                                 <span class="text-zinc-500 truncate">{s.students.clone()}</span>
                                                                 <button
-                                                                    class="ml-auto text-2xs font-semibold px-2 py-0.5 rounded border border-brand-300 text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-950/40"
+                                                                    class="ml-auto text-xs font-medium px-2 py-0.5 rounded-md border border-accent-300 dark:border-accent-700 text-accent-700 dark:text-accent-300 hover:bg-accent-50 dark:hover:bg-accent-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                                                                     on:click={
                                                                         let pick = pick.clone();
                                                                         move |_| set_picks.update(|v| {
@@ -268,6 +272,6 @@ pub fn OfferingsPanel() -> impl IntoView {
                     }
                 }}
             </div>
-        </div>
+        </section>
     }
 }

@@ -1,4 +1,5 @@
-//! What-If simulator: add hypothetical courses to the audit input.
+//! Plan tab: add hypothetical courses and see a projection; the real audit
+//! result is left alone.
 
 use audit_core::auditor::unmet_prerequisites;
 use audit_core::data::curriculum;
@@ -7,11 +8,14 @@ use audit_core::parser::normalize_course_code;
 use leptos::prelude::*;
 
 use crate::app::AppState;
+use crate::components::status::{fmt_credits, status_line};
+use crate::components::ui::{grade_class, CARD, SECTION_TITLE, TAG, TAG_OK, TAG_WARN};
 
 #[component]
 pub fn WhatIfSimulator() -> impl IntoView {
     let AppState {
         parsed_courses,
+        audit_result,
         plan_result,
         curriculum_id,
         planned_courses,
@@ -62,146 +66,165 @@ pub fn WhatIfSimulator() -> impl IntoView {
         set_planned_courses.set(Vec::new());
     };
 
+    let field = "h-10 w-full min-w-0 rounded-[9px] border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500";
+
     view! {
-        // ── What-If Simulator ───────────────────
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft overflow-hidden print:hidden">
-            <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-brand-500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.378-1.067 3.81A48.26 48.26 0 0112 21.75c-2.568 0-5.053-.201-7.135-.539-1.718-.432-2.3-2.578-1.068-3.81L5 14.5"/></svg>
-                <h3 class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{move || if is_thai.get() { "จำลองแผน (What-If)" } else { "What-If Simulator" }}</h3>
-                <span class="text-2xs text-zinc-500 dark:text-zinc-400 ml-1">{move || if is_thai.get() { "ใส่วิชาสมมติเพื่อดูผลกระทบ" } else { "Add hypothetical courses to see projected impact" }}</span>
+        <section class=format!("{CARD} overflow-hidden")>
+            <div class="px-4 sm:px-[18px] pt-4 pb-1.5">
+                <h2 class=SECTION_TITLE>{move || if is_thai.get() { "จำลองแผนการเรียน" } else { "Plan your next courses" }}</h2>
             </div>
-            <div class="p-5 space-y-4">
-                // Input form
-                <div class="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto_auto_auto] gap-2.5">
-                    <input
-                        type="text"
-                        placeholder={move || if is_thai.get() { "รหัส เช่น 344-301" } else { "Code e.g. 344-301" }}
-                        class="min-w-0 text-[13px] font-mono px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                        aria-label={move || if is_thai.get() { "รหัสวิชา" } else { "Course code" }}
-                        prop:value=move || plan_code.get()
-                        on:input=move |ev| set_plan_code.set(event_target_value(&ev))
-                    />
-                    <input
-                        type="text"
-                        placeholder={move || if is_thai.get() { "ชื่อวิชา (ไม่จำเป็น)" } else { "Course name (optional)" }}
-                        class="min-w-0 text-[13px] px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                        aria-label={move || if is_thai.get() { "ชื่อวิชา" } else { "Course name" }}
-                        prop:value=move || plan_name.get()
-                        on:input=move |ev| set_plan_name.set(event_target_value(&ev))
-                    />
-                    <input
-                        type="number"
-                        min="0" max="12" step="1"
-                        class="w-16 text-[13px] font-mono text-center px-2 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                        aria-label={move || if is_thai.get() { "หน่วยกิต" } else { "Credits" }}
-                        prop:value=move || plan_credit.get().to_string()
-                        on:input=move |ev| {
-                            if let Ok(v) = event_target_value(&ev).parse::<f32>() {
-                                set_plan_credit.set(v);
-                            }
-                        }
-                    />
-                    <select
-                        class="text-[13px] font-mono px-2 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                        aria-label={move || if is_thai.get() { "เกรดคาดการณ์" } else { "Expected grade" }}
-                        on:change=move |ev| set_plan_grade.set(event_target_value(&ev))
-                    >
-                        <option value="A">"A"</option>
-                        <option value="B+">"B+"</option>
-                        <option value="B">"B"</option>
-                        <option value="C+">"C+"</option>
-                        <option value="C">"C"</option>
-                        <option value="D+">"D+"</option>
-                        <option value="D">"D"</option>
-                        <option value="IP">"IP"</option>
-                    </select>
-                    <button
-                        class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-50 dark:hover:bg-zinc-200 dark:text-zinc-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
-                        on:click=add_planned
-                    >
-                        <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        <span>{move || if is_thai.get() { "เพิ่ม" } else { "Add" }}</span>
-                    </button>
-                </div>
-
-                // Planned list
-                {move || {
-                    let planned = planned_courses.get();
-                    (!planned.is_empty()).then(|| view! {
-                        <div class="rounded-lg border border-zinc-200/80 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800">
-                            {planned.iter().enumerate().map(|(i, p)| {
-                                // Prerequisites met by the transcript or by other planned courses.
-                                let mut others = parsed_courses.get();
-                                others.extend(planned.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, c)| c.clone()));
-                                let unmet = unmet_prerequisites(&p.code, &others, curriculum(&curriculum_id.get()));
-                                let code = p.code.clone();
-                                let name = p.name.clone();
-                                let credit = p.parsed_credit;
-                                let grade = p.grade.clone();
-                                view! {
-                                    <div class="flex items-center justify-between px-4 py-2.5">
-                                        <div class="flex items-center gap-3 min-w-0 flex-1">
-                                            <span class="font-mono text-2xs font-semibold text-zinc-400 dark:text-zinc-500 w-16 shrink-0">{code}</span>
-                                            <span class="text-[13px] text-zinc-700 dark:text-zinc-300 truncate">{name}</span>
-                                            {(!unmet.is_empty()).then(|| {
-                                                let list = unmet.join(", ");
-                                                view! {
-                                                    <span class="shrink-0 text-2xs font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50" role="note">
-                                                        {move || if is_thai.get() { format!("ต้องเรียน {} ก่อน", list) } else { format!("Requires {}", list) }}
-                                                    </span>
-                                                }
-                                            })}
-                                        </div>
-                                        <div class="flex items-center gap-3 shrink-0 ml-3">
-                                            <span class="text-2xs font-bold min-w-[1.75rem] h-5 px-1 flex items-center justify-center rounded border bg-purple-50 text-purple-700 border-purple-200/60 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-900/50">{grade}</span>
-                                            <span class="text-2xs text-zinc-400 dark:text-zinc-500 font-mono w-6 text-right">{format!("{}", credit as u32)}</span>
-                                            <button
-                                                class="text-zinc-400 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
-                                                aria-label={move || if is_thai.get() { "ลบวิชานี้จากแผน" } else { "Remove from plan" }}
-                                                on:click=move |_| remove_planned(i)
-                                            >
-                                                <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                }
-                            }).collect::<Vec<_>>()}
-                        </div>
-                    })
+            <p class="px-4 sm:px-[18px] pb-3 text-[13px] text-zinc-600 dark:text-zinc-400">
+                {move || if is_thai.get() {
+                    "ใส่วิชาที่คิดจะลง แล้วดูว่าครบหลักสูตรหรือยัง และเกรดเฉลี่ยจะเป็นเท่าไร ผลจริงด้านบนไม่เปลี่ยน"
+                } else {
+                    "Add courses you plan to take and see whether you'd meet the curriculum and what your GPA would be. The real results above don't change."
                 }}
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-[150px_minmax(0,1fr)_90px_90px_auto] gap-2.5 px-4 sm:px-[18px] pb-4">
+                <input
+                    type="text"
+                    placeholder="344-495"
+                    class=format!("{field} font-mono")
+                    aria-label={move || if is_thai.get() { "รหัสวิชา" } else { "Course code" }}
+                    prop:value=move || plan_code.get()
+                    on:input=move |ev| set_plan_code.set(event_target_value(&ev))
+                />
+                <input
+                    type="text"
+                    placeholder={move || if is_thai.get() { "ชื่อวิชา (ไม่บังคับ)" } else { "Course name (optional)" }}
+                    class=field
+                    aria-label={move || if is_thai.get() { "ชื่อวิชา" } else { "Course name" }}
+                    prop:value=move || plan_name.get()
+                    on:input=move |ev| set_plan_name.set(event_target_value(&ev))
+                />
+                <input
+                    type="number"
+                    min="0" max="12" step="1"
+                    class=format!("{field} tabular-nums")
+                    aria-label={move || if is_thai.get() { "หน่วยกิต" } else { "Credits" }}
+                    prop:value=move || plan_credit.get().to_string()
+                    on:input=move |ev| {
+                        if let Ok(v) = event_target_value(&ev).parse::<f32>() {
+                            set_plan_credit.set(v);
+                        }
+                    }
+                />
+                <select
+                    class=field
+                    aria-label={move || if is_thai.get() { "เกรดที่คาด" } else { "Expected grade" }}
+                    on:change=move |ev| set_plan_grade.set(event_target_value(&ev))
+                >
+                    <option value="A">"A"</option>
+                    <option value="B+">"B+"</option>
+                    <option value="B">"B"</option>
+                    <option value="C+">"C+"</option>
+                    <option value="C">"C"</option>
+                    <option value="D+">"D+"</option>
+                    <option value="D">"D"</option>
+                    <option value="IP">"IP"</option>
+                </select>
+                <button
+                    class="h-10 inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-zinc-900 dark:bg-zinc-50 px-4 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    on:click=add_planned
+                >
+                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    {move || if is_thai.get() { "เพิ่มวิชา" } else { "Add course" }}
+                </button>
+            </div>
 
-                // Clear button + hint
-                {move || {
-                    let planned = planned_courses.get();
-                    (!planned.is_empty()).then(|| view! {
-                        <div class="flex items-center justify-between pt-1">
-                            <p class="text-2xs text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { format!("{} วิชาในแผน — ผลคาดการณ์ด้านล่างรวมแผนแล้ว", planned_courses.get().len()) } else { format!("{} planned courses — the projection below includes the plan", planned_courses.get().len()) }}</p>
+            // Planned list
+            {move || {
+                let planned = planned_courses.get();
+                if planned.is_empty() {
+                    return view! {
+                        <p class="px-4 sm:px-[18px] py-5 text-center text-[13px] text-zinc-400 border-t border-zinc-200 dark:border-zinc-800">
+                            {move || if is_thai.get() { "ยังไม่มีวิชาในแผน" } else { "No courses planned yet" }}
+                        </p>
+                    }.into_any();
+                }
+                view! {
+                    <div class="border-t border-zinc-200 dark:border-zinc-800">
+                        {planned.iter().enumerate().map(|(i, p)| {
+                            // Prerequisites met by the transcript or by other planned courses.
+                            let mut others = parsed_courses.get();
+                            others.extend(planned.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, c)| c.clone()));
+                            let unmet = unmet_prerequisites(&p.code, &others, curriculum(&curriculum_id.get()));
+                            let code = p.code.clone();
+                            let name = p.name.clone();
+                            let credit = p.parsed_credit;
+                            let grade = p.grade.clone();
+                            view! {
+                                <div class="flex items-center gap-3 px-4 sm:px-[18px] py-2.5 border-b border-zinc-200 dark:border-zinc-800 text-sm">
+                                    <span class="font-mono text-[0.86em] text-zinc-500 dark:text-zinc-400 w-16 shrink-0">{code}</span>
+                                    <span class="min-w-0 flex-1 truncate text-zinc-800 dark:text-zinc-200">{name}</span>
+                                    {(!unmet.is_empty()).then(|| {
+                                        let list = unmet.join(", ");
+                                        view! {
+                                            <span class=format!("{TAG} {TAG_WARN} shrink-0") role="note">
+                                                {move || if is_thai.get() { format!("ต้องเรียน {list} ก่อน") } else { format!("Requires {list}") }}
+                                            </span>
+                                        }
+                                    })}
+                                    <span class="tabular-nums text-zinc-500 w-6 text-right">{fmt_credits(credit)}</span>
+                                    <span class=grade_class(&grade)>{grade.clone()}</span>
+                                    <button
+                                        class="text-zinc-400 hover:text-red-600 dark:hover:text-red-400 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                                        aria-label={move || if is_thai.get() { "ลบวิชานี้จากแผน" } else { "Remove from plan" }}
+                                        on:click=move |_| remove_planned(i)
+                                    >
+                                        <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                </div>
+                            }
+                        }).collect::<Vec<_>>()}
+                        <div class="flex items-center justify-between px-4 sm:px-[18px] py-2">
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                                {move || if is_thai.get() { format!("{} วิชาในแผน", planned_courses.get().len()) } else { format!("{} planned courses", planned_courses.get().len()) }}
+                            </p>
                             <button
-                                class="text-2xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded px-2 py-1"
+                                class="text-xs font-medium text-zinc-500 hover:text-red-600 dark:hover:text-red-400 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                                 on:click=clear_plan
                             >
                                 {move || if is_thai.get() { "ล้างแผนทั้งหมด" } else { "Clear all" }}
                             </button>
                         </div>
-                    })
-                }}
+                    </div>
+                }.into_any()
+            }}
 
-                // Projection: transcript plus plan
-                {move || plan_result.get().map(|r| {
-                    let counted = r.counted_credits();
-                    let required = r.required_credits();
-                    let gpa = r.gpa.map_or("—".to_string(), |g| format!("{g:.2}"));
-                    view! {
-                        <p class="text-xs text-zinc-700 dark:text-zinc-300 tabular-nums">
-                            {move || if is_thai.get() {
-                                format!("ผลคาดการณ์ หน่วยกิตที่นับได้ {counted:.0} / {required:.0} · เกรดเฉลี่ย {gpa}")
-                            } else {
-                                format!("Projection: counted credits {counted:.0} / {required:.0} · GPA {gpa}")
-                            }}
-                        </p>
-                    }
-                })}
-            </div>
-        </div>
+            // Projection: transcript plus plan (real result when nothing is planned)
+            {move || {
+                let r = plan_result.get().or_else(|| audit_result.get())?;
+                let (ok, _, _) = status_line(&r, is_thai.get());
+                let counted = r.counted_credits();
+                let required = r.required_credits();
+                let gpa = r.gpa.map_or("—".to_string(), |g| format!("{g:.2}"));
+                let short = (required - counted).max(0.0);
+                Some(view! {
+                    <div class="grid grid-cols-1 min-[480px]:grid-cols-3 gap-px bg-zinc-200 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-800">
+                        <div class="bg-white dark:bg-zinc-900 px-4 sm:px-[18px] py-3.5">
+                            <p class="text-[12.5px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "หน่วยกิตที่นับได้" } else { "Counted credits" }}</p>
+                            <p class="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{format!("{} / {}", fmt_credits(counted), fmt_credits(required))}</p>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-900 px-4 sm:px-[18px] py-3.5">
+                            <p class="text-[12.5px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "เกรดเฉลี่ยคาดการณ์" } else { "Projected GPA" }}</p>
+                            <p class="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{gpa}</p>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-900 px-4 sm:px-[18px] py-3.5">
+                            <p class="text-[12.5px] text-zinc-500 dark:text-zinc-400">{move || if is_thai.get() { "สถานะ" } else { "Status" }}</p>
+                            <p class="pt-1">
+                                {if ok {
+                                    view! { <span class=format!("{TAG} {TAG_OK}")>{move || if is_thai.get() { "ครบหลักสูตร" } else { "Requirements met" }}</span> }.into_any()
+                                } else if short > 0.0 {
+                                    view! { <span class=format!("{TAG} {TAG_WARN}")>{move || if is_thai.get() { format!("ขาดอีก {}", fmt_credits(short)) } else { format!("{} short", fmt_credits(short)) }}</span> }.into_any()
+                                } else {
+                                    view! { <span class=format!("{TAG} {TAG_WARN}")>{move || if is_thai.get() { "ยังไม่ครบ" } else { "Not complete" }}</span> }.into_any()
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                })
+            }}
+        </section>
     }
 }
