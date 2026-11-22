@@ -12,6 +12,9 @@ use audit_core::offerings::{OfferingsIndex, TermOfferings};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
+/// Height of a 4.00 bar in the GPA chart.
+const GPA_BAR_MAX_PX: f32 = 120.0;
+
 /// Newest term in the offerings index and the course codes it lists.
 async fn newest_term() -> Option<(String, Vec<String>)> {
     let index = fetch_json::<OfferingsIndex>("offerings/index.json".into()).await?;
@@ -232,13 +235,15 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                                 <span class="flex-1"></span>
                                 <span class="text-[12.5px] text-zinc-400 tabular-nums">{move || if is_thai.get() { "สูงสุด 4.00" } else { "Max 4.00" }}</span>
                             </div>
-                            <div class="flex items-end gap-2.5 h-[150px] px-4 sm:px-[18px] pt-2" role="img" aria-label=summary>
+                            <div class="flex items-end gap-2.5 px-4 sm:px-[18px] pt-2" role="img" aria-label=summary>
                                 {gpa_bars.iter().enumerate().map(|(i, (_, g))| view! {
-                                    <div class="flex-1 min-w-0 h-full flex flex-col items-center justify-end gap-1.5">
+                                    // Pixel heights on bars that never shrink: a percentage of a column
+                                    // that also holds the label got squeezed to one height above ~84%.
+                                    <div class="flex-1 min-w-0 flex flex-col items-center justify-end gap-1.5">
                                         <span class="text-xs text-zinc-500 tabular-nums">{format!("{g:.2}")}</span>
                                         <div
-                                            class=if i == last { "w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-600" } else { "w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-100 border border-accent-300" }
-                                            style=format!("height:{:.0}%", g / 4.0 * 100.0)
+                                            class=if i == last { "shrink-0 w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-600" } else { "shrink-0 w-full max-w-[34px] rounded-t-md rounded-b-sm bg-accent-100 border border-accent-300" }
+                                            style=format!("height:{:.0}px", g / 4.0 * GPA_BAR_MAX_PX)
                                         ></div>
                                     </div>
                                 }).collect::<Vec<_>>()}
