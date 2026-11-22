@@ -167,7 +167,7 @@ trunk build --release
 | Layer | Behavior |
 | --- | --- |
 | **Processing** | 100% in-browser WebAssembly |
-| **Network** | Static assets + PDF.js CDN only — no user data ever sent |
+| **Network** | Same-origin static assets (PDF.js is bundled) — no user data ever sent |
 | **Storage** | Nothing by default. Opt-in `localStorage` for last result |
 | **Code** | Open source, fully auditable |
 

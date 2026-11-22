@@ -5,11 +5,13 @@
 
 // Bump this on every release that ships a parser/audit change — the old
 // hashed wasm may still be served from cache otherwise.
-const CACHE = 'course-audit-v2';
+const CACHE = 'course-audit-v3';
 const CORE_ASSETS = [
     './',
     './index.html',
     './manifest.webmanifest',
+    './pdfjs/pdf.min.js',
+    './pdfjs/pdf.worker.min.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -33,7 +35,7 @@ self.addEventListener('fetch', (event) => {
     if (req.method !== 'GET') return;
     const url = new URL(req.url);
 
-    // Only handle same-origin assets — PDF.js stays on the CDN, student PDFs
+    // Only handle same-origin assets (PDF.js is vendored under pdfjs/). Student PDFs
     // are never fetched (they're loaded via File input and stay in memory).
     if (url.origin !== self.location.origin) return;
 
