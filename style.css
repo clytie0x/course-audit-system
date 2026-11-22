@@ -55,6 +55,69 @@
     }
 }
 
+/* Progress bars on a real <progress>: blue while accumulating, green when
+   complete. Fill vs track stays at or above 3:1 in both themes. */
+@layer components {
+    .progress {
+        appearance: none;
+        -webkit-appearance: none;
+        display: block;
+        width: 100%;
+        height: 8px;
+        border: 0;
+        border-radius: 9999px;
+        overflow: hidden;
+        background: theme("colors.zinc.200");
+    }
+
+    .progress.thin {
+        height: 6px;
+    }
+
+    .progress::-webkit-progress-bar {
+        background: theme("colors.zinc.200");
+    }
+
+    .progress::-webkit-progress-value {
+        background: theme("colors.accent.600");
+        border-radius: 9999px;
+    }
+
+    .progress::-moz-progress-bar {
+        background: theme("colors.accent.600");
+        border-radius: 9999px;
+    }
+
+    .progress.ok::-webkit-progress-value {
+        background: theme("colors.emerald.700");
+    }
+
+    .progress.ok::-moz-progress-bar {
+        background: theme("colors.emerald.700");
+    }
+
+    .dark .progress,
+    .dark .progress::-webkit-progress-bar {
+        background: theme("colors.zinc.800");
+    }
+
+    .dark .progress::-webkit-progress-value {
+        background: theme("colors.accent.400");
+    }
+
+    .dark .progress::-moz-progress-bar {
+        background: theme("colors.accent.400");
+    }
+
+    .dark .progress.ok::-webkit-progress-value {
+        background: theme("colors.emerald.400");
+    }
+
+    .dark .progress.ok::-moz-progress-bar {
+        background: theme("colors.emerald.400");
+    }
+}
+
 @layer utilities {
     .scrollbar-none {
         -ms-overflow-style: none;

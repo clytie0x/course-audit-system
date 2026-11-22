@@ -1,13 +1,16 @@
-//! Results view: export/print toolbar, registration banner and the result sections.
+//! Results view: page head with export/print, status banner, KPI row and the
+//! tabbed sections (overview, courses, semesters, plan, offerings).
 
 use crate::components::category_card::CategoryCard;
-use crate::components::category_summary::CategorySummary;
-use crate::components::coop_hours::CoopHours;
-use crate::components::hero::HeroCard;
+use crate::components::coop_hours::{CoopHours, CoopHoursState, TOTAL_REQUIRED};
+use crate::components::empty_state::SaveToggle;
 use crate::components::missing_requirements::MissingRequirements;
 use crate::components::offerings::OfferingsPanel;
 use crate::components::semester_breakdown::SemesterBreakdown;
+use crate::components::status::{fmt_credits, label, status_line};
+use crate::components::ui::{BUTTON, CARD, TAG, TAG_ACCENT, TAG_OK};
 use crate::components::what_if::WhatIfSimulator;
+use audit_core::data::{curricula, curriculum};
 use audit_core::models::AuditResult;
 use audit_core::models::ParseMode;
 use leptos::prelude::*;
@@ -16,14 +19,68 @@ use wasm_bindgen::JsValue;
 
 use crate::app::AppState;
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum Tab {
+    Overview,
+    Courses,
+    Semesters,
+    Plan,
+    Offerings,
+}
+
+impl Tab {
+    const ALL: [Tab; 5] = [
+        Tab::Overview,
+        Tab::Courses,
+        Tab::Semesters,
+        Tab::Plan,
+        Tab::Offerings,
+    ];
+
+    fn id(self) -> &'static str {
+        match self {
+            Tab::Overview => "overview",
+            Tab::Courses => "courses",
+            Tab::Semesters => "semesters",
+            Tab::Plan => "plan",
+            Tab::Offerings => "offerings",
+        }
+    }
+
+    fn title(self, is_thai: bool) -> &'static str {
+        match (self, is_thai) {
+            (Tab::Overview, true) => "ภาพรวม",
+            (Tab::Overview, false) => "Overview",
+            (Tab::Courses, true) => "รายวิชา",
+            (Tab::Courses, false) => "Courses",
+            (Tab::Semesters, true) => "รายเทอม",
+            (Tab::Semesters, false) => "Semesters",
+            (Tab::Plan, true) => "จำลองแผน",
+            (Tab::Plan, false) => "Plan",
+            (Tab::Offerings, true) => "วิชาที่เปิดสอน",
+            (Tab::Offerings, false) => "Offerings",
+        }
+    }
+}
+
 #[component]
 pub fn ResultsView(result: AuditResult) -> impl IntoView {
     let AppState {
         audit_result,
         parse_mode,
+        curriculum_id,
+        set_curriculum_id,
+        cohort,
         is_thai,
         ..
     } = expect_context::<AppState>();
+    let CoopHoursState {
+        faculty,
+        university,
+        ..
+    } = expect_context::<CoopHoursState>();
+    let tab = RwSignal::new(Tab::Overview);
+
     // Download the AuditResult as a JSON file.
     let export_json = move |_| {
         let Some(result) = audit_result.get_untracked() else {
@@ -64,60 +121,308 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
         }
     };
 
-    view! {
-        <div class="space-y-5 animate-fade-in">
+    let counted = result.counted_credits();
+    let required = result.required_credits();
+    let earned = result.earned_credits();
+    let overflow: f32 = result.categories.iter().map(|c| c.overflow_credits()).sum();
+    let short = (required - counted).max(0.0);
+    let pct = if required > 0.0 {
+        (counted / required * 100.0).round()
+    } else {
+        0.0
+    };
+    let gpa = result.gpa;
+    let course_count = result.attempts.len();
+    // Where the missing credits are: groups when a category has them.
+    let gaps: Vec<(String, f32)> = result
+        .categories
+        .iter()
+        .flat_map(|c| {
+            if c.groups.is_empty() {
+                vec![(c.name.clone(), c.required_credits - c.counted_credits())]
+            } else {
+                c.groups
+                    .iter()
+                    .map(|g| {
+                        (
+                            g.name.clone(),
+                            g.required_credits - g.collected_credits.min(g.required_credits),
+                        )
+                    })
+                    .collect()
+            }
+        })
+        .filter(|(_, gap)| *gap > 0.0)
+        .collect();
+    let result_for_status = result.clone();
+    let categories = result.categories.clone();
 
-            // ── Actions toolbar (export / print) ─────
-            <div class="flex items-center justify-end gap-2 print:hidden">
-                <button
-                    class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
-                    on:click=export_json
-                >
-                    <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                    <span>{move || if is_thai.get() { "ดาวน์โหลด JSON" } else { "Export JSON" }}</span>
-                </button>
-                <button
-                    class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
-                    on:click=print_report
-                >
-                    <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"/></svg>
-                    <span>{move || if is_thai.get() { "พิมพ์ / บันทึก PDF" } else { "Print / Save PDF" }}</span>
-                </button>
+    let on_tab_key = move |ev: web_sys::KeyboardEvent| {
+        let step: isize = match ev.key().as_str() {
+            "ArrowRight" => 1,
+            "ArrowLeft" => -1,
+            _ => return,
+        };
+        ev.prevent_default();
+        let i = Tab::ALL
+            .iter()
+            .position(|t| *t == tab.get_untracked())
+            .unwrap_or(0) as isize;
+        let next = Tab::ALL[(i + step).rem_euclid(Tab::ALL.len() as isize) as usize];
+        tab.set(next);
+        if let Some(el) = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.get_element_by_id(&format!("tab-{}", next.id())))
+            .and_then(|e| e.dyn_into::<web_sys::HtmlElement>().ok())
+        {
+            let _ = el.focus();
+        }
+    };
+
+    let panel = move |t: Tab, body: AnyView| {
+        view! {
+            <div
+                id=format!("panel-{}", t.id())
+                role="tabpanel"
+                aria-labelledby=format!("tab-{}", t.id())
+                class="tab-panel"
+                hidden=move || tab.get() != t
+            >
+                {body}
+            </div>
+        }
+    };
+
+    view! {
+        <div class="animate-fade-in">
+            // ── Page head ─────────────────────────────
+            <div class="flex flex-wrap items-end gap-4 mb-5">
+                <div class="min-w-0">
+                    <h1 class="text-[22px] sm:text-[26px] leading-snug font-semibold text-zinc-900 dark:text-zinc-50">
+                        {move || if is_thai.get() { "สรุปผลการตรวจหลักสูตร" } else { "Curriculum audit summary" }}
+                    </h1>
+                    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                        <span>{move || if is_thai.get() { "วิทยาการคอมพิวเตอร์" } else { "Computer Science" }}</span>
+                        <span aria-hidden="true">"·"</span>
+                        <select
+                            class="bg-transparent rounded-md border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 pr-1 py-0.5 text-sm text-zinc-700 dark:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                            aria-label={move || if is_thai.get() { "หลักสูตรที่ใช้ตรวจ" } else { "Curriculum used for the audit" }}
+                            prop:value=move || curriculum_id.get()
+                            on:change=move |ev| set_curriculum_id.set(event_target_value(&ev))
+                        >
+                            {curricula().iter().map(|c| view! { <option value=c.id.clone()>{c.name.clone()}</option> }).collect::<Vec<_>>()}
+                        </select>
+                        {move || cohort.get().map(|c| view! {
+                            <span aria-hidden="true">"·"</span>
+                            <span>{move || if is_thai.get() { format!("รุ่นรหัส {}", c % 100) } else { format!("Cohort {}", c % 100) }}</span>
+                        })}
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto sm:ml-auto print:hidden">
+                    <button class=format!("{BUTTON} flex-1 sm:flex-none justify-center") on:click=export_json>
+                        <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 4v12m0 0-4-4m4 4 4-4M4 20h16"/></svg>
+                        {move || if is_thai.get() { "ส่งออก JSON" } else { "Export JSON" }}
+                    </button>
+                    <button class=format!("{BUTTON} flex-1 sm:flex-none justify-center") on:click=print_report>
+                        <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>
+                        {move || if is_thai.get() { "พิมพ์รายงาน" } else { "Print report" }}
+                    </button>
+                </div>
             </div>
 
             // ── Registration-mode banner ─────────────
             {move || (parse_mode.get() == ParseMode::Registration).then(|| view! {
-                <div class="rounded-2xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/30 px-5 py-3 flex items-start gap-3" role="status">
-                    <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285zM12 15.75h.007v.008H12v-.008z"/></svg>
-                    <div class="text-[13px] text-amber-900 dark:text-amber-200 leading-relaxed">
-                        <p class="font-semibold">{move || if is_thai.get() { "กำลังดูไฟล์ผลการลงทะเบียน" } else { "Viewing registration file" }}</p>
-                        <p class="text-amber-800/90 dark:text-amber-300/90 mt-0.5">{move || if is_thai.get() { "วิชาที่กำลังเรียนแสดงเป็นแท็กสีเหลือง และยังไม่นับหน่วยกิตจนกว่าจะได้เกรด" } else { "In-progress courses appear with a yellow tag and don't count toward credits until graded." }}</p>
+                <div class="rounded-xl border border-amber-200/70 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/40 px-4 py-3 mb-4 flex items-start gap-3" role="status">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285zM12 15.75h.007v.008H12v-.008z"/></svg>
+                    <div class="text-sm text-amber-900 dark:text-amber-200">
+                        <p class="font-semibold">{move || if is_thai.get() { "กำลังดูไฟล์ผลการลงทะเบียน" } else { "Viewing a registration file" }}</p>
+                        <p class="text-amber-800/90 dark:text-amber-300/90">{move || if is_thai.get() { "วิชาที่กำลังเรียนยังไม่นับหน่วยกิตจนกว่าจะได้เกรด" } else { "In-progress courses don't count toward credits until they're graded." }}</p>
                     </div>
                 </div>
             })}
 
-            <HeroCard result=result.clone()/>
-            <CategorySummary result=result.clone()/>
+            // ── Status banner ────────────────────────
+            {move || {
+                let (ok, head, note) = status_line(&result_for_status, is_thai.get());
+                let box_class = if ok {
+                    "border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40"
+                } else {
+                    "border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40"
+                };
+                let icon_class = if ok { "text-emerald-700 dark:text-emerald-400" } else { "text-amber-700 dark:text-amber-400" };
+                view! {
+                    <div class=format!("rounded-xl border px-4 py-3 mb-5 flex items-start gap-3 {box_class}") role="status">
+                        <svg class=format!("w-5 h-5 shrink-0 mt-0.5 {icon_class}") aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            {if ok {
+                                view! { <path d="M20 6 9 17l-5-5"/> }.into_any()
+                            } else {
+                                view! { <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/> }.into_any()
+                            }}
+                        </svg>
+                        <div class="text-sm">
+                            <p class="font-semibold text-zinc-900 dark:text-zinc-100">{head}</p>
+                            {note.map(|n| view! { <p class="text-zinc-600 dark:text-zinc-400">{n}</p> })}
+                        </div>
+                    </div>
+                }
+            }}
 
-            // ── Course Details Accordion ─────────────
-            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-soft overflow-hidden">
-                <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2.5">
-                    <svg class="w-4 h-4 text-zinc-400 dark:text-zinc-500" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
-                    <h3 class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{move || if is_thai.get() { "รายละเอียดวิชา" } else { "Course Details" }}</h3>
+            // ── KPI row ──────────────────────────────
+            <div class="grid grid-cols-2 min-[700px]:grid-cols-3 lg:grid-cols-[1.35fr_1fr_1fr_1fr] gap-3 mb-7">
+                <div class=format!("{CARD} px-4 py-4 sm:px-[18px] col-span-2 min-[700px]:col-span-3 lg:col-span-1")>
+                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "หน่วยกิตที่นับตามหลักสูตร" } else { "Credits counted toward the curriculum" }}</p>
+                    <div class="flex items-baseline gap-1.5 mt-2 mb-2.5">
+                        <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{fmt_credits(counted)}</span>
+                        <span class="text-[15px] font-medium text-zinc-400 tabular-nums">"/ "{fmt_credits(required)}</span>
+                        <span class="flex-1"></span>
+                        <span class=format!("{TAG} {TAG_ACCENT} tabular-nums")>{format!("{pct:.0}%")}</span>
+                    </div>
+                    <progress
+                        class={if counted >= required { "progress ok" } else { "progress" }}
+                        max=required
+                        value=counted
+                        aria-label={move || if is_thai.get() { "หน่วยกิตที่นับตามหลักสูตร" } else { "Credits counted toward the curriculum" }}
+                        aria-valuetext={move || if is_thai.get() {
+                            format!("{} จาก {} หน่วยกิต", fmt_credits(counted), fmt_credits(required))
+                        } else {
+                            format!("{} of {} credits", fmt_credits(counted), fmt_credits(required))
+                        }}
+                    ></progress>
+                    <p class="mt-2 text-[12.5px] text-zinc-600 dark:text-zinc-400">
+                        {move || {
+                            let base = if is_thai.get() {
+                                format!("เรียนแล้วทั้งหมด {}", fmt_credits(earned))
+                            } else {
+                                format!("Earned in total {}", fmt_credits(earned))
+                            };
+                            if overflow > 0.0 {
+                                if is_thai.get() {
+                                    format!("{base} · เกินในเลือกเสรี {}", fmt_credits(overflow))
+                                } else {
+                                    format!("{base} · {} over in free electives", fmt_credits(overflow))
+                                }
+                            } else {
+                                base
+                            }
+                        }}
+                    </p>
                 </div>
-                <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                    {result.categories.iter().map(|category| {
+
+                <div class=format!("{CARD} px-4 py-4 sm:px-[18px]")>
+                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "เกรดเฉลี่ยสะสม" } else { "Cumulative GPA" }}</p>
+                    <p class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums mt-2 mb-2.5 text-zinc-900 dark:text-zinc-50">
+                        {gpa.map_or("—".to_string(), |g| format!("{g:.2}"))}
+                    </p>
+                    <p class="text-[12.5px] text-zinc-500 dark:text-zinc-400 tabular-nums">
+                        {move || {
+                            let min = curriculum(&curriculum_id.get()).min_gpa;
+                            if is_thai.get() { format!("ขั้นต่ำ {min:.2}") } else { format!("Minimum {min:.2}") }
+                        }}
+                    </p>
+                </div>
+
+                <div class=format!("{CARD} px-4 py-4 sm:px-[18px]")>
+                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "ยังต้องเรียนอีก" } else { "Still to take" }}</p>
+                    <p class="flex items-baseline gap-1.5 mt-2 mb-2.5">
+                        <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{fmt_credits(short)}</span>
+                        <span class="text-[15px] font-medium text-zinc-400">{move || if is_thai.get() { "หน่วยกิต" } else { "credits" }}</span>
+                    </p>
+                    <p class="text-[12.5px] text-zinc-600 dark:text-zinc-400">
+                        {move || {
+                            let th = is_thai.get();
+                            if gaps.is_empty() {
+                                if th { "ครบทุกหมวดแล้ว".to_string() } else { "Every category is complete".to_string() }
+                            } else {
+                                gaps.iter()
+                                    .map(|(n, g)| format!("{} {}", label(n, th), fmt_credits(*g)))
+                                    .collect::<Vec<_>>()
+                                    .join(" · ")
+                            }
+                        }}
+                    </p>
+                </div>
+
+                <div class=format!("{CARD} px-4 py-4 sm:px-[18px] col-span-2 min-[700px]:col-span-1")>
+                    <p class="text-[13px] text-zinc-600 dark:text-zinc-400">{move || if is_thai.get() { "ชั่วโมงเตรียมสหกิจ" } else { "Co-op prep hours" }}</p>
+                    {move || {
+                        let hours = faculty.get() + university.get();
+                        if hours > 0.0 {
+                            view! {
+                                <p class="flex items-baseline gap-1.5 mt-2 mb-2.5">
+                                    <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{fmt_credits(hours)}</span>
+                                    <span class="text-[15px] font-medium text-zinc-400 tabular-nums">"/ "{fmt_credits(TOTAL_REQUIRED)}</span>
+                                    <span class="flex-1"></span>
+                                    {(hours >= TOTAL_REQUIRED).then(|| view! { <span class=format!("{TAG} {TAG_OK}")>{move || if is_thai.get() { "ครบ" } else { "Done" }}</span> })}
+                                </p>
+                            }.into_any()
+                        } else {
+                            view! {
+                                <p class="text-[17px] sm:text-[20px] font-semibold mt-2.5 mb-2.5 text-zinc-900 dark:text-zinc-50">
+                                    {move || if is_thai.get() { "ยังไม่ได้กรอก" } else { "Not entered yet" }}
+                                </p>
+                            }.into_any()
+                        }
+                    }}
+                    <p class="text-[12.5px] text-zinc-600 dark:text-zinc-400">
+                        {move || if is_thai.get() { "กรอกได้ในแท็บภาพรวม" } else { "Enter them on the Overview tab" }}
+                    </p>
+                </div>
+            </div>
+
+            // ── Tabs ─────────────────────────────────
+            <div
+                class="flex gap-1 border-b border-zinc-200 dark:border-zinc-800 mb-5 overflow-x-auto scrollbar-none print:hidden"
+                role="tablist"
+                aria-label={move || if is_thai.get() { "ส่วนของผลการตรวจ" } else { "Audit sections" }}
+                on:keydown=on_tab_key
+            >
+                {Tab::ALL.iter().map(|&t| view! {
+                    <button
+                        id=format!("tab-{}", t.id())
+                        role="tab"
+                        type="button"
+                        aria-controls=format!("panel-{}", t.id())
+                        aria-selected=move || (tab.get() == t).to_string()
+                        tabindex=move || if tab.get() == t { "0" } else { "-1" }
+                        class=move || format!(
+                            "relative shrink-0 px-3 pt-2.5 pb-3 text-[14.5px] font-medium whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-t-md {}",
+                            if tab.get() == t {
+                                "text-zinc-900 dark:text-zinc-50 after:absolute after:left-2.5 after:right-2.5 after:-bottom-px after:h-0.5 after:rounded after:bg-zinc-900 dark:after:bg-zinc-50"
+                            } else {
+                                "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                            }
+                        )
+                        on:click=move |_| tab.set(t)
+                    >
+                        {move || t.title(is_thai.get())}
+                        {(t == Tab::Courses).then(|| view! {
+                            <span class="ml-1.5 text-[11.5px] px-1.5 rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 tabular-nums">{course_count}</span>
+                        })}
+                    </button>
+                }).collect::<Vec<_>>()}
+            </div>
+
+            {panel(Tab::Overview, view! {
+                <div class="space-y-4">
+                    <MissingRequirements result=result.clone()/>
+                    <CoopHours/>
+                </div>
+            }.into_any())}
+            {panel(Tab::Courses, view! {
+                <div class=format!("{CARD} overflow-hidden divide-y divide-zinc-200 dark:divide-zinc-800")>
+                    {categories.iter().map(|category| {
                         let category = category.clone();
                         view! { <CategoryCard category={category} /> }
                     }).collect::<Vec<_>>()}
                 </div>
-            </div>
+            }.into_any())}
+            {panel(Tab::Semesters, view! { <SemesterBreakdown result=result.clone()/> }.into_any())}
+            {panel(Tab::Plan, view! { <WhatIfSimulator/> }.into_any())}
+            {panel(Tab::Offerings, view! { <OfferingsPanel/> }.into_any())}
 
-            <WhatIfSimulator/>
-            <OfferingsPanel/>
-            <CoopHours/>
-            <SemesterBreakdown result=result.clone()/>
-            <MissingRequirements result=result.clone()/>
+            <div class="mt-10 pt-5 border-t border-zinc-200 dark:border-zinc-800 print:hidden">
+                <SaveToggle/>
+            </div>
         </div>
     }
 }

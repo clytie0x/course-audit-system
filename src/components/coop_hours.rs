@@ -32,16 +32,20 @@ fn storage() -> Option<web_sys::Storage> {
     web_sys::window().and_then(|w| w.local_storage().ok().flatten())
 }
 
-#[component]
-pub fn CoopHours() -> impl IntoView {
-    let AppState {
-        is_thai,
-        save_enabled,
-        cohort,
-        ..
-    } = expect_context::<AppState>();
-    let (show_report, set_show_report) = signal(false);
+pub const TOTAL_REQUIRED: f32 = FACULTY_REQUIRED + UNIVERSITY_REQUIRED;
 
+/// Hours entered by the student, shared by the co-op card and the KPI row.
+#[derive(Clone, Copy)]
+pub struct CoopHoursState {
+    pub faculty: ReadSignal<f32>,
+    pub set_faculty: WriteSignal<f32>,
+    pub university: ReadSignal<f32>,
+    pub set_university: WriteSignal<f32>,
+}
+
+/// Creates the hours signals (from localStorage when saved) and keeps
+/// localStorage in sync with the save toggle. Call once from `App`.
+pub fn provide_coop_hours(save_enabled: ReadSignal<bool>) {
     let saved = storage()
         .and_then(|s| s.get_item(KEY).ok().flatten())
         .and_then(|v| {
@@ -62,6 +66,26 @@ pub fn CoopHours() -> impl IntoView {
             }
         }
     });
+    provide_context(CoopHoursState {
+        faculty,
+        set_faculty,
+        university,
+        set_university,
+    });
+}
+
+#[component]
+pub fn CoopHours() -> impl IntoView {
+    let AppState {
+        is_thai, cohort, ..
+    } = expect_context::<AppState>();
+    let CoopHoursState {
+        faculty,
+        set_faculty,
+        university,
+        set_university,
+    } = expect_context::<CoopHoursState>();
+    let (show_report, set_show_report) = signal(false);
 
     let t = move |th: &'static str, en: &'static str| if is_thai.get() { th } else { en };
     let row = move |label_th: &'static str,

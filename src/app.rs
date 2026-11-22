@@ -8,6 +8,7 @@
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
 
+use crate::components::coop_hours::provide_coop_hours;
 use crate::components::empty_state::EmptyState;
 use crate::components::header::Header;
 use crate::components::offerings::OfferingsPanel;
@@ -167,6 +168,8 @@ pub fn App() -> impl IntoView {
         }
         set_audit_result.set(Some(result));
     });
+
+    provide_coop_hours(save_enabled);
 
     // Language toggle: true = Thai (default), false = English
     let (is_thai, set_is_thai) = signal(true);
