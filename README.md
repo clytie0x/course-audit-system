@@ -187,10 +187,18 @@ course-audit-system/
 │
 ├── src/                     Web crate (Leptos UI, wasm only)
 │   ├── main.rs              Tiny entry — panic hook + mount App
-│   ├── app.rs               App component · all UI state & handlers
+│   ├── app.rs               App shell · shared AppState signals · re-audit effect
 │   ├── pdf.rs               PDF.js interop (extractTextFromPDF)
 │   └── components/
-│       └── category_card.rs Collapsible category accordion
+│       ├── header.rs        Navbar · language + dark-mode toggles
+│       ├── sidebar.rs       Upload + analysis · how-it-works · save toggle
+│       ├── results.rs       Results layout · export JSON / print
+│       ├── hero.rs          Total credits + GPA
+│       ├── category_summary.rs  Donut card per category
+│       ├── category_card.rs Collapsible category accordion
+│       ├── what_if.rs       What-If simulator
+│       ├── semester_breakdown.rs  Per-semester GPA + credits
+│       └── missing_requirements.rs  Missing list + copy
 │
 └── crates/audit-core/       Pure Rust core, no wasm deps (tests run natively)
     └── src/
