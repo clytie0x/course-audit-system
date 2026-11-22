@@ -86,10 +86,18 @@ pub fn detect_cohort(text: &str) -> Option<u32> {
     Some(2500 + yy)
 }
 
-/// regex-lite's `\s` is ASCII-only, so turn the no-break spaces some PDFs emit
-/// into plain spaces before matching.
+/// regex-lite's `\s` is ASCII-only, so turn non-ASCII whitespace (no-break,
+/// thin, ideographic spaces) that some PDFs emit into plain spaces first.
 fn normalize_spaces(text: &str) -> String {
-    text.replace('\u{a0}', " ")
+    text.chars()
+        .map(|c| {
+            if !c.is_ascii() && c.is_whitespace() {
+                ' '
+            } else {
+                c
+            }
+        })
+        .collect()
 }
 
 /// Unicode word character as the full `regex` crate's `\b` saw it; regex-lite's
@@ -497,6 +505,15 @@ mod tests {
         assert_eq!(courses.len(), 1);
         assert_eq!(courses[0].code, "344-111");
         assert_eq!(courses[0].grade, "A");
+    }
+
+    #[test]
+    fn grade_line_with_other_unicode_spaces_parses() {
+        // Thin space, narrow no-break space and ideographic space.
+        let text = "344-111\u{2009}PROGRAMMING CONCEPTS\u{202f}6\u{3000}6 A";
+        let (courses, _) = parse_transcript(text);
+        assert_eq!(courses.len(), 1);
+        assert_eq!(courses[0].code, "344-111");
     }
 
     #[test]
