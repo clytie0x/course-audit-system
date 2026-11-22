@@ -1,27 +1,81 @@
-//! Static curriculum data for PSU Computer Science program
+//! Curriculum revisions of the PSU B.Sc. Computer Science programme.
 //!
-//! Contains all required courses and requirements for:
-//! - General Education (GenEd) requirements
-//! - Major-specific courses
+//! Each revision lives in its own JSON file next to this module (the source of
+//! truth, edited by hand from the official TQF2 / มคอ.2) and is compiled into
+//! the binary via `include_str!`, then parsed once on first access.
+//!
+//! - `cs2564.json`: หลักสูตรปรับปรุง พ.ศ. 2564, cohorts 2564–2568
+//! - `cs2569.json`: หลักสูตรปรับปรุง พ.ศ. 2569, cohorts 2569+
 
-pub mod gen_ed;
-pub mod major;
+use crate::models::Curriculum;
+use std::sync::OnceLock;
+
+const SOURCES: [(&str, &str); 2] = [
+    ("cs2564.json", include_str!("cs2564.json")),
+    ("cs2569.json", include_str!("cs2569.json")),
+];
+
+/// All known revisions, oldest first.
+pub fn curricula() -> &'static [Curriculum] {
+    static CACHE: OnceLock<Vec<Curriculum>> = OnceLock::new();
+    CACHE.get_or_init(|| {
+        SOURCES
+            .iter()
+            .map(|(file, json)| {
+                serde_json::from_str(json)
+                    .unwrap_or_else(|e| panic!("{file} must deserialize: {e}"))
+            })
+            .collect()
+    })
+}
+
+/// Looks up a revision by id, falling back to the oldest one.
+pub fn curriculum(id: &str) -> &'static Curriculum {
+    let all = curricula();
+    all.iter().find(|c| c.id == id).unwrap_or(&all[0])
+}
+
+/// The newest revision whose first cohort is not after `cohort` (Buddhist year).
+pub fn curriculum_for_cohort(cohort: u32) -> &'static Curriculum {
+    let all = curricula();
+    all.iter()
+        .rev()
+        .find(|c| c.first_cohort <= cohort)
+        .unwrap_or(&all[0])
+}
 
 #[cfg(test)]
-mod dump {
-    // One-shot JSON dumper — invoked manually via
-    // `cargo test dump_curricula -- --ignored --nocapture` whenever the
-    // in-Rust curriculum data changes. Writes the serialized curriculum back
-    // to JSON files that production code loads via include_str! + serde_json.
-    use super::gen_ed::get_gen_ed_curriculum;
-    use super::major::get_major_curriculum;
+mod tests {
+    use super::*;
 
     #[test]
-    #[ignore]
-    fn dump_curricula() {
-        let gen = serde_json::to_string_pretty(&get_gen_ed_curriculum()).unwrap();
-        let maj = serde_json::to_string_pretty(&get_major_curriculum()).unwrap();
-        std::fs::write("src/data/gen_ed.json", gen).unwrap();
-        std::fs::write("src/data/major.json", maj).unwrap();
+    fn all_curricula_deserialize() {
+        let ids: Vec<&str> = curricula().iter().map(|c| c.id.as_str()).collect();
+        assert_eq!(ids, ["cs2564", "cs2569"]);
+    }
+
+    #[test]
+    fn cohort_picks_revision() {
+        assert_eq!(curriculum_for_cohort(2567).id, "cs2564");
+        assert_eq!(curriculum_for_cohort(2569).id, "cs2569");
+        assert_eq!(curriculum_for_cohort(2575).id, "cs2569");
+        assert_eq!(curriculum_for_cohort(2560).id, "cs2564");
+    }
+
+    #[test]
+    fn credit_totals_match_tqf2() {
+        // Total = GenEd + major + free electives, as stated in each TQF2.
+        for (id, total) in [("cs2564", 132.0), ("cs2569", 125.0)] {
+            let c = curriculum(id);
+            let sum = c.gen_ed.total_required_credits
+                + c.major.total_required_credits
+                + c.free_elective_credits;
+            assert_eq!(sum, total, "{id}");
+            let core: f32 = c.major.core_courses.courses.iter().map(|x| x.credits).sum();
+            assert_eq!(
+                core, c.major.core_courses.required_credits,
+                "{id} core list"
+            );
+        }
     }
 }

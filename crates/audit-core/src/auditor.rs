@@ -6,34 +6,39 @@
 //! - **Free Elective Detection**: Credits unmatched courses as free electives
 //! - **Greedy Matching**: Allows repeatable courses to accumulate credits
 
-use crate::data::{gen_ed::get_gen_ed_curriculum, major::get_major_curriculum};
 use crate::models::{
     compute_gpa, free_elective_dedupe_key, is_in_progress, is_passing_grade, AuditResult, Category,
-    Course, GenEdCurriculum, MajorCurriculum, MissingCourse, ParsedCourse,
+    Course, Curriculum, GenEdCurriculum, MajorCourse, MajorCurriculum, MissingCourse, ParsedCourse,
 };
 use std::collections::HashSet;
 
-/// Free-elective credits required by the curriculum.
-const FREE_ELECTIVE_CREDITS: f32 = 6.0;
-
 /// Runs the full audit pipeline (GenEd → Major → free electives → GPA) over a
-/// course list and returns the UI-facing `AuditResult`. The What-If simulator
-/// re-invokes this on every plan change, so it's intentionally pure — no
-/// signals, no I/O.
-pub fn build_audit(parsed: &[ParsedCourse]) -> AuditResult {
-    let gen_ed = get_gen_ed_curriculum();
-    let major = get_major_curriculum();
+/// course list for one curriculum revision and returns the UI-facing
+/// `AuditResult`. The What-If simulator re-invokes this on every plan change,
+/// so it's intentionally pure — no signals, no I/O.
+pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditResult {
+    let gen_ed = &curriculum.gen_ed;
+    let major = &curriculum.major;
+    let free_required = curriculum.free_elective_credits;
 
-    let (gen_ed_credits, gen_ed_missing, gen_ed_used) = audit_gen_ed(parsed, &gen_ed);
-    let (major_credits, elective_credits, major_missing, major_used) = audit_major(parsed, &major);
+    let (gen_ed_earned, gen_ed_missing, gen_ed_used) = audit_gen_ed(parsed, gen_ed);
+    let gen_ed_credits = gen_ed_earned.min(gen_ed.total_required_credits);
+    let mj = audit_major(parsed, major, &gen_ed_used);
+    let major_credits = mj.completed_credits;
+    let elective_credits = mj.elective_credits.min(mj.elective_required);
+    // GenEd and major-elective credits beyond what the plan requires count as
+    // free electives.
+    let surplus = (gen_ed_earned - gen_ed_credits) + (mj.elective_credits - elective_credits);
+    let major_used = mj.used;
 
     let mut all_used_courses = gen_ed_used.clone();
-    all_used_courses.extend(major_used.clone());
+    all_used_courses.extend(major_used.iter().copied());
 
-    let (free_elective_credits, _) = calculate_free_electives(parsed, &all_used_courses);
+    let (unused_credits, _) = calculate_free_electives(parsed, &all_used_courses);
+    let free_elective_credits = unused_credits + surplus;
 
     let mut all_missing: Vec<MissingCourse> = gen_ed_missing;
-    all_missing.extend(major_missing);
+    all_missing.extend(mj.missing);
     // Drop GenEd-wide misses when the total pool is met; Major/Core misses
     // are strict slots and stay regardless of totals.
     all_missing.retain(|m| match m.category.as_str() {
@@ -41,13 +46,13 @@ pub fn build_audit(parsed: &[ParsedCourse]) -> AuditResult {
         _ => true,
     });
 
-    if elective_credits < major.electives.total_required_credits {
+    if elective_credits < mj.elective_required {
         all_missing.push(MissingCourse {
             category: "Major Electives".to_string(),
             description: format!(
                 "{}: missing {:.1} credits",
                 major.electives.name,
-                major.electives.total_required_credits - elective_credits
+                mj.elective_required - elective_credits
             ),
         });
     }
@@ -60,12 +65,12 @@ pub fn build_audit(parsed: &[ParsedCourse]) -> AuditResult {
             ),
         });
     }
-    if free_elective_credits < FREE_ELECTIVE_CREDITS {
+    if free_elective_credits < free_required {
         all_missing.push(MissingCourse {
             category: "Free Electives".to_string(),
             description: format!(
                 "Free Electives: missing {:.1} credits",
-                FREE_ELECTIVE_CREDITS - free_elective_credits
+                free_required - free_elective_credits
             ),
         });
     }
@@ -109,6 +114,15 @@ pub fn build_audit(parsed: &[ParsedCourse]) -> AuditResult {
         })
         .collect();
     let gpa = compute_gpa(&attempts);
+    if let Some(g) = gpa.filter(|g| *g < curriculum.min_gpa) {
+        all_missing.push(MissingCourse {
+            category: "Graduation".to_string(),
+            description: format!(
+                "Cumulative GPA {g:.2} is below the minimum {:.2}",
+                curriculum.min_gpa
+            ),
+        });
+    }
 
     AuditResult {
         total_credits,
@@ -127,7 +141,7 @@ pub fn build_audit(parsed: &[ParsedCourse]) -> AuditResult {
             },
             Category {
                 name: "Free Electives".to_string(),
-                required_credits: FREE_ELECTIVE_CREDITS,
+                required_credits: free_required,
                 collected_credits: free_elective_credits,
                 courses: free_elective_courses,
             },
@@ -145,6 +159,10 @@ fn used_dedupe_keys(courses: &[ParsedCourse], used_indices: &HashSet<usize>) -> 
         .iter()
         .map(|&i| free_elective_dedupe_key(&courses[i].code, &courses[i].name))
         .collect()
+}
+
+fn has_tag(parsed: &ParsedCourse, tags: &[String]) -> bool {
+    parsed.tag.as_ref().is_some_and(|t| tags.contains(t))
 }
 
 /// A course counts for *matching* (fills a curriculum slot) when it's passing
@@ -321,6 +339,36 @@ pub fn audit_gen_ed(
                     }
                 }
             }
+            "by_tag" => {
+                // GE category courses identified by the transcript code suffix
+                // (e.g. 315-100G2A -> "G2A"); credits come from the transcript.
+                let tags = strand.tags.as_deref().unwrap_or_default();
+                let mut strand_credits = 0.0;
+                for (idx, parsed) in courses.iter().enumerate() {
+                    if strand_credits >= strand.required_credits {
+                        break;
+                    }
+                    if !used_indices.contains(&idx)
+                        && has_tag(parsed, tags)
+                        && matches_curriculum_slot(parsed)
+                    {
+                        let matched_credits = earned_credits(parsed.parsed_credit, parsed);
+                        completed_credits += matched_credits;
+                        strand_credits += matched_credits;
+                        used_indices.insert(idx);
+                    }
+                }
+                if strand_credits < strand.required_credits {
+                    missing_courses.push(MissingCourse {
+                        category: "General Education".to_string(),
+                        description: format!(
+                            "{}: missing {:.1} credits",
+                            strand.name,
+                            strand.required_credits - strand_credits
+                        ),
+                    });
+                }
+            }
             _ => {
                 if let Some(strand_courses) = &strand.courses {
                     for course in strand_courses {
@@ -382,6 +430,22 @@ pub fn audit_gen_ed(
         }
     }
 
+    // Tag-based GenEd electives (e.g. any "G8" course).
+    for (idx, parsed) in courses.iter().enumerate() {
+        if gen_ed_elective_total_credits >= curriculum.electives.total_required_credits {
+            break;
+        }
+        if !used_indices.contains(&idx)
+            && has_tag(parsed, &curriculum.electives.tags)
+            && matches_curriculum_slot(parsed)
+        {
+            let matched_credits = earned_credits(parsed.parsed_credit, parsed);
+            completed_credits += matched_credits;
+            gen_ed_elective_total_credits += matched_credits;
+            used_indices.insert(idx);
+        }
+    }
+
     if gen_ed_elective_total_credits < curriculum.electives.total_required_credits {
         missing_courses.push(MissingCourse {
             category: "General Education".to_string(),
@@ -413,17 +477,31 @@ pub fn audit_gen_ed(
     (completed_credits, missing_courses, used_indices)
 }
 
+/// Result of `audit_major`.
+pub struct MajorOutcome {
+    /// Basic science + core + capstone credits.
+    pub completed_credits: f32,
+    /// All major-elective credits earned (may exceed `elective_required`).
+    pub elective_credits: f32,
+    /// Elective credits this plan needs: major total − basic − core − capstone.
+    pub elective_required: f32,
+    pub missing: Vec<MissingCourse>,
+    pub used: HashSet<usize>,
+}
+
 /// Audits courses against the major curriculum, including greedy matching for
 /// special-topics and other elective buckets. Credits are taken from curriculum
-/// data to avoid PDF parsing drift.
+/// data to avoid PDF parsing drift. Indices in `exclude` (already placed in
+/// GenEd) are never claimed.
 pub fn audit_major(
     courses: &[ParsedCourse],
     curriculum: &MajorCurriculum,
-) -> (f32, f32, Vec<MissingCourse>, HashSet<usize>) {
+    exclude: &HashSet<usize>,
+) -> MajorOutcome {
     let mut completed_credits = 0.0;
     let mut elective_credits = 0.0;
     let mut missing_courses: Vec<MissingCourse> = Vec::new();
-    let mut used_indices = HashSet::new();
+    let mut used_indices = exclude.clone();
 
     for course in &curriculum.basic_science.courses {
         if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
@@ -459,7 +537,7 @@ pub fn audit_major(
         }
     }
 
-    let mut capstone_completed = false;
+    let mut capstone_taken: Option<&MajorCourse> = None;
     for option in &curriculum.capstone.options {
         if let Some((idx, parsed)) = courses.iter().enumerate().find(|(idx, parsed)| {
             !used_indices.contains(idx)
@@ -469,13 +547,45 @@ pub fn audit_major(
             let matched_credits = earned_credits(option.credits, parsed);
             completed_credits += matched_credits;
             used_indices.insert(idx);
-            capstone_completed = true;
+            capstone_taken = Some(option);
 
             break;
         }
     }
 
-    if !capstone_completed {
+    // The plan follows the capstone taken; before that, assume the first option.
+    let capstone_credits = capstone_taken
+        .or(curriculum.capstone.options.first())
+        .map_or(0.0, |o| o.credits);
+    let elective_required = curriculum.total_required_credits
+        - curriculum.basic_science.required_credits
+        - curriculum.core_courses.required_credits
+        - capstone_credits;
+
+    for req in &curriculum.noncredit_required {
+        if req
+            .only_with
+            .as_ref()
+            .is_some_and(|code| capstone_taken.is_none_or(|t| &t.code != code))
+        {
+            continue;
+        }
+        // Earns no credit, but is claimed so it never counts as a free elective.
+        if let Some(idx) = courses.iter().enumerate().position(|(idx, parsed)| {
+            !used_indices.contains(&idx)
+                && parsed.code == req.code
+                && matches_curriculum_slot(parsed)
+        }) {
+            used_indices.insert(idx);
+        } else {
+            missing_courses.push(MissingCourse {
+                category: "Core Courses".to_string(),
+                description: format!("{} - {} (non-credit, must pass)", req.code, req.name),
+            });
+        }
+    }
+
+    if capstone_taken.is_none() && !curriculum.capstone.options.is_empty() {
         let options_desc = curriculum
             .capstone
             .options
@@ -491,7 +601,9 @@ pub fn audit_major(
     }
 
     let mut completed_clusters_count = 0;
+    let mut best_domain_credits: f32 = 0.0;
     for domain in &curriculum.electives.domains {
+        let mut domain_credits = 0.0;
         for cluster in &domain.clusters {
             let mut courses_found_in_cluster = 0;
             for course in &cluster.courses {
@@ -502,6 +614,7 @@ pub fn audit_major(
                 }) {
                     let matched_credits = earned_credits(course.credits, parsed);
                     elective_credits += matched_credits;
+                    domain_credits += matched_credits;
                     used_indices.insert(idx);
                     courses_found_in_cluster += 1;
                 } else if courses
@@ -515,6 +628,18 @@ pub fn audit_major(
             if courses_found_in_cluster >= cluster.min_courses {
                 completed_clusters_count += 1;
             }
+        }
+        best_domain_credits = best_domain_credits.max(domain_credits);
+    }
+
+    if let Some(min) = curriculum.electives.domain_min_credits {
+        if best_domain_credits < min {
+            missing_courses.push(MissingCourse {
+                category: "Major Electives".to_string(),
+                description: format!(
+                    "At least {min:.0} elective credits within one specialisation domain (best so far: {best_domain_credits:.0})"
+                ),
+            });
         }
     }
 
@@ -547,12 +672,30 @@ pub fn audit_major(
         }
     }
 
-    (
+    // Any other course from the programme's own prefix (e.g. "344-") is an elective.
+    for (idx, parsed) in courses.iter().enumerate() {
+        if !used_indices.contains(&idx)
+            && curriculum
+                .electives
+                .prefixes
+                .iter()
+                .any(|p| parsed.code.starts_with(p.as_str()))
+            && matches_curriculum_slot(parsed)
+            && seen_others.insert(free_elective_dedupe_key(&parsed.code, &parsed.name))
+        {
+            elective_credits += earned_credits(parsed.parsed_credit, parsed);
+            used_indices.insert(idx);
+        }
+    }
+
+    used_indices.retain(|i| !exclude.contains(i));
+    MajorOutcome {
         completed_credits,
         elective_credits,
-        missing_courses,
-        used_indices,
-    )
+        elective_required,
+        missing: missing_courses,
+        used: used_indices,
+    }
 }
 
 /// Calculates free-elective credits from unused courses, pulling credit values
@@ -587,7 +730,11 @@ pub fn calculate_free_electives(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::gen_ed::get_gen_ed_curriculum;
+    use crate::data::curriculum;
+
+    fn cs64() -> &'static Curriculum {
+        curriculum("cs2564")
+    }
 
     fn parsed(code: &str, grade: &str, credit: f32) -> ParsedCourse {
         ParsedCourse {
@@ -596,6 +743,7 @@ mod tests {
             grade: grade.to_string(),
             parsed_credit: credit,
             semester: None,
+            tag: None,
         }
     }
 
@@ -612,7 +760,10 @@ mod tests {
 
     #[test]
     fn gpa_counts_failed_attempts() {
-        let result = build_audit(&[parsed("322-101", "A", 3.0), parsed("322-102", "F", 3.0)]);
+        let result = build_audit(
+            &[parsed("322-101", "A", 3.0), parsed("322-102", "F", 3.0)],
+            cs64(),
+        );
         assert_eq!(result.gpa, Some(2.0));
         assert_eq!(
             result.attempts.len(),
@@ -623,14 +774,17 @@ mod tests {
 
     #[test]
     fn e_grade_does_not_fill_slot() {
-        let result = build_audit(&[parsed("388-100", "E", 1.0)]);
+        let result = build_audit(&[parsed("388-100", "E", 1.0)], cs64());
         assert_eq!(result.total_credits, 0.0);
         assert_eq!(result.gpa, Some(0.0));
     }
 
     #[test]
     fn retake_after_passing_counts_credits_once() {
-        let result = build_audit(&[parsed("322-101", "D", 3.0), parsed("322-101", "B", 3.0)]);
+        let result = build_audit(
+            &[parsed("322-101", "D", 3.0), parsed("322-101", "B", 3.0)],
+            cs64(),
+        );
         assert_eq!(result.total_credits, 3.0);
         assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
         // Both attempts stay in GPA: (1.0 * 3 + 3.0 * 3) / 6.
@@ -639,8 +793,12 @@ mod tests {
 
     #[test]
     fn repeated_non_topic_elective_counts_once() {
-        let result = build_audit(&[parsed("344-493", "A", 3.0), parsed("344-493", "B", 3.0)]);
-        assert_eq!(result.total_credits, 3.0);
+        // 344-493 Job Training is 2 credits in the 2564 TQF2.
+        let result = build_audit(
+            &[parsed("344-493", "A", 2.0), parsed("344-493", "B", 2.0)],
+            cs64(),
+        );
+        assert_eq!(result.total_credits, 2.0);
         assert_eq!(category(&result, "Major Courses").courses.len(), 1);
     }
 
@@ -650,13 +808,13 @@ mod tests {
         first.name = "Special Topics (Topic 1)".to_string();
         let mut second = parsed("344-496", "A", 3.0);
         second.name = "Special Topics (Topic 2)".to_string();
-        let result = build_audit(&[first, second]);
+        let result = build_audit(&[first, second], cs64());
         assert_eq!(result.total_credits, 6.0);
     }
 
     #[test]
     fn gen_ed_electives_overflow_to_free_electives() {
-        let gen_ed = get_gen_ed_curriculum();
+        let gen_ed = cs64().gen_ed.clone();
         let electives: Vec<ParsedCourse> = gen_ed
             .electives
             .sub_categories
@@ -668,7 +826,7 @@ mod tests {
             .collect();
         assert_eq!(electives.len(), 5);
 
-        let result = build_audit(&electives);
+        let result = build_audit(&electives, cs64());
         assert_eq!(
             category(&result, "General Education").collected_credits,
             6.0
@@ -676,14 +834,157 @@ mod tests {
         assert_eq!(category(&result, "Free Electives").collected_credits, 4.0);
     }
 
+    fn cs69() -> &'static Curriculum {
+        curriculum("cs2569")
+    }
+
+    fn tagged(code: &str, grade: &str, credit: f32, tag: &str) -> ParsedCourse {
+        ParsedCourse {
+            tag: Some(tag.to_string()),
+            ..parsed(code, grade, credit)
+        }
+    }
+
+    fn missing_text(result: &AuditResult) -> String {
+        result
+            .missing_subjects
+            .iter()
+            .map(|m| format!("[{}] {}\n", m.category, m.description))
+            .collect()
+    }
+
+    #[test]
+    fn elective_target_follows_2564_plan() {
+        // 96 - 12 basic - 48 core - capstone: project (3) -> 33, co-op (6) -> 30.
+        let none = missing_text(&build_audit(&[], cs64()));
+        assert!(none.contains("Electives: missing 33.0"), "{none}");
+        let project = missing_text(&build_audit(&[parsed("344-492", "A", 3.0)], cs64()));
+        assert!(project.contains("Electives: missing 33.0"), "{project}");
+        let coop = missing_text(&build_audit(&[parsed("344-495", "S", 6.0)], cs64()));
+        assert!(coop.contains("Electives: missing 30.0"), "{coop}");
+    }
+
+    #[test]
+    fn pre_coop_required_only_on_coop_plan() {
+        let coop = missing_text(&build_audit(&[parsed("344-495", "A", 6.0)], cs64()));
+        assert!(coop.contains("344-494"), "{coop}");
+        let project = missing_text(&build_audit(&[parsed("344-492", "A", 3.0)], cs64()));
+        assert!(!project.contains("344-494"), "{project}");
+    }
+
+    #[test]
+    fn pre_coop_earns_no_credit() {
+        let result = build_audit(
+            &[parsed("344-495", "A", 6.0), parsed("344-494", "S", 1.0)],
+            cs64(),
+        );
+        assert_eq!(result.total_credits, 6.0);
+        assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
+        assert!(!missing_text(&result).contains("344-494"));
+    }
+
+    #[test]
+    fn other_programme_courses_count_as_major_electives() {
+        let result = build_audit(&[parsed("344-999", "A", 3.0)], cs64());
+        assert_eq!(category(&result, "Major Courses").collected_credits, 3.0);
+        assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
+    }
+
+    #[test]
+    fn surplus_major_electives_become_free_electives() {
+        // 12 x 3-credit electives = 36 against the 33 the project plan needs.
+        let electives: Vec<ParsedCourse> = (0..12)
+            .map(|i| parsed(&format!("344-9{i:02}"), "A", 3.0))
+            .collect();
+        let result = build_audit(&electives, cs64());
+        assert_eq!(category(&result, "Major Courses").collected_credits, 33.0);
+        assert_eq!(category(&result, "Free Electives").collected_credits, 3.0);
+    }
+
+    #[test]
+    fn gpa_below_minimum_is_reported() {
+        let low = build_audit(&[parsed("322-101", "D", 3.0)], cs64());
+        assert!(has_missing(&low, "Graduation"));
+        let ok = build_audit(&[parsed("322-101", "C", 3.0)], cs64());
+        assert!(!has_missing(&ok, "Graduation"));
+    }
+
+    #[test]
+    fn gen_ed_2569_counts_by_tag() {
+        let courses = [
+            tagged("890-103", "A", 2.0, "G1"),
+            tagged("890-104", "A", 2.0, "G1"),
+            tagged("315-100", "A", 2.0, "G2A"),
+            tagged("315-202", "B", 2.0, "G2B"),
+            tagged("193-031", "A", 2.0, "G8"),
+            tagged("895-881", "A", 2.0, "G8"),
+            tagged("890-831", "A", 2.0, "G8"),
+            tagged("820-100", "A", 2.0, "G8"),
+        ];
+        let result = build_audit(&courses, cs69());
+        // 4 (G1) + 2 (G2A) + 2 (G2B) + 6 (G8, capped) = 14; the 4th G8 overflows.
+        assert_eq!(
+            category(&result, "General Education").collected_credits,
+            14.0
+        );
+        assert_eq!(category(&result, "Free Electives").collected_credits, 2.0);
+        let text = missing_text(&result);
+        assert!(
+            text.contains("GE3 Entrepreneurial Mindset: missing 2.0"),
+            "{text}"
+        );
+        assert!(!text.contains("GE1"), "{text}");
+    }
+
+    #[test]
+    fn domain_rule_2569_needs_12_credits_in_one_domain() {
+        let split = build_audit(
+            &[
+                parsed("344-214", "A", 3.0),
+                parsed("344-215", "A", 3.0),
+                parsed("344-252", "A", 3.0),
+                parsed("344-351", "A", 3.0),
+            ],
+            cs69(),
+        );
+        assert!(missing_text(&split).contains("within one specialisation domain"));
+        let focused = build_audit(
+            &[
+                parsed("344-214", "A", 3.0),
+                parsed("344-215", "A", 3.0),
+                parsed("344-311", "A", 3.0),
+                parsed("344-342", "A", 3.0),
+            ],
+            cs69(),
+        );
+        assert!(!missing_text(&focused).contains("within one specialisation domain"));
+    }
+
+    #[test]
+    fn curriculum_2569_targets() {
+        let text = missing_text(&build_audit(&[], cs69()));
+        assert!(text.contains("Electives: missing 27.0"), "{text}");
+        assert!(
+            text.contains("344-494"),
+            "pre-co-op is required in 2569: {text}"
+        );
+        assert!(
+            !text.contains("Choose 1:"),
+            "2569 has no capstone choice: {text}"
+        );
+    }
+
     #[test]
     fn missing_reports_major_and_free_elective_credit_shortfall() {
-        let result = build_audit(&[]);
+        let result = build_audit(&[], cs64());
         assert!(has_missing(&result, "Major Courses"));
         assert!(has_missing(&result, "Major Electives"));
         assert!(has_missing(&result, "Free Electives"));
 
-        let result = build_audit(&[parsed("999-001", "A", 3.0), parsed("999-002", "A", 3.0)]);
+        let result = build_audit(
+            &[parsed("999-001", "A", 3.0), parsed("999-002", "A", 3.0)],
+            cs64(),
+        );
         assert!(!has_missing(&result, "Free Electives"));
     }
 
@@ -691,7 +992,7 @@ mod tests {
     fn ip_course_fills_slot_but_adds_zero_credits() {
         // 388-100 "Health for All" is a required course in Strand 1.
         let courses = vec![parsed("388-100", "IP", 1.0)];
-        let gen_ed = get_gen_ed_curriculum();
+        let gen_ed = cs64().gen_ed.clone();
         let (credits, missing, used) = audit_gen_ed(&courses, &gen_ed);
 
         assert!(used.contains(&0), "IP course should fill its slot");
@@ -708,7 +1009,7 @@ mod tests {
     #[test]
     fn passing_course_still_adds_credits() {
         let courses = vec![parsed("388-100", "A", 1.0)];
-        let gen_ed = get_gen_ed_curriculum();
+        let gen_ed = cs64().gen_ed.clone();
         let (credits, _missing, used) = audit_gen_ed(&courses, &gen_ed);
 
         assert!(used.contains(&0));
@@ -730,7 +1031,7 @@ mod tests {
     #[test]
     fn failing_grade_does_not_fill_slot() {
         let courses = vec![parsed("388-100", "F", 1.0)];
-        let gen_ed = get_gen_ed_curriculum();
+        let gen_ed = cs64().gen_ed.clone();
         let (credits, missing, used) = audit_gen_ed(&courses, &gen_ed);
 
         assert!(!used.contains(&0), "F grade must not fill slot");
