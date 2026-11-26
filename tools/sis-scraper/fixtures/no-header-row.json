@@ -1,0 +1,50 @@
+{
+  "href": "/explore/subjects/9000000000000008",
+  "lines": [
+    "344-221",
+    "2 หน่วยกิต · 2((2)-0-4)",
+    "สถาปัตยกรรม",
+    "ARCHITECTURE",
+    "คณะ",
+    "คณะวิทยาศาสตร์",
+    "ภาควิชา",
+    "สาขาทดสอบ",
+    "เลือก section (1 section)"
+  ],
+  "articles": [
+    {
+      "lines": ["Section 01", "120 ที่นั่ง", "ผู้เรียน: 2CS", "สอบกลางภาค: -", "สอบปลายภาค: -"],
+      "rows": [["อังคาร 10:00-11:50", "L4", "อาจารย์ ข."]]
+    }
+  ],
+  "expect": {
+    "id": "9000000000000008",
+    "code": "344-221",
+    "name_th": "สถาปัตยกรรม",
+    "name_en": "ARCHITECTURE",
+    "credits": 2,
+    "credit_pattern": "2((2)-0-4)",
+    "faculty": "คณะวิทยาศาสตร์",
+    "department": "สาขาทดสอบ",
+    "fee": null,
+    "sections": [
+      {
+        "section": "01",
+        "seats": 120,
+        "students": "2CS",
+        "meetings": [
+          {
+            "day": 2,
+            "start": "10:00",
+            "end": "11:50",
+            "room": "L4",
+            "teachers": "อาจารย์ ข."
+          }
+        ],
+        "midterm": "-",
+        "final": "-"
+      }
+    ],
+    "incomplete": false
+  }
+}

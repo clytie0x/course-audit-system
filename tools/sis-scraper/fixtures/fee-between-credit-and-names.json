@@ -1,0 +1,28 @@
+{
+  "href": "/explore/subjects/9000000000000002",
+  "lines": [
+    "322-101",
+    "3 หน่วยกิต · 3(3-0-6)",
+    "1,500.00 บาท",
+    "CALCULUS I",
+    "CALCULUS I",
+    "คณะ",
+    "คณะวิทยาศาสตร์",
+    "ภาควิชา",
+    "-"
+  ],
+  "articles": [],
+  "expect": {
+    "id": "9000000000000002",
+    "code": "322-101",
+    "name_th": "CALCULUS I",
+    "name_en": "CALCULUS I",
+    "credits": 3,
+    "credit_pattern": "3(3-0-6)",
+    "faculty": "คณะวิทยาศาสตร์",
+    "department": "-",
+    "fee": "1,500.00 บาท",
+    "sections": [],
+    "incomplete": false
+  }
+}

@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Scrapes public PSU SIS course offerings into data/offerings/*.json",
   "scripts": {
-    "scrape": "node scrape.mjs"
+    "scrape": "node scrape.mjs",
+    "test": "node --test parse.test.mjs"
   },
   "dependencies": {
     "playwright-core": "1.48.2"

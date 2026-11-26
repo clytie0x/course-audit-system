@@ -1,0 +1,55 @@
+{
+  "href": "https://sis.psu.ac.th/explore/subjects/9000000000000010",
+  "lines": [
+    "142-001",
+    "2 Credits • 2((2)-0-4)",
+    "ชื่ออังกฤษ",
+    "ENGLISH LAYOUT",
+    "Faculty",
+    "International College",
+    "Department: Test",
+    "Select 1 section"
+  ],
+  "articles": [
+    {
+      "lines": [
+        "Sec 02",
+        "ที่นั่ง: 0",
+        "Students: CS1",
+        "Midterm: -",
+        "Final: 15 Jan 2030 09:00-11:00"
+      ],
+      "rows": [["Tue 08.00—09.50", "ONLINE", "A. Teacher"]]
+    }
+  ],
+  "expect": {
+    "id": "9000000000000010",
+    "code": "142-001",
+    "name_th": "ชื่ออังกฤษ",
+    "name_en": "ENGLISH LAYOUT",
+    "credits": 2,
+    "credit_pattern": "2((2)-0-4)",
+    "faculty": "International College",
+    "department": "Test",
+    "fee": null,
+    "sections": [
+      {
+        "section": "02",
+        "seats": 0,
+        "students": "CS1",
+        "meetings": [
+          {
+            "day": 2,
+            "start": "08:00",
+            "end": "09:50",
+            "room": "ONLINE",
+            "teachers": "A. Teacher"
+          }
+        ],
+        "midterm": "-",
+        "final": "15 Jan 2030 09:00-11:00"
+      }
+    ],
+    "incomplete": false
+  }
+}
