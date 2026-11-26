@@ -106,7 +106,7 @@ pub fn OfferingsPanel() -> impl IntoView {
             <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 px-4 sm:px-[18px] pt-4 pb-1.5">
                 <h2 class=SECTION_TITLE>{move || t("วิชาที่เปิดสอน", "Course offerings")}</h2>
                 <span class="flex-1"></span>
-                <span class="text-[12.5px] text-zinc-400">
+                <span class="text-[12.5px] text-zinc-500">
                     {move || offerings.get().flatten().map(|d| format!("SIS · {} · {}", d.campus, d.scraped_at))}
                 </span>
             </div>
@@ -128,7 +128,7 @@ pub fn OfferingsPanel() -> impl IntoView {
                         type="search"
                         placeholder=move || t("ค้นหารหัสหรือชื่อวิชา", "Search code or name")
                         aria-label=move || t("ค้นหารายวิชาที่เปิดสอน", "Search offerings")
-                        class="h-10 flex-1 min-w-[180px] rounded-[9px] border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                        class="h-10 flex-1 min-w-[180px] rounded-[9px] border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                         prop:value=move || query.get()
                         on:input=move |ev| set_query.set(event_target_value(&ev))
                     />
@@ -214,8 +214,8 @@ pub fn OfferingsPanel() -> impl IntoView {
                                                     let list = unmet.join(", ");
                                                     view! { <span class=format!("{TAG} {TAG_WARN} shrink-0") role="note">{move || if is_thai.get() { format!("ต้องเรียน {} ก่อน", list) } else { format!("Requires {}", list) }}</span> }
                                                 })}
-                                                <span class="hidden sm:inline text-xs text-zinc-400 tabular-nums shrink-0">{c.credit_pattern.clone().unwrap_or_default()}</span>
-                                                <span class="text-xs text-zinc-400 shrink-0 tabular-nums">{let n = c.sections.len(); move || if is_thai.get() { format!("{n} ตอน") } else { format!("{n} sec") }}</span>
+                                                <span class="hidden sm:inline text-xs text-zinc-500 tabular-nums shrink-0">{c.credit_pattern.clone().unwrap_or_default()}</span>
+                                                <span class="text-xs text-zinc-500 shrink-0 tabular-nums">{let n = c.sections.len(); move || if is_thai.get() { format!("{n} ตอน") } else { format!("{n} sec") }}</span>
                                             </summary>
                                             <div class="px-4 pb-3 space-y-2">
                                                 {c.sections.into_iter().map(|s| {
@@ -249,7 +249,7 @@ pub fn OfferingsPanel() -> impl IntoView {
                                                                 </button>
                                                             </div>
                                                             <div class="font-mono">
-                                                                {times.is_empty().then(|| view! { <span class="text-zinc-400">{move || t("ยังไม่มีตารางเรียน", "No schedule yet")}</span> })}
+                                                                {times.is_empty().then(|| view! { <span class="text-zinc-500">{move || t("ยังไม่มีตารางเรียน", "No schedule yet")}</span> })}
                                                                 {times.into_iter().map(|(day, txt)| view! {
                                                                     <span class="mr-3">{move || if is_thai.get() { DAYS_TH[day as usize % 8] } else { DAYS_EN[day as usize % 8] }}" "{txt.clone()}</span>
                                                                 }).collect::<Vec<_>>()}

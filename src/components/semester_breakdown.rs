@@ -36,7 +36,7 @@ pub fn SemesterBreakdown(result: AuditResult) -> impl IntoView {
                                 {move || if is_thai.get() { format!("ภาค {sem_label}") } else { format!("Semester {sem_label}") }}
                             </h3>
                             <span class="flex-1"></span>
-                            <span class="text-[13px] text-zinc-400 tabular-nums">
+                            <span class="text-[13px] text-zinc-500 tabular-nums">
                                 {move || if is_thai.get() { format!("{} นก.", fmt_credits(credits)) } else { format!("{} cr", fmt_credits(credits)) }}
                             </span>
                             {if in_progress {
@@ -49,7 +49,7 @@ pub fn SemesterBreakdown(result: AuditResult) -> impl IntoView {
                             <div class="grid grid-cols-[66px_minmax(0,1fr)_22px_34px] gap-2 items-center px-4 py-1.5 border-t border-zinc-200 text-[13.5px]">
                                 <span class="font-mono text-[0.86em] text-zinc-500">{c.code.clone()}</span>
                                 <span class="truncate text-zinc-800" title=c.name.clone()>{c.name.clone()}</span>
-                                <span class="text-zinc-400 tabular-nums text-right">{fmt_credits(c.credit)}</span>
+                                <span class="text-zinc-500 tabular-nums text-right">{fmt_credits(c.credit)}</span>
                                 <span class=grade_class(&c.grade)>{c.grade.clone()}</span>
                             </div>
                         }).collect::<Vec<_>>()}

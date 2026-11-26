@@ -178,8 +178,19 @@ pub fn App() -> impl IntoView {
     provide_coop_hours(save_enabled);
     provide_context(SelectedTab(RwSignal::new(Tab::Overview)));
 
-    // Language toggle: true = Thai (default), false = English
+    // Language toggle: true = Thai (default), false = English.
+    // index.html starts at lang="th" to match this default.
     let (is_thai, set_is_thai) = signal(true);
+    // Screen readers, Thai line breaking and spellcheck follow the toggle.
+    Effect::new(move |_| {
+        let lang = if is_thai.get() { "th" } else { "en" };
+        if let Some(root) = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.document_element())
+        {
+            let _ = root.set_attribute("lang", lang);
+        }
+    });
     provide_context(is_thai);
     provide_context(AppState {
         file_name,
@@ -228,7 +239,7 @@ pub fn App() -> impl IntoView {
 
         <div class="min-h-screen font-sans bg-zinc-50 text-zinc-900 selection:bg-accent-100">
             <Header/>
-            <main class="max-w-[1200px] w-full mx-auto px-3.5 sm:px-5 pt-5 sm:pt-7 pb-20" aria-live="polite" aria-atomic="false">
+            <main class="max-w-[1200px] w-full mx-auto px-3.5 sm:px-5 pt-5 sm:pt-7 pb-20">
                 {move || if has_result.get() {
                     view! {
                         {move || audit_result.get().map(|result| view! { <ResultsView result=result/> })}

@@ -400,17 +400,17 @@ pub fn EmptyState() -> impl IntoView {
 
             <ol class="mt-8 grid gap-3 sm:grid-cols-3 text-left">
                 <li class="rounded-xl border border-zinc-200 bg-white px-4 py-3.5">
-                    <span class="text-xs text-zinc-400 tabular-nums">"01"</span>
+                    <span class="text-xs text-zinc-500 tabular-nums">"01"</span>
                     <p class="font-semibold text-[14.5px] text-zinc-900">{move || if is_thai.get() { "ดาวน์โหลดจาก SIS" } else { "Download from SIS" }}</p>
                     <p class="text-[13px] text-zinc-500">{move || if is_thai.get() { "เมนูผลการเรียน แล้วพิมพ์เป็น PDF" } else { "Open your grades and print them to PDF" }}</p>
                 </li>
                 <li class="rounded-xl border border-zinc-200 bg-white px-4 py-3.5">
-                    <span class="text-xs text-zinc-400 tabular-nums">"02"</span>
+                    <span class="text-xs text-zinc-500 tabular-nums">"02"</span>
                     <p class="font-semibold text-[14.5px] text-zinc-900">{move || if is_thai.get() { "อัปโหลดที่นี่" } else { "Upload it here" }}</p>
                     <p class="text-[13px] text-zinc-500">{move || if is_thai.get() { "ระบบอ่านรหัสวิชา หน่วยกิต และเกรด" } else { "Codes, credits and grades are read for you" }}</p>
                 </li>
                 <li class="rounded-xl border border-zinc-200 bg-white px-4 py-3.5">
-                    <span class="text-xs text-zinc-400 tabular-nums">"03"</span>
+                    <span class="text-xs text-zinc-500 tabular-nums">"03"</span>
                     <p class="font-semibold text-[14.5px] text-zinc-900">{move || if is_thai.get() { "ดูสิ่งที่ยังขาด" } else { "See what's left" }}</p>
                     <p class="text-[13px] text-zinc-500">{move || if is_thai.get() { "พร้อมจำลองแผนเทอมถัดไป" } else { "And plan the next term" }}</p>
                 </li>

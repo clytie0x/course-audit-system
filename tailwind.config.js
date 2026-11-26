@@ -5,7 +5,9 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Anuphan", "IBM Plex Sans", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
+        // Plex Mono covers Latin only. Thai in a mono row (day names, rooms)
+        // must fall through to Anuphan instead of a system monospace face.
+        mono: ["IBM Plex Mono", "Anuphan", "ui-monospace", "monospace"],
       },
       colors: {
         // One blue accent for in-progress bars and the active state.

@@ -56,7 +56,9 @@ pub fn Header() -> impl IntoView {
                     </div>
                 })}
                 <button
+                    type="button"
                     class=icon_btn
+                    lang={move || if is_thai.get() { "en" } else { "th" }}
                     aria-label={move || if is_thai.get() { "Switch to English" } else { "เปลี่ยนเป็นภาษาไทย" }}
                     on:click=move |_| set_is_thai.update(|v| *v = !*v)
                 >

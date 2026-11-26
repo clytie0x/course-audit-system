@@ -21,7 +21,7 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
     view! {
         <details class="group">
             <summary class="list-none cursor-pointer grid grid-cols-[20px_minmax(0,1fr)_auto] gap-3 items-center px-4 sm:px-[18px] py-3.5 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500 [&::-webkit-details-marker]:hidden">
-                <svg class="w-4 h-4 text-zinc-400 transition-transform group-open:rotate-90" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                <svg class="w-4 h-4 text-zinc-500 transition-transform group-open:rotate-90" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
                 <div class="min-w-0">
                     <p class="font-semibold text-[15px] text-zinc-900 truncate">{move || label(&name, is_thai.get())}</p>
                     <p class="text-[13px] text-zinc-500 tabular-nums">
@@ -66,7 +66,7 @@ pub fn CategoryCard(category: Category) -> impl IntoView {
                                         <tr class="border-b last:border-b-0 border-zinc-200 align-top">
                                             <td class="px-4 sm:px-[18px] py-2.5 font-mono text-[0.86em] text-zinc-500 whitespace-nowrap">{c.code.clone()}</td>
                                             <td class="px-2 py-2.5 text-zinc-800">{c.name.clone()}</td>
-                                            <td class="hidden sm:table-cell px-2 py-2.5 text-zinc-400 tabular-nums whitespace-nowrap">{c.semester.clone().unwrap_or_default()}</td>
+                                            <td class="hidden sm:table-cell px-2 py-2.5 text-zinc-500 tabular-nums whitespace-nowrap">{c.semester.clone().unwrap_or_default()}</td>
                                             <td class="px-2 py-2.5 text-right tabular-nums text-zinc-700">{if ip { "—".to_string() } else { fmt_credits(c.credit) }}</td>
                                             <td class="px-4 sm:px-[18px] py-2.5 text-right"><span class=grade_class(&c.grade)>{c.grade.clone()}</span></td>
                                         </tr>

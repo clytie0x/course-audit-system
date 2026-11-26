@@ -286,7 +286,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                     <p class="text-[13px] text-zinc-600">{move || if is_thai.get() { "หน่วยกิตที่นับตามหลักสูตร" } else { "Credits counted toward the curriculum" }}</p>
                     <div class="flex items-baseline gap-1.5 mt-2 mb-2.5">
                         <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900">{fmt_credits(counted)}</span>
-                        <span class="text-[15px] font-medium text-zinc-400 tabular-nums">"/ "{fmt_credits(required)}</span>
+                        <span class="text-[15px] font-medium text-zinc-500 tabular-nums">"/ "{fmt_credits(required)}</span>
                         <span class="flex-1"></span>
                         <span class=format!("{TAG} {TAG_ACCENT} tabular-nums")>{format!("{pct:.0}%")}</span>
                     </div>
@@ -338,7 +338,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                     <p class="text-[13px] text-zinc-600">{move || if is_thai.get() { "ยังต้องเรียนอีก" } else { "Still to take" }}</p>
                     <p class="flex items-baseline gap-1.5 mt-2 mb-2.5">
                         <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900">{fmt_credits(short)}</span>
-                        <span class="text-[15px] font-medium text-zinc-400">{move || if is_thai.get() { "หน่วยกิต" } else { "credits" }}</span>
+                        <span class="text-[15px] font-medium text-zinc-500">{move || if is_thai.get() { "หน่วยกิต" } else { "credits" }}</span>
                     </p>
                     <p class="text-[12.5px] text-zinc-600">
                         {move || {
@@ -363,7 +363,7 @@ pub fn ResultsView(result: AuditResult) -> impl IntoView {
                             view! {
                                 <p class="flex items-baseline gap-1.5 mt-2 mb-2.5">
                                     <span class="text-[28px] sm:text-[30px] leading-tight font-semibold tabular-nums text-zinc-900">{fmt_credits(hours)}</span>
-                                    <span class="text-[15px] font-medium text-zinc-400 tabular-nums">"/ "{fmt_credits(TOTAL_REQUIRED)}</span>
+                                    <span class="text-[15px] font-medium text-zinc-500 tabular-nums">"/ "{fmt_credits(TOTAL_REQUIRED)}</span>
                                     <span class="flex-1"></span>
                                     {(hours >= TOTAL_REQUIRED).then(|| view! { <span class=format!("{TAG} {TAG_OK}")>{move || if is_thai.get() { "ครบ" } else { "Done" }}</span> })}
                                 </p>
