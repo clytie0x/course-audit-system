@@ -7,17 +7,21 @@
 //! - **Greedy Matching**: Allows repeatable courses to accumulate credits
 
 use crate::models::{
-    compute_gpa, free_elective_dedupe_key, is_in_progress, is_passing_grade, AuditResult, Category,
-    CategoryGroup, Course, Curriculum, GenEdCurriculum, MajorCourse, MajorCurriculum,
+    cumulative_gpa, free_elective_dedupe_key, is_in_progress, is_passing_grade, AuditResult,
+    Category, CategoryGroup, Course, Curriculum, GenEdCurriculum, MajorCourse, MajorCurriculum,
     MissingCourse, ParsedCourse,
 };
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 /// Runs the full audit pipeline (GenEd → Major → free electives → GPA) over a
 /// course list for one curriculum revision and returns the UI-facing
 /// `AuditResult`. The What-If simulator re-invokes this on every plan change,
 /// so it's intentionally pure — no signals, no I/O.
-pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditResult {
+pub fn build_audit(transcript: &[ParsedCourse], curriculum: &Curriculum) -> AuditResult {
+    // Credit comes from the latest finished attempt of each course. A later
+    // E/F/U replaces an earlier pass; W, I and R do not.
+    let counted = courses_that_count(transcript);
+    let parsed = counted.as_slice();
     let gen_ed = &curriculum.gen_ed;
     let major = &curriculum.major;
     let free_required = curriculum.free_elective_credits;
@@ -135,8 +139,9 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
         }
     }
 
-    // Every graded attempt counts toward GPA, including failed and retaken ones.
-    let attempts: Vec<Course> = parsed
+    // Every transcript row stays visible. Cumulative GPA keeps only the latest
+    // result when a D+, D, E or F was repeated (ข้อ 38).
+    let attempts: Vec<Course> = transcript
         .iter()
         .map(|p| Course {
             code: p.code.clone(),
@@ -146,7 +151,7 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
             semester: p.semester.clone(),
         })
         .collect();
-    let gpa = compute_gpa(&attempts);
+    let gpa = cumulative_gpa(&attempts);
     if let Some(g) = gpa.filter(|g| *g < curriculum.min_gpa) {
         all_missing.push(MissingCourse {
             category: "Graduation".to_string(),
@@ -187,6 +192,59 @@ pub fn build_audit(parsed: &[ParsedCourse], curriculum: &Curriculum) -> AuditRes
         gpa,
         attempts,
     }
+}
+
+/// The attempt that decides credit for each course: the latest finished result
+/// when it passes, or a later in-progress retake of a result that does not.
+/// Withdrawals, incompletes and deferred grades never take the slot.
+fn courses_that_count(courses: &[ParsedCourse]) -> Vec<ParsedCourse> {
+    let mut groups: HashMap<String, Vec<usize>> = HashMap::new();
+    for (i, course) in courses.iter().enumerate() {
+        if is_withdrawn_or_unresolved(&course.grade) {
+            continue;
+        }
+        groups
+            .entry(free_elective_dedupe_key(&course.code, &course.name))
+            .or_default()
+            .push(i);
+    }
+    let mut keep = HashSet::new();
+    for idxs in groups.values() {
+        let latest_finished = idxs
+            .iter()
+            .rev()
+            .find(|&&i| !is_in_progress(&courses[i].grade))
+            .copied();
+        match latest_finished {
+            Some(i) if is_passing_grade(&courses[i].grade) => {
+                keep.insert(i);
+            }
+            Some(i) => {
+                if let Some(&ip) = idxs
+                    .iter()
+                    .rev()
+                    .find(|&&j| j > i && is_in_progress(&courses[j].grade))
+                {
+                    keep.insert(ip);
+                }
+            }
+            None => {
+                if let Some(&i) = idxs.last() {
+                    keep.insert(i);
+                }
+            }
+        }
+    }
+    courses
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| keep.contains(i))
+        .map(|(_, course)| course.clone())
+        .collect()
+}
+
+fn is_withdrawn_or_unresolved(grade: &str) -> bool {
+    matches!(grade.trim().to_ascii_uppercase().as_str(), "W" | "I" | "R")
 }
 
 /// Dedupe keys of courses already placed in a curriculum slot, so a retake of
@@ -1013,8 +1071,159 @@ mod tests {
         );
         assert_eq!(result.total_credits, 3.0);
         assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
-        // Both attempts stay in GPA: (1.0 * 3 + 3.0 * 3) / 6.
-        assert_eq!(result.gpa, Some(2.0));
+        assert_eq!(
+            result.attempts.len(),
+            2,
+            "both attempts stay on the transcript"
+        );
+        // ข้อ 38: a repeat after D+, D, or E uses only the latest result in the
+        // cumulative GPA. (1.0 and 3.0) must not be averaged to 2.0.
+        assert_eq!(result.gpa, Some(3.0));
+    }
+
+    #[test]
+    fn failed_attempt_then_retake_uses_only_the_passing_grade() {
+        let result = build_audit(
+            &[parsed("322-101", "E", 3.0), parsed("322-101", "A", 3.0)],
+            cs64(),
+        );
+        assert_eq!(result.total_credits, 3.0);
+        assert_eq!(result.gpa, Some(4.0));
+        assert!(!missing_text(&result).contains("322-101"));
+    }
+
+    #[test]
+    fn later_failure_replaces_an_earlier_pass() {
+        // Credits follow the latest evaluation (ข้อ 37). A later E drops the D.
+        let result = build_audit(
+            &[parsed("322-101", "D", 3.0), parsed("322-101", "E", 3.0)],
+            cs64(),
+        );
+        assert_eq!(result.total_credits, 0.0);
+        assert_eq!(result.gpa, Some(0.0));
+        assert!(missing_text(&result).contains("322-101"));
+    }
+
+    #[test]
+    fn withdrawal_does_not_grant_or_erase_credit() {
+        let withdrawn = build_audit(&[parsed("322-101", "W", 3.0)], cs64());
+        assert_eq!(withdrawn.total_credits, 0.0);
+        assert_eq!(withdrawn.gpa, None);
+        assert!(missing_text(&withdrawn).contains("322-101"));
+
+        let then_passed = build_audit(
+            &[parsed("322-101", "W", 3.0), parsed("322-101", "B", 3.0)],
+            cs64(),
+        );
+        assert_eq!(then_passed.total_credits, 3.0);
+        assert_eq!(then_passed.gpa, Some(3.0));
+
+        let pass_then_withdraw = build_audit(
+            &[parsed("322-101", "B", 3.0), parsed("322-101", "W", 3.0)],
+            cs64(),
+        );
+        assert_eq!(pass_then_withdraw.total_credits, 3.0);
+        assert_eq!(pass_then_withdraw.gpa, Some(3.0));
+        assert_eq!(
+            category(&pass_then_withdraw, "Free Electives").collected_credits,
+            0.0
+        );
+    }
+
+    #[test]
+    fn satisfactory_earns_credits_without_gpa() {
+        let result = build_audit(&[parsed("322-101", "S", 3.0)], cs64());
+        assert_eq!(result.total_credits, 3.0);
+        assert_eq!(result.gpa, None);
+        assert!(!missing_text(&result).contains("322-101"));
+
+        let with_letter = build_audit(
+            &[parsed("322-101", "S", 3.0), parsed("322-102", "A", 3.0)],
+            cs64(),
+        );
+        assert_eq!(with_letter.total_credits, 6.0);
+        assert_eq!(with_letter.gpa, Some(4.0));
+    }
+
+    #[test]
+    fn unsatisfactory_earns_nothing() {
+        let result = build_audit(&[parsed("322-101", "U", 3.0)], cs64());
+        assert_eq!(result.total_credits, 0.0);
+        assert_eq!(result.gpa, None);
+        assert!(missing_text(&result).contains("322-101"));
+        assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
+    }
+
+    #[test]
+    fn satisfactory_retake_drops_the_failure_from_gpa() {
+        let result = build_audit(
+            &[parsed("344-495", "E", 6.0), parsed("344-495", "S", 6.0)],
+            cs64(),
+        );
+        assert_eq!(result.total_credits, 6.0);
+        assert_eq!(result.gpa, None);
+        assert!(missing_text(&result).contains("Electives: missing 30.0"));
+    }
+
+    #[test]
+    fn symbols_g_and_p_earn_credits_without_gpa() {
+        for grade in ["G", "P"] {
+            let result = build_audit(&[parsed("322-101", grade, 3.0)], cs64());
+            assert_eq!(result.total_credits, 3.0, "{grade}");
+            assert_eq!(result.gpa, None, "{grade}");
+        }
+    }
+
+    #[test]
+    fn transfer_symbols_earn_credits_without_gpa() {
+        for grade in ["CS", "CE", "CT", "CP"] {
+            let result = build_audit(&[parsed("322-101", grade, 3.0)], cs64());
+            assert_eq!(result.total_credits, 3.0, "{grade}");
+            assert_eq!(result.gpa, None, "{grade}");
+            assert!(!missing_text(&result).contains("322-101"), "{grade}");
+        }
+        // รับโอน keeps the original letter grade, so it still counts in the GPA.
+        let transferred_a = build_audit(&[parsed("322-101", "A", 3.0)], cs64());
+        assert_eq!(transferred_a.total_credits, 3.0);
+        assert_eq!(transferred_a.gpa, Some(4.0));
+
+        // The grade report prints the symbol in the grade column. "CS" must
+        // survive parsing, or it is audited as a C.
+        let (parsed_cs, _) = crate::parser::parse_transcript("322-101 CALCULUS I 01 3 CS");
+        let from_report = build_audit(&parsed_cs, cs64());
+        assert_eq!(parsed_cs[0].grade, "CS");
+        assert_eq!(from_report.total_credits, 3.0);
+        assert_eq!(from_report.gpa, None);
+    }
+
+    #[test]
+    fn in_progress_retake_does_not_erase_a_pass_or_hide_a_failure() {
+        // A new registration does not replace a grade that is already posted.
+        let still_passed = build_audit(
+            &[parsed("322-101", "D", 3.0), parsed("322-101", "IP", 3.0)],
+            cs64(),
+        );
+        assert_eq!(still_passed.total_credits, 3.0);
+        assert_eq!(still_passed.gpa, Some(1.0));
+
+        // Retaking a failure fills the slot with no credits until it is graded.
+        let retaking = build_audit(
+            &[parsed("322-101", "E", 3.0), parsed("322-101", "IP", 3.0)],
+            cs64(),
+        );
+        assert_eq!(retaking.total_credits, 0.0);
+        assert_eq!(retaking.gpa, Some(0.0));
+        assert!(!missing_text(&retaking).contains("322-101"));
+    }
+
+    #[test]
+    fn later_failure_does_not_keep_a_free_elective() {
+        let result = build_audit(
+            &[parsed("999-001", "D", 3.0), parsed("999-001", "E", 3.0)],
+            cs64(),
+        );
+        assert_eq!(category(&result, "Free Electives").collected_credits, 0.0);
+        assert_eq!(result.gpa, Some(0.0));
     }
 
     #[test]
@@ -1072,11 +1281,12 @@ mod tests {
     }
 
     fn missing_text(result: &AuditResult) -> String {
-        result
-            .missing_subjects
-            .iter()
-            .map(|m| format!("[{}] {}\n", m.category, m.description))
-            .collect()
+        use std::fmt::Write;
+        let mut out = String::new();
+        for m in &result.missing_subjects {
+            let _ = writeln!(out, "[{}] {}", m.category, m.description);
+        }
+        out
     }
 
     #[test]

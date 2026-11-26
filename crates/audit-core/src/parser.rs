@@ -21,7 +21,7 @@ fn grade_pattern() -> &'static Regex {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
         Regex::new(
-            r"\b([A-Za-z0-9]{3}-?[0-9]{3}(?:[A-Za-z][0-9]*[A-Za-z]?)?)\b\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([0-9]+)\s+([A-D][+]?|[FWPSUGE])",
+            r"\b([A-Za-z0-9]{3}-?[0-9]{3}(?:[A-Za-z][0-9]*[A-Za-z]?)?)\b\s+([A-Za-z0-9\s:()&\-\.,'/\*]+?)\s+([0-9]+)\s+([0-9]+)\s+((?i:CS|CE|CT|CP|AU)|[A-D][+]?|[FWPSUGE])",
         )
         .expect("transcript grade regex must compile")
     })
@@ -329,6 +329,18 @@ mod tests {
         assert_eq!(courses.len(), 2);
         assert_eq!(courses[0].grade, "W");
         assert_eq!(courses[1].grade, "P");
+    }
+
+    #[test]
+    fn transfer_credit_symbols_are_not_read_as_letter_grades() {
+        // CS/CE/CT/CP are credit-bank symbols (ข้อ 28). "CS" must not be cut
+        // down to a letter C, which would invent a 2.0 in the GPA.
+        let text = "322-101 CALCULUS I 01 3 CS 322-102 CALCULUS II 01 3 CE \
+            344-111 PROGRAMMING 01 6 CT 999-001 PORTFOLIO 01 2 CP \
+            388-100 HEALTH 01 1 AU";
+        let (courses, _) = parse_transcript(text);
+        let grades: Vec<&str> = courses.iter().map(|c| c.grade.as_str()).collect();
+        assert_eq!(grades, ["CS", "CE", "CT", "CP", "AU"]);
     }
 
     #[test]

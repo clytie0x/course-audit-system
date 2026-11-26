@@ -43,7 +43,7 @@ Matches courses against the PSU CS curriculum revision for your cohort (2564 for
 <td valign="top">
 
 ### GPA calculator
-Overall GPA on the 4.0 scale, weighted by credit hours, over every graded attempt (E/F and retakes included), excluding W/P/S/U/G/IP.
+Overall GPA on the 4.0 scale, weighted by credit hours. A failed attempt that was never repeated counts; when a course taken at D+, D, E or F is repeated, only the latest result counts. W, I, R, S, U, G, P, IP and transfer symbols (CS, CE, CT, CP) are left out of the GPA. S, G, P and those transfer symbols still earn their credits.
 
 </td>
 <td valign="top">
@@ -312,13 +312,13 @@ Every push and pull request runs `.github/workflows/ci.yml`. The same gates run 
 cargo fmt --all -- --check                                format
 cargo clippy --workspace --all-targets -- -D warnings     lints as errors (native)
 cargo clippy --target wasm32-unknown-unknown -- -D warnings   lints as errors (wasm)
-cargo test --workspace --all-targets                      64 unit tests
+cargo test --workspace --all-targets                      99 unit tests
 trunk build --release --public-url /course-audit-system/  release build
 ```
 
 CI also syntax-checks the scraper, runs `node --test tools/sis-scraper/parse.test.mjs` (synthetic SIS layouts, no real student data), and fails if `data/offerings` contains a 10-digit number, a passcode, or a Zoom or meeting ID.
 
-Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).
+Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes, transfer symbols CS/CE/CT/CP), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum, retakes, W, S/U), curriculum data (credit totals match each มคอ.2), and utilities (cumulative GPA keeps the latest repeat of D+/D/E/F, in-progress detection).
 
 ---
 

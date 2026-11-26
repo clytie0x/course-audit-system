@@ -328,19 +328,20 @@ pub enum ParseMode {
 /// Sentinel grade for courses from a registration report (no grade issued yet).
 pub const IN_PROGRESS_GRADE: &str = "IP";
 
-/// Returns `true` when the grade represents a passing result.
-/// Failing markers: E and F (fail), W (withdraw), U (unsatisfactory).
-/// In-progress ("IP") courses are not yet passing.
+/// Returns `true` when the grade earns accumulated credit.
+///
+/// Passing letter grades are D (1.00) and above. Symbols G, P and S pass
+/// without grade points, as do credit-bank transfers CS, CE, CT and CP.
+/// E/F, U, W, I, R, AU and IP do not earn credit.
 pub fn is_passing_grade(grade: &str) -> bool {
     if is_in_progress(grade) {
         return false;
     }
-    grade
-        .trim()
-        .chars()
-        .next()
-        .map(|c| !matches!(c.to_ascii_uppercase(), 'E' | 'F' | 'W' | 'U'))
-        .unwrap_or(false)
+    let g = grade.trim().to_ascii_uppercase();
+    matches!(
+        g.as_str(),
+        "A" | "B+" | "B" | "C+" | "C" | "D+" | "D" | "G" | "P" | "S" | "CS" | "CE" | "CT" | "CP"
+    )
 }
 
 /// Returns `true` for the sentinel "IP" (In Progress) grade.
@@ -349,8 +350,8 @@ pub fn is_in_progress(grade: &str) -> bool {
 }
 
 /// Maps a PSU letter grade to a grade point on the 4.0 scale.
-/// Non-letter grades (W, P, S, U, G, E, IP) return `None` and are excluded
-/// from GPA calculation.
+/// E and F are 0. Non-letter results (W, I, R, P, S, U, G, IP, AU, and
+/// transfer symbols CS/CE/CT/CP) return `None` and are excluded from the GPA.
 pub fn grade_points(grade: &str) -> Option<f32> {
     match grade.trim().to_ascii_uppercase().as_str() {
         "A" => Some(4.0),
@@ -363,6 +364,63 @@ pub fn grade_points(grade: &str) -> Option<f32> {
         "E" | "F" => Some(0.0),
         _ => None,
     }
+}
+
+/// Cumulative GPA. A course repeated after D+, D, E or F contributes only its
+/// latest result (ข้อบังคับ 2563 ข้อ 38). Semester GPA keeps every attempt in
+/// that term; call [`compute_gpa`] for that.
+pub fn cumulative_gpa(courses: &[Course]) -> Option<f32> {
+    compute_gpa(&latest_attempt_when_repeated_low(courses))
+}
+
+/// D+, D, E and F are the grades a later attempt replaces in the cumulative GPA.
+fn is_replaced_on_repeat(grade: &str) -> bool {
+    matches!(
+        grade.trim().to_ascii_uppercase().as_str(),
+        "D+" | "D" | "E" | "F"
+    )
+}
+
+/// W, I, R and IP are not a finished result, so they neither replace an earlier
+/// grade nor count as the "latest" attempt.
+fn is_finished_result(grade: &str) -> bool {
+    let g = grade.trim();
+    !g.is_empty()
+        && !is_in_progress(g)
+        && !matches!(g.to_ascii_uppercase().as_str(), "W" | "I" | "R")
+}
+
+fn latest_attempt_when_repeated_low(courses: &[Course]) -> Vec<Course> {
+    use std::collections::{HashMap, HashSet};
+
+    let mut groups: HashMap<String, Vec<usize>> = HashMap::new();
+    for (i, course) in courses.iter().enumerate() {
+        if !is_finished_result(&course.grade) {
+            continue;
+        }
+        groups
+            .entry(free_elective_dedupe_key(&course.code, &course.name))
+            .or_default()
+            .push(i);
+    }
+    let mut drop = HashSet::new();
+    for idxs in groups.values() {
+        let repeated_low = idxs.len() >= 2
+            && idxs
+                .iter()
+                .any(|&i| is_replaced_on_repeat(&courses[i].grade));
+        if repeated_low {
+            for &i in &idxs[..idxs.len() - 1] {
+                drop.insert(i);
+            }
+        }
+    }
+    courses
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| !drop.contains(i))
+        .map(|(_, course)| course.clone())
+        .collect()
 }
 
 /// GPA = Σ(grade_points × credits) / Σ(credits) over courses with letter
@@ -464,8 +522,66 @@ mod tests {
         assert_eq!(grade_points("W"), None);
         assert_eq!(grade_points("P"), None);
         assert_eq!(grade_points("G"), None);
+        assert_eq!(grade_points("S"), None);
+        assert_eq!(grade_points("U"), None);
+        assert_eq!(grade_points("CS"), None);
+        assert_eq!(grade_points("CE"), None);
+        assert_eq!(grade_points("CT"), None);
+        assert_eq!(grade_points("CP"), None);
         assert_eq!(grade_points("IP"), None);
         assert_eq!(grade_points(""), None);
+    }
+
+    #[test]
+    fn passing_grades_match_the_2563_regulation() {
+        for grade in [
+            "A", "B+", "C", "D+", "D", "S", "G", "P", "CS", "CE", "CT", "CP",
+        ] {
+            assert!(is_passing_grade(grade), "{grade} earns credit");
+        }
+        for grade in ["E", "F", "U", "W", "I", "R", "AU", "IP", ""] {
+            assert!(!is_passing_grade(grade), "{grade} earns no credit");
+        }
+    }
+
+    #[test]
+    fn cumulative_gpa_keeps_only_the_latest_repeat_of_a_low_grade() {
+        let repeated = vec![
+            Course {
+                code: "322-101".into(),
+                name: "Calculus".into(),
+                credit: 3.0,
+                grade: "D+".into(),
+                semester: Some("1/2567".into()),
+            },
+            Course {
+                code: "322-101".into(),
+                name: "Calculus".into(),
+                credit: 3.0,
+                grade: "B".into(),
+                semester: Some("2/2567".into()),
+            },
+        ];
+        // Latest only: 3.0, not (1.5 + 3.0) / 2.
+        assert_eq!(cumulative_gpa(&repeated), Some(3.0));
+        // A fail that was never repeated still counts.
+        let once = vec![
+            Course {
+                code: "322-102".into(),
+                name: "Calculus II".into(),
+                credit: 3.0,
+                grade: "A".into(),
+                semester: None,
+            },
+            Course {
+                code: "344-111".into(),
+                name: "Programming".into(),
+                credit: 3.0,
+                grade: "E".into(),
+                semester: None,
+            },
+        ];
+        assert_eq!(cumulative_gpa(&once), Some(2.0));
     }
 
     #[test]
