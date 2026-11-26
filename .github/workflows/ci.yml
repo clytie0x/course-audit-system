@@ -64,6 +64,8 @@ jobs:
         run: |
           node --check tools/sis-scraper/scrape.mjs
           node --check tools/sis-scraper/coop-hours.mjs
+      - name: Offerings commit script
+        run: bash tools/sis-scraper/commit-offerings.test.sh
       - name: Offerings JSON is valid and free of personal numbers
         run: |
           for f in data/offerings/*.json; do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"; done
