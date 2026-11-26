@@ -66,7 +66,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
         set_planned_courses.set(Vec::new());
     };
 
-    let field = "h-10 w-full min-w-0 rounded-[9px] border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500";
+    let field = "h-10 w-full min-w-0 rounded-[9px] border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500";
 
     view! {
         <section class=format!("{CARD} overflow-hidden")>
@@ -137,7 +137,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
                 let planned = planned_courses.get();
                 if planned.is_empty() {
                     return view! {
-                        <p class="px-4 sm:px-[18px] py-5 text-center text-[13px] text-zinc-400 border-t border-zinc-200">
+                        <p class="px-4 sm:px-[18px] py-5 text-center text-[13px] text-zinc-500 border-t border-zinc-200">
                             {move || if is_thai.get() { "ยังไม่มีวิชาในแผน" } else { "No courses planned yet" }}
                         </p>
                     }.into_any();
@@ -168,7 +168,7 @@ pub fn WhatIfSimulator() -> impl IntoView {
                                     <span class="tabular-nums text-zinc-500 w-6 text-right">{fmt_credits(credit)}</span>
                                     <span class=grade_class(&grade)>{grade.clone()}</span>
                                     <button
-                                        class="text-zinc-400 hover:text-red-600 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                                        class="text-zinc-500 hover:text-red-600 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                                         aria-label={move || if is_thai.get() { "ลบวิชานี้จากแผน" } else { "Remove from plan" }}
                                         on:click=move |_| remove_planned(i)
                                     >

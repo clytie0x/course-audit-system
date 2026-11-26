@@ -103,7 +103,7 @@ pub fn CoopHours() -> impl IntoView {
                     prop:value=move || value.get().to_string()
                     on:input=move |ev| set.set(event_target_value(&ev).parse::<f32>().unwrap_or(0.0).max(0.0))
                 />
-                <span class=move || format!("text-xs font-semibold w-20 text-right {}", if value.get() >= required { "text-emerald-600" } else { "text-amber-600" })>
+                <span class=move || format!("text-xs font-semibold w-20 text-right {}", if value.get() >= required { "text-emerald-700" } else { "text-amber-700" })>
                     {move || format!("{} / {}", value.get(), required)}
                 </span>
             </label>
@@ -121,7 +121,7 @@ pub fn CoopHours() -> impl IntoView {
                 <div class="max-w-xl space-y-3">
                 {row("กิจกรรมของคณะ สาขา หรือหลักสูตร", "Faculty / programme activities", faculty, set_faculty, FACULTY_REQUIRED)}
                 {row("กิจกรรมของมหาวิทยาลัยหรืออื่น ๆ", "University / other activities", university, set_university, UNIVERSITY_REQUIRED)}
-                <p class=move || format!("text-xs font-semibold {}", if faculty.get() >= FACULTY_REQUIRED && university.get() >= UNIVERSITY_REQUIRED { "text-emerald-600" } else { "text-amber-700" })>
+                <p class=move || format!("text-xs font-semibold {}", if faculty.get() >= FACULTY_REQUIRED && university.get() >= UNIVERSITY_REQUIRED { "text-emerald-700" } else { "text-amber-700" })>
                     {move || {
                         let missing_f = (FACULTY_REQUIRED - faculty.get()).max(0.0);
                         let missing_u = (UNIVERSITY_REQUIRED - university.get()).max(0.0);
@@ -156,7 +156,7 @@ pub fn CoopHours() -> impl IntoView {
                             <p class="text-2xs text-zinc-500">{move || t("พิมพ์รหัสนักศึกษาในช่อง \"รหัสนักศึกษา\" ของรายงาน แล้วกรอกผลรวมสองช่องด้านบน", "Type your student ID into the report's search box, then enter the two totals above")}</p>
                             <iframe
                                 src=url
-                                title="Co-op preparation hours report"
+                                title=move || t("รายงานชั่วโมงเตรียมสหกิจ", "Co-op preparation hours report")
                                 class="w-full h-[560px] rounded-lg border border-zinc-200 bg-white"
                                 referrerpolicy="no-referrer"
                                 sandbox="allow-scripts allow-same-origin allow-popups"

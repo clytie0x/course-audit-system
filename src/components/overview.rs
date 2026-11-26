@@ -78,7 +78,7 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                 <div class="flex items-center gap-2.5 px-4 sm:px-[18px] pt-4 pb-1.5">
                     <h2 class=SECTION_TITLE>{move || if is_thai.get() { "ความคืบหน้าตามหมวด" } else { "Progress by category" }}</h2>
                     <span class="flex-1"></span>
-                    <span class="text-[12.5px] text-zinc-400">{move || if is_thai.get() { "หน่วยกิต" } else { "credits" }}</span>
+                    <span class="text-[12.5px] text-zinc-500">{move || if is_thai.get() { "หน่วยกิต" } else { "credits" }}</span>
                 </div>
                 {categories.into_iter().map(|c| {
                     let name = c.name.clone();
@@ -161,7 +161,7 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                             <div class="flex items-center gap-2.5 px-4 sm:px-[18px] pt-4 pb-1.5">
                                 <h2 class=SECTION_TITLE>{move || if is_thai.get() { "เกรดเฉลี่ยรายเทอม" } else { "GPA by semester" }}</h2>
                                 <span class="flex-1"></span>
-                                <span class="text-[12.5px] text-zinc-400 tabular-nums">{move || if is_thai.get() { "สูงสุด 4.00" } else { "Max 4.00" }}</span>
+                                <span class="text-[12.5px] text-zinc-500 tabular-nums">{move || if is_thai.get() { "สูงสุด 4.00" } else { "Max 4.00" }}</span>
                             </div>
                             <div class="flex items-end gap-2.5 px-4 sm:px-[18px] pt-2" role="img" aria-label=summary>
                                 {gpa_bars.iter().enumerate().map(|(i, (_, g))| view! {
@@ -179,7 +179,7 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                             <div class="flex gap-2.5 px-4 sm:px-[18px] pt-1.5 pb-4">
                                 {gpa_bars.iter().map(|(s, _)| {
                                     let short = s.replace("/25", "/");
-                                    view! { <span class="flex-1 min-w-0 text-center text-[11.5px] text-zinc-400 whitespace-nowrap">{short}</span> }
+                                    view! { <span class="flex-1 min-w-0 text-center text-[11.5px] text-zinc-500 whitespace-nowrap">{short}</span> }
                                 }).collect::<Vec<_>>()}
                             </div>
                         </section>
@@ -240,7 +240,7 @@ pub fn Overview(result: AuditResult) -> impl IntoView {
                                             } else {
                                                 title.clone()
                                             }}
-                                            {code.clone().map(|c| view! { " "<span class="font-mono text-[0.86em] text-zinc-400">{c}</span> })}
+                                            {code.clone().map(|c| view! { " "<span class="font-mono text-[0.86em] text-zinc-500">{c}</span> })}
                                         </p>
                                         {sub.map(|s| view! { <p class="text-[13px] text-zinc-500">{move || label(&s, is_thai.get())}</p> })}
                                         {move || {
