@@ -242,6 +242,17 @@ fn earned_credits(curriculum_credits: f32, parsed: &ParsedCourse) -> f32 {
     }
 }
 
+/// How much of a requirement an enrollment satisfies. In-progress courses
+/// count here (so the slot drops off the missing list) and add nothing in
+/// `earned_credits`.
+fn filled_credits(curriculum_credits: f32, parsed: &ParsedCourse) -> f32 {
+    if is_in_progress(&parsed.grade) {
+        curriculum_credits
+    } else {
+        earned_credits(curriculum_credits, parsed)
+    }
+}
+
 /// Audits courses against the GenEd curriculum, honoring strand sub-groups and
 /// sequential strand rules. Credits come from the curriculum (golden data).
 pub fn audit_gen_ed(
@@ -376,11 +387,7 @@ pub fn audit_gen_ed(
                             {
                                 let matched_credits = earned_credits(course.credits, parsed);
                                 completed_credits += matched_credits;
-                                sub_group_filled += if is_in_progress(&parsed.grade) {
-                                    course.credits
-                                } else {
-                                    matched_credits
-                                };
+                                sub_group_filled += filled_credits(course.credits, parsed);
                                 taken.push(course.code.as_str());
                                 used_indices.insert(idx);
                             }
@@ -413,7 +420,9 @@ pub fn audit_gen_ed(
             }
             "by_tag" => {
                 // GE category courses identified by the transcript code suffix
-                // (e.g. 315-100G2A -> "G2A"); credits come from the transcript.
+                // (e.g. 315-100G2A -> "G2A"). There is no per-course curriculum
+                // credit, so the transcript value is the slot size; an
+                // in-progress row fills that much of the strand and earns 0.
                 let tags = strand.tags.as_deref().unwrap_or_default();
                 let mut strand_credits = 0.0;
                 for (idx, parsed) in courses.iter().enumerate() {
@@ -424,9 +433,8 @@ pub fn audit_gen_ed(
                         && has_tag(parsed, tags)
                         && matches_curriculum_slot(parsed)
                     {
-                        let matched_credits = earned_credits(parsed.parsed_credit, parsed);
-                        completed_credits += matched_credits;
-                        strand_credits += matched_credits;
+                        completed_credits += earned_credits(parsed.parsed_credit, parsed);
+                        strand_credits += filled_credits(parsed.parsed_credit, parsed);
                         used_indices.insert(idx);
                     }
                 }
@@ -487,9 +495,10 @@ pub fn audit_gen_ed(
                     && matches_curriculum_slot(parsed)
             }) {
                 let matched_credits = earned_credits(course.credits, parsed);
+                let filled = filled_credits(course.credits, parsed);
                 completed_credits += matched_credits;
-                gen_ed_elective_total_credits += matched_credits;
-                sub_cat_credits += matched_credits;
+                gen_ed_elective_total_credits += filled;
+                sub_cat_credits += filled;
                 used_indices.insert(idx);
             }
         }
@@ -530,15 +539,11 @@ pub fn audit_gen_ed(
                 && matches_curriculum_slot(parsed)
                 && (!pass_language || is_language(parsed))
             {
-                let matched_credits = earned_credits(parsed.parsed_credit, parsed);
-                completed_credits += matched_credits;
-                gen_ed_elective_total_credits += matched_credits;
+                let filled = filled_credits(parsed.parsed_credit, parsed);
+                completed_credits += earned_credits(parsed.parsed_credit, parsed);
+                gen_ed_elective_total_credits += filled;
                 if is_language(parsed) {
-                    language_filled += if is_in_progress(&parsed.grade) {
-                        parsed.parsed_credit
-                    } else {
-                        matched_credits
-                    };
+                    language_filled += filled;
                 }
                 used_indices.insert(idx);
             }
@@ -1290,6 +1295,90 @@ mod tests {
         assert!(!text.contains("foreign language"), "{text}");
         // Language first, then two others; the third non-language course overflows.
         assert_eq!(category(&result, "Free Electives").collected_credits, 2.0);
+    }
+
+    #[test]
+    fn ip_by_tag_strand_fills_without_credits() {
+        // A registration report tags every row IP. The strand is enrolled,
+        // so it must leave the missing list, but it has earned nothing yet.
+        let result = build_audit(&[tagged("315-100", "IP", 2.0, "G2A")], cs69());
+        assert_eq!(
+            category(&result, "General Education").collected_credits,
+            0.0
+        );
+        let text = missing_text(&result);
+        assert!(
+            !text.contains("GE2 Logical and Numerical Thinking"),
+            "{text}"
+        );
+        assert!(
+            text.contains("GE1 Language and Communication: missing 4.0"),
+            "{text}"
+        );
+        assert!(
+            text.contains("Overall General Education: missing 24.0"),
+            "{text}"
+        );
+
+        let partial = build_audit(
+            &[
+                tagged("890-101", "A", 2.0, "G1"),
+                tagged("890-102", "IP", 2.0, "G1"),
+            ],
+            cs69(),
+        );
+        assert_eq!(
+            category(&partial, "General Education").collected_credits,
+            2.0
+        );
+        assert!(
+            !missing_text(&partial).contains("GE1 Language and Communication"),
+            "{}",
+            missing_text(&partial)
+        );
+    }
+
+    #[test]
+    fn ip_ge8_courses_fill_the_elective_slot() {
+        // 6 credits in progress meet GE8 (including the language minimum).
+        // A further graded G8 course is then a free elective, not more GenEd.
+        let result = build_audit(
+            &[
+                tagged("890-831", "IP", 2.0, "G8"),
+                tagged("193-031", "IP", 2.0, "G8"),
+                tagged("820-100", "IP", 2.0, "G8"),
+                tagged("895-881", "A", 2.0, "G8"),
+            ],
+            cs69(),
+        );
+        assert_eq!(
+            category(&result, "General Education").collected_credits,
+            0.0
+        );
+        assert_eq!(category(&result, "Free Electives").collected_credits, 2.0);
+        let text = missing_text(&result);
+        assert!(!text.contains("foreign language"), "{text}");
+        assert!(!text.contains("GE8 Electives: missing"), "{text}");
+        assert!(
+            text.contains("Overall General Education: missing 24.0"),
+            "{text}"
+        );
+    }
+
+    #[test]
+    fn ip_gen_ed_elective_reduces_2564_gap() {
+        // 890-811 is a 2-credit GenEd elective. In progress it covers 2 of
+        // the 6 required and adds nothing to the earned total.
+        let result = build_audit(&[parsed("890-811", "IP", 2.0)], cs64());
+        assert_eq!(
+            category(&result, "General Education").collected_credits,
+            0.0
+        );
+        let text = missing_text(&result);
+        assert!(
+            text.contains("GenEd Electives (GE8): missing 4.0 credits"),
+            "{text}"
+        );
     }
 
     #[test]
