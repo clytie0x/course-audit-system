@@ -63,12 +63,15 @@ jobs:
       - name: node --check
         run: |
           node --check tools/sis-scraper/scrape.mjs
+          node --check tools/sis-scraper/parse.mjs
           node --check tools/sis-scraper/coop-hours.mjs
+      - name: scraper parser tests
+        run: node --test tools/sis-scraper/parse.test.mjs
       - name: Offerings commit script
         run: bash tools/sis-scraper/commit-offerings.test.sh
       - name: Offerings JSON is valid and free of personal numbers
         run: |
           for f in data/offerings/*.json; do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"; done
-          if grep -niE '\b[0-9]{10}\b|Passcode *[:：]? *[0-9]|Zoom *ID *[:：]? *[0-9]' data/offerings/*.json; then
-            echo "::error::10-digit numbers, passcodes or Zoom IDs found in data/offerings"; exit 1
+          if grep -niE '\b[0-9]{10}\b|Passcode *[:：]? *[0-9A-Za-z]|Password *[:：]? *[0-9A-Za-z]|รหัสผ่าน *[:：]? *[0-9A-Za-z]|(Zoom|Meeting) *ID *[:：]? *[0-9]|\b[0-9]{3}[ -][0-9]{3,4}[ -][0-9]{3,4}\b|zoom\.us/j/[0-9]' data/offerings/*.json; then
+            echo "::error::student ids, passcodes or meeting IDs found in data/offerings"; exit 1
           fi

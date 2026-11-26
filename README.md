@@ -316,7 +316,7 @@ cargo test --workspace --all-targets                      64 unit tests
 trunk build --release --public-url /course-audit-system/  release build
 ```
 
-CI also syntax-checks the scraper and fails if `data/offerings` contains a 10-digit number, a passcode or a Zoom meeting ID.
+CI also syntax-checks the scraper, runs `node --test tools/sis-scraper/parse.test.mjs` (synthetic SIS layouts, no real student data), and fails if `data/offerings` contains a 10-digit number, a passcode, or a Zoom or meeting ID.
 
 Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum), curriculum data (credit totals match each มคอ.2), and utilities (GPA over every graded attempt, in-progress detection).
 

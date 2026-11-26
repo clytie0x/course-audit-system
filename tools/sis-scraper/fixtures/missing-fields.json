@@ -1,0 +1,46 @@
+{
+  "href": "/explore/subjects/9000000000000005",
+  "lines": [
+    "344-202",
+    "ชื่อวิชาที่ไม่มีหน่วยกิต",
+    "ONLY THAI",
+    "คณะ",
+    "คณะวิทยาศาสตร์"
+  ],
+  "articles": [
+    {
+      "lines": ["ไม่มีตาราง"],
+      "rows": [["จันทร์ 09:00-10:00", "L1"]]
+    }
+  ],
+  "expect": {
+    "id": "9000000000000005",
+    "code": "344-202",
+    "name_th": "ชื่อวิชาที่ไม่มีหน่วยกิต",
+    "name_en": "ONLY THAI",
+    "credits": null,
+    "credit_pattern": null,
+    "faculty": "คณะวิทยาศาสตร์",
+    "department": null,
+    "fee": null,
+    "sections": [
+      {
+        "section": "",
+        "seats": null,
+        "students": null,
+        "meetings": [
+          {
+            "day": 1,
+            "start": "09:00",
+            "end": "10:00",
+            "room": "L1",
+            "teachers": ""
+          }
+        ],
+        "midterm": null,
+        "final": null
+      }
+    ],
+    "incomplete": false
+  }
+}

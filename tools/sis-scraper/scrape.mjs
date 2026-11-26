@@ -17,6 +17,7 @@ import { chromium } from 'playwright-core';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { courseCodeFromText, isLastPage, normalize, parseDetail } from './parse.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const OUT = join(ROOT, 'data', 'offerings');
@@ -70,11 +71,13 @@ async function searchRows(page, term, year, keyword) {
   const rows = new Map();
   for (let guard = 0; guard < 200; guard++) {
     const pageRows = await page.$$eval('a[href^="/explore/subjects/"]', (as) =>
-      as.map((a) => ({ href: a.getAttribute('href').split('?')[0], code: a.textContent.trim().slice(0, 7) }))
+      as.map((a) => ({ href: a.getAttribute('href').split('?')[0], text: a.textContent || '' }))
     );
-    for (const r of pageRows) rows.set(r.href, r);
-    const m = status.match(/(\d+)\s*[–-]\s*(\d+)\s*จาก\s*(\d+)/);
-    if (!m || Number(m[2]) >= Number(m[3])) break;
+    for (const r of pageRows) {
+      const code = courseCodeFromText(r.text);
+      if (code) rows.set(r.href, { href: r.href, code });
+    }
+    if (isLastPage(status)) break;
     const before = status;
     await page.click('.sis-pagination [aria-label="หน้าถัดไป"]');
     await page.waitForFunction(
@@ -94,91 +97,28 @@ async function readDetail(page, href) {
   await page.waitForFunction(
     () => {
       const m = document.querySelector('main');
-      return m && /หน่วยกิต/.test(m.innerText) && (m.querySelector('article') || /ไม่มี|ไม่พบ/.test(m.innerText));
+      return (
+        m &&
+        /หน่วยกิต|credits/i.test(m.innerText) &&
+        (m.querySelector('article') || /ไม่มี|ไม่พบ|no section|not found|no result/i.test(m.innerText))
+      );
     },
     null,
     { timeout: 30000 }
   );
   await sleep(300); // let remaining sections render
-  return page.evaluate(() => {
+  const snapshot = await page.evaluate(() => {
     const main = document.querySelector('main');
     const lines = main.innerText.split('\n').map((l) => l.trim()).filter(Boolean);
-    const after = (label) => {
-      const i = lines.indexOf(label);
-      return i >= 0 ? lines[i + 1] : null;
-    };
-    const creditLine = lines.find((l) => /หน่วยกิต\s*·/.test(l)) || '';
-    const ci = lines.indexOf(creditLine);
-    const sections = [...main.querySelectorAll('article')].map((a) => {
-      const t = a.innerText.split('\n').map((l) => l.trim()).filter(Boolean);
-      const get = (re) => (t.find((l) => re.test(l)) || '').replace(re, '').trim() || null;
-      const rows = [...a.querySelectorAll('tr')].slice(1).map((tr) => [...tr.querySelectorAll('td')].map((td) => td.innerText.trim()));
-      return {
-        section: (t.find((l) => /^Section\s+/i.test(l)) || '').replace(/^Section\s+/i, ''),
-        seats: Number((t.find((l) => /ที่นั่ง/.test(l)) || '').match(/\d+/)?.[0] ?? NaN) || null,
-        // Some sections list student IDs or Zoom IDs/passcodes; never keep them.
-        students:
-          get(/^ผู้เรียน:\s*/)
-            ?.replace(/\b\d{10}\b/g, '[ซ่อน]')
-            .replace(/(Zoom\s*ID\s*[:：]?\s*)\d[\d ]{7,}\d/gi, '$1[ซ่อน]')
-            .replace(/(Passcode|รหัสผ่าน)\s*[:：]?\s*\S+/gi, '$1 [ซ่อน]') ?? null,
-        rows: rows.map(([times, rooms, teachers]) => ({ times: times || '', rooms: rooms || '', teachers: teachers || '' })),
-        midterm: get(/^สอบกลางภาค:\s*/),
-        final: get(/^สอบปลายภาค:\s*/),
-      };
-    });
-    const declared = Number((lines.find((l) => /^เลือก section/.test(l)) || '').match(/(\d+)\s*section/)?.[1] ?? NaN);
-    return {
-      code: lines[ci - 1]?.match(/^[0-9A-Z]{3}-\d{3}/)?.[0] ?? null,
-      credit_line: creditLine,
-      // Some offerings show a fee line ("1,500.00 บาท") between credits and names.
-      name_th: lines.slice(ci + 1).filter((l) => !/บาท$/.test(l))[0] ?? null,
-      name_en: lines.slice(ci + 1).filter((l) => !/บาท$/.test(l))[1] ?? null,
-      fee: lines.slice(ci + 1, ci + 3).find((l) => /บาท$/.test(l)) ?? null,
-      faculty: after('คณะ'),
-      department: after('ภาควิชา'),
-      declared_sections: Number.isFinite(declared) ? declared : null,
-      sections,
-    };
+    const articles = [...main.querySelectorAll('article')].map((a) => ({
+      lines: a.innerText.split('\n').map((l) => l.trim()).filter(Boolean),
+      rows: [...a.querySelectorAll('tr')]
+        .map((tr) => [...tr.querySelectorAll('td')].map((td) => td.innerText.trim()))
+        .filter((r) => r.length),
+    }));
+    return { lines, articles };
   });
-}
-
-const DAYS = { จันทร์: 1, อังคาร: 2, พุธ: 3, พฤหัส: 4, พฤหัสบดี: 4, ศุกร์: 5, เสาร์: 6, อาทิตย์: 7 };
-
-/** "อังคาร 10:00–11:50, พฤหัส 10:00–11:50" -> [{day:2,start:"10:00",end:"11:50"}, …] */
-function parseTimes(text) {
-  return [...text.matchAll(/(จันทร์|อังคาร|พุธ|พฤหัสบดี|พฤหัส|ศุกร์|เสาร์|อาทิตย์)\s*(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})/g)].map(
-    ([, d, s, e]) => ({ day: DAYS[d], start: s.padStart(5, '0'), end: e.padStart(5, '0') })
-  );
-}
-
-function normalize(raw, href) {
-  const m = raw.credit_line.match(/^(\d+(?:\.\d+)?)\s*หน่วยกิต\s*·\s*(.+)$/);
-  return {
-    id: href.split('/')[3],
-    code: raw.code,
-    name_th: raw.name_th,
-    name_en: raw.name_en,
-    credits: m ? Number(m[1]) : null,
-    credit_pattern: m ? m[2].trim() : null,
-    faculty: raw.faculty,
-    department: raw.department,
-    fee: raw.fee,
-    sections: raw.sections.map((s) => ({
-      section: s.section,
-      seats: s.seats,
-      students: s.students,
-      meetings: s.rows.flatMap((r) => {
-        const times = parseTimes(r.times);
-        // "L4, L3" lists one room per meeting when the counts match.
-        const rooms = r.rooms.split(',').map((x) => x.trim());
-        return times.map((t, i) => ({ ...t, room: rooms.length === times.length ? rooms[i] : r.rooms, teachers: r.teachers }));
-      }),
-      midterm: s.midterm,
-      final: s.final,
-    })),
-    incomplete: raw.declared_sections != null && raw.declared_sections > raw.sections.length,
-  };
+  return parseDetail(snapshot);
 }
 
 async function availableTerms(page) {
