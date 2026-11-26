@@ -1,1 +1,2 @@
 vendor/** -text
+tools/sis-scraper/*.sh text eol=lf
