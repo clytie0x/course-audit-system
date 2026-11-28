@@ -8,10 +8,11 @@ name: Refresh SIS offerings
 # GitHub-hosted runners with HTTP 403. If the runner is offline the job waits
 # in the queue for up to 24 hours. Setup and safety notes are in the README.
 #
-# Do not enable the setup-node npm cache here. On this runner `npm config get
-# cache` is the Windows user's global npm directory. The 22 Nov 2026 success
-# uploaded 2.77 GB of it, and the next scheduled run lost communication with
-# GitHub while restoring that cache. playwright-core installs in under a second.
+# Do not enable the setup-node npm cache here. It saves the runner user's whole
+# global npm directory: on the Windows runner used until 28 Nov 2026, the 22 Nov
+# success uploaded 2.77 GB of it, and the next scheduled run lost communication
+# with GitHub while restoring that cache. playwright-core installs in under a
+# second.
 on:
   schedule:
     - cron: '0 20 * * 0' # Sunday 20:00 UTC = Monday 03:00 in Thailand
@@ -34,7 +35,7 @@ jobs:
     timeout-minutes: 120
     defaults:
       run:
-        shell: bash # Git Bash on a Windows runner
+        shell: bash # Git Bash if the runner is on Windows
     steps:
       - uses: actions/checkout@v4
 
