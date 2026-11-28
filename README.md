@@ -316,7 +316,7 @@ cargo test --workspace --all-targets                      99 unit tests
 trunk build --release --public-url /course-audit-system/  release build
 ```
 
-CI also syntax-checks the scraper, runs `node --test tools/sis-scraper/parse.test.mjs` (synthetic SIS layouts, no real student data), and fails if `data/offerings` contains a 10-digit number, a passcode, or a Zoom or meeting ID.
+CI also syntax-checks the scraper, runs `node --test tools/sis-scraper/parse.test.mjs tools/sis-scraper/retry.test.mjs` (synthetic SIS layouts, no real student data), and fails if `data/offerings` contains a 10-digit number, a passcode, or a Zoom or meeting ID.
 
 Test coverage spans the parser (format auto-detect, code normalization, Thai and English semester headers, GE tags, cohort detection, student IDs not mistaken for course codes, transfer symbols CS/CE/CT/CP), the auditor (GenEd rules incl. by-tag, IP slot-fill vs credits, plan-dependent elective targets, domain rule, non-credit requirements, overflow to free electives, GPA minimum, retakes, W, S/U), curriculum data (credit totals match each มคอ.2), and utilities (cumulative GPA keeps the latest repeat of D+/D/E/F, in-progress detection).
 
@@ -355,7 +355,7 @@ One-time setup:
 3. Install Google Chrome (`google-chrome-stable` on Linux), since the scraper launches the `chrome` channel and does not download a browser. On Windows, also install [Git for Windows](https://git-scm.com/download/win) so `shell: bash` is `C:\Program Files\Git\bin\bash.exe`. `C:\Windows\system32\bash.exe` (the WSL relay) fails with `execvpe(/bin/bash) failed` when no distro is installed.
 4. Settings → Actions → General → "Approval for running fork pull request workflows from contributors" → **Require approval for all external contributors**. This is a public repo, and a pull request from a fork could otherwise edit a workflow to run on your machine.
 
-Refresh the data by hand with the scraper. SIS is a Blazor Server app, so the scraper uses `playwright-core` to drive the installed Google Chrome. It visits only public pages, one request at a time with a delay:
+Refresh the data by hand with the scraper. SIS is a Blazor Server app, so the scraper uses `playwright-core` to drive the installed Google Chrome. It visits only public pages, one request at a time with a delay. A search or course page that fails is tried up to three times, 5 seconds apart, because a single failure makes that term merge into its old file instead of replacing it, and withdrawn courses then stay listed:
 
 ```bash
 cd tools/sis-scraper

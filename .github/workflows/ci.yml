@@ -64,9 +64,10 @@ jobs:
         run: |
           node --check tools/sis-scraper/scrape.mjs
           node --check tools/sis-scraper/parse.mjs
+          node --check tools/sis-scraper/retry.mjs
           node --check tools/sis-scraper/coop-hours.mjs
       - name: scraper parser tests
-        run: node --test tools/sis-scraper/parse.test.mjs
+        run: node --test tools/sis-scraper/parse.test.mjs tools/sis-scraper/retry.test.mjs
       - name: Offerings commit script
         run: bash tools/sis-scraper/commit-offerings.test.sh
       - name: Offerings JSON is valid and free of personal numbers
