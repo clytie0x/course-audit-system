@@ -2,7 +2,7 @@
  "term": "1/2569",
  "campus": "หาดใหญ่",
  "source": "https://sis.psu.ac.th/explore/subject",
- "scraped_at": "2026-11-22",
+ "scraped_at": "2026-11-28",
  "courses": [
   {
    "id": "2569100284770001",
@@ -28234,7 +28234,7 @@
    "sections": [
     {
      "section": "03",
-     "seats": null,
+     "seats": 0,
      "students": "นักศึกษาลงทะเบียนเรียนวิทยาเขตหาดใหญ่ เรียนที่วิทยาเขตปัตตานี",
      "meetings": [
       {
