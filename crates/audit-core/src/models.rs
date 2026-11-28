@@ -603,4 +603,60 @@ mod tests {
         let courses = vec![course("IP", 3.0), course("W", 3.0)];
         assert_eq!(compute_gpa(&courses), None);
     }
+
+    #[test]
+    fn free_elective_dedupe_key_regular_courses_use_code_only() {
+        // Regular courses collapse to code alone so retakes dedupe.
+        assert_eq!(
+            free_elective_dedupe_key("344-111", "Programming"),
+            "344-111"
+        );
+        assert_eq!(free_elective_dedupe_key("322-101", "Calculus I"), "322-101");
+        // The four explicit exclusions: 344-491 … 344-494 return code only.
+        assert_eq!(
+            free_elective_dedupe_key("344-491", "Senior Project"),
+            "344-491"
+        );
+        assert_eq!(free_elective_dedupe_key("344-492", "Project"), "344-492");
+        assert_eq!(
+            free_elective_dedupe_key("344-493", "Job Training"),
+            "344-493"
+        );
+        assert_eq!(
+            free_elective_dedupe_key("344-494", "Co-op Preparation"),
+            "344-494"
+        );
+    }
+
+    #[test]
+    fn free_elective_dedupe_key_344_49x_excluding_491_to_494_are_topics() {
+        // Everything matching 344-49* except 491–494 is treated as a special
+        // topic and keyed by code + name so different topics accumulate.
+        assert!(free_elective_dedupe_key("344-490", "X").contains("::"));
+        assert!(free_elective_dedupe_key("344-495", "Y").contains("::"));
+        assert!(free_elective_dedupe_key("344-496", "Z").contains("::"));
+        assert!(free_elective_dedupe_key("344-499", "W").contains("::"));
+    }
+
+    #[test]
+    fn free_elective_dedupe_key_special_topics_differ_by_name() {
+        let t1 = "Special Topics (Topic 1)";
+        let t2 = "Special Topics (Topic 2)";
+        assert_eq!(
+            free_elective_dedupe_key("344-496", t1),
+            "344-496::Special Topics (Topic 1)"
+        );
+        assert_eq!(
+            free_elective_dedupe_key("344-496", t2),
+            "344-496::Special Topics (Topic 2)"
+        );
+        // Same code + same name → same key (dedupe).
+        assert_eq!(
+            free_elective_dedupe_key("344-496", t1),
+            free_elective_dedupe_key("344-496", t1)
+        );
+        assert!(free_elective_dedupe_key("344-497", "Topic").starts_with("344-497::"));
+        assert!(free_elective_dedupe_key("344-498", "Topic").starts_with("344-498::"));
+        assert!(free_elective_dedupe_key("344-499", "Topic").starts_with("344-499::"));
+    }
 }
