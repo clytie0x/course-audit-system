@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { courseCodeFromText, isLastPage, normalize, parseDetail } from './parse.mjs';
+import { retry } from './retry.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const OUT = join(ROOT, 'data', 'offerings');
@@ -33,6 +34,8 @@ const args = Object.fromEntries(
 );
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const firstLine = (e) => e.message.split('\n')[0];
+const retryLog = (what) => ({ onRetry: (e, attempt) => console.warn(`  ~ ${what} attempt ${attempt}: ${firstLine(e)}, retrying`) });
 
 /** Course codes the curricula reference outside the 344- prefix, plus GE prefixes. */
 function curriculumKeywords() {
@@ -163,10 +166,10 @@ async function main() {
     for (const k of keywords) {
       let rows = [];
       try {
-        rows = await searchRows(page, term, year, k);
+        rows = await retry(() => searchRows(page, term, year, k), retryLog(`search ${t} ${k}`));
       } catch (e) {
         failures++;
-        console.warn(`  ! search ${t} ${k}: ${e.message.split('\n')[0]}`);
+        console.warn(`  ! search ${t} ${k}: ${firstLine(e)}`);
       }
       // A code keyword like "322-101" also matches other text; keep exact-code hits.
       for (const r of rows) if (k.endsWith('-') ? r.code.startsWith(k) : r.code === k) hrefs.set(r.href, r);
@@ -175,11 +178,11 @@ async function main() {
     let n = 0;
     for (const { href } of hrefs.values()) {
       try {
-        const course = normalize(await readDetail(page, href), href);
+        const course = normalize(await retry(() => readDetail(page, href), retryLog(href)), href);
         if (course.code) fresh.set(course.id, course);
       } catch (e) {
         failures++;
-        console.warn(`  ! ${href}: ${e.message.split('\n')[0]}`);
+        console.warn(`  ! ${href}: ${firstLine(e)}`);
       }
       if (++n % 20 === 0) console.log(`  ${t}: ${n}/${hrefs.size}`);
       await sleep(DELAY_MS);
